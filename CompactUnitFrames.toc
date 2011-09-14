@@ -1,0 +1,26 @@
+## Title: CompactUnitFrames
+## Author: ckaotik
+## Dependencies: Blizzard_CompactRaidFrames, Blizzard_CUFProfiles
+## OptionalDeps: 
+
+## Version: 0.1
+## Interface: 40200
+## Notes: Customize Blizzard's compact raid/party frames to your liking!
+## Notes-deDE: Passe Blizzards CompactRaidFrames (oder PartyFrames) an, wie du es magst!
+
+## SavedVariables: CUF_GlobalDB
+## SavedVariablesPerCharacter:
+
+## LoadManagers: AddonLoader, Addon Control Panel
+## X-LoadOn-Always: delayed
+
+## X-Website: 
+## X-Category: Unit Frames
+## X-Localizations: 
+## X-Credits: 
+## X-License: BSD
+
+core.lua
+appearance.lua
+optionspanel.lua
+config.lua
