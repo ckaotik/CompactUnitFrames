@@ -48,18 +48,36 @@ function ns:UpdateAllFrames(afterFunction, ...)
 			end
 		end
 	end
+
+	for i=1, MEMBERS_PER_RAID_GROUP do
+    	local frame = _G["CompactPartyFrameMember"..i]
+    	if frame then
+			ns:UnitFrameSetup(frame)
+			if afterFunction then
+				afterFunction(frame, ...)
+			end
+		end
+	end
 end
 
 -- == Misc Utility ==============================================
 function ns:HideTooltip() GameTooltip:Hide() end
-function ns:ShowTooltip(self)
+function ns:ShowTooltip()
 	if self.tiptext then
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText(self.tiptext, nil, nil, nil, nil, true)
 	end
 end
 
-function ns:ShortValue(value)
+function ns:Find(table, value)
+	if not table then return end
+	for k, v in pairs(table) do
+		if (v == value) then return true end
+	end
+	return nil
+end
+
+function ns:ShortenNumber(value)
 	if(value >= 1e6) then
 		return ("%.2f"):format(value / 1e6):gsub("%.?0+$", "") .. "m"
 	elseif(value >= 1e4) then
@@ -67,6 +85,11 @@ function ns:ShortValue(value)
 	else
 		return value
 	end
+end
+
+function ns:ShortenString(string, size)
+	if not string then return "" end
+	return (string.len(string) > size) and string.gsub(string, "%s?(.[\128-\191]*)%S+%s", "%1. ") or string
 end
 
 -- checks config.lua for correct color
@@ -103,10 +126,13 @@ function ns:GetClassColor(unit) -- [TODO] exclude pets?
 end
 
 function ns:ShouldDisplayPowerBar(frame)
+	if not frame.displayedUnit and not frame.unit then return end
 	if frame.displayedUnit == "player" and ns.config.power.types.showSelf then
 		return true
 	end
-	if not frame.displayedUnit then return end
+	if string.find(frame.displayedUnit, "pet$") then
+		return ns.config.power.types.showPets
+	end
 
 	local powerType = UnitPowerType(frame.displayedUnit)
 	local settings = ns.config.power.types[powerType]
@@ -117,6 +143,44 @@ function ns:ShouldDisplayPowerBar(frame)
 	end
 end
 
+function ns:ShouldDisplayAura(isBuff, unit, buffName, filter)
+	if isBuff then
+		dataTable = ns.config.buffs
+	else
+		dataTable = ns.config.debuffs
+	end
+
+	-- [TODO] prioritize
+	local spell
+	for _, dataSpell in pairs(dataTable.hide) do
+		if type(dataSpell) == "number" then
+			spell = ( GetSpellInfo(dataSpell) )
+		else
+			spell = dataSpell
+		end
+
+		if spell == buffName then
+			return nil
+		end
+	end
+	return true
+end
+--[[
+function CompactUnitFrame_UtilShouldDisplayBuff(unit, index, filter)
+	local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura = UnitBuff(unit, index, filter);
+	if ( UnitAffectingCombat("player") ) then
+		return (unitCaster == "player" or unitCaster == "pet") and not shouldConsolidate and duration > 0 and canApplyAura;
+	else
+		return canApplyAura;
+	end
+end
+]]
+
+
+
+-- Add a unit: CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, "player", "normal")
+-- Border around groups: CompactRaidGroup_UpdateBorder(frame)
+-- Updates (shows/hides) the party members: CompactRaidGroup_UpdateUnits(frame)
 
 --[[ == Shared Media insertions ==============================
 local sharedMedia = LibStub("LibSharedMedia-3.0", true) or LibStub("LibSharedMedia-2.0", true)

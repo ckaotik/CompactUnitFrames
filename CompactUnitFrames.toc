@@ -22,5 +22,6 @@
 
 core.lua
 appearance.lua
+raidauras.lua
 optionspanel.lua
 config.lua

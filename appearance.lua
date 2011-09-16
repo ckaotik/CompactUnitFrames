@@ -12,10 +12,6 @@ local _, ns = ...
 
 function ns:ManagerSetup(frame)
 	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
-
-	-- CompactRaidFrameManager_ResizeFrame_Reanchor
-	-- CompactRaidFrameManager_Collapse
-
 	if ns.config.frames.disableCUF then
 		frame:UnregisterAllEvents()
 		frame:Hide()
@@ -29,7 +25,7 @@ function ns:ManagerSetup(frame)
 		return
 	end
 
-	-- recreate left border (commented by Blizzard)
+	-- recreate left border (commented out by Blizzard)
 	local borderLeft = frame:CreateTexture("CompactRaidFrameManagerBorderLeft")
 	borderLeft:SetSize(10, 0)
 	borderLeft:SetPoint("TOPLEFT", _G["CompactRaidFrameManagerBorderTopLeft"], "BOTTOMLEFT", 1, 0)
@@ -42,7 +38,7 @@ function ns:ManagerSetup(frame)
 		"TOPLEFT", , "$parentBorderTopLeft", 7, -6; "BOTTOMRIGHT", , "$parentBorderBottomRight", -7, 7 ]]
 
 	if ns.config.frames.pullout.minify then
-		local borderParts = { 'BorderTop', 'BorderBottom', --[['BorderLeft', 'BorderRight',]] 'BorderTopLeft', 'BorderBottomLeft', --[['BorderTopRight', 'BorderBottomRight' ]] }
+		local borderParts = { 'BorderTop', 'BorderBottom', --[['BorderLeft', 'BorderRight',]] 'BorderTopLeft', 'BorderBottomLeft', --[['BorderTopRight', 'BorderBottomRight' ]] } -- what's commented here will not be hidden later
 
 		hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
 			local currentHeight = 84;
@@ -79,7 +75,7 @@ function ns:ManagerSetup(frame)
 		CompactRaidFrameManager_Collapse( CompactRaidFrameManager )
 	end
 
-	if ns.config.frames.showSolo then -- when in a group it will be shown anyhow
+	if ns.config.frames.showSolo then
 		frame:Show()
 	end
 
@@ -103,10 +99,9 @@ end
 function ns:RegisterHooks()
 	-- container hooks
 	hooksecurefunc("CompactRaidFrameContainer_OnLoad", ns.ContainerSetup)
-	hooksecurefunc("CompactRaidFrameContainer_TryUpdate", ns.UpdateAllFrames)
+	hooksecurefunc("CompactRaidFrameContainer_LayoutFrames", ns.UpdateAllFrames) -- CompactRaidFrameContainer_TryUpdate
 
 	hooksecurefunc("CompactRaidFrameManager_UpdateShown", function(frame)
-		CompactRaidFrameManager_Collapse( CompactRaidFrameManager )	-- [TODO] FIXME
 		if ns.config.frames.showSolo then
 			CompactRaidFrameManager:Show()
 		end
@@ -131,8 +126,10 @@ function ns:RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_UtilSetDispelDebuff", ns.DisplayDebuffType)
 
 	-- hooksecurefunc("CompactUnitFrame_UpdateBuffs", ns.UpdateBuffs)
-	-- hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup)	-- players
-	-- hooksecurefunc("DefaultCompactMiniFrameSetup", ns.UnitFrameSetup)	-- pets
+
+	-- hooksecurefunc("CompactUnitFrame_SetUpFrame", ns.UnitFrameSetup)
+	hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup)	-- players
+	hooksecurefunc("DefaultCompactMiniFrameSetup", ns.UnitFrameSetup)	-- pets
 end
 
 function ns:UnitFrameSetup(frame)
@@ -147,22 +144,7 @@ function ns:UnitFrameSetup(frame)
 
 	--[[ Health Bar ]]--
 	if ns.config.health.vertical then
-		frame.healthBar:SetOrientation('vertical')
-		frame.healthBar:SetRotatesTexture(true)
-
-		frame.myHealPredictionBar:SetOrientation('vertical')
-		frame.myHealPredictionBar:ClearAllPoints()
-		frame.myHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
-		frame.myHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.myHealPredictionBar:SetHeight(DefaultCompactUnitFrameSetupOptions.height)
-		frame.myHealPredictionBar:SetRotatesTexture(true)
-
-		frame.otherHealPredictionBar:SetOrientation('vertical')
-		frame.otherHealPredictionBar:ClearAllPoints()
-		frame.otherHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
-		frame.otherHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.otherHealPredictionBar:SetHeight(DefaultCompactUnitFrameSetupOptions.height)
-		frame.otherHealPredictionBar:SetRotatesTexture(true)
+		ns:SetHealthBarVertical(frame)
 	end
 	frame.healthBar:SetStatusBarTexture( ns.config.health.texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill', 'BORDER');
 	frame.healthBar.background:SetTexture( ns.config.health.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg' )
@@ -173,67 +155,8 @@ function ns:UnitFrameSetup(frame)
 	end
 
 	--[[ Power Bar ]]--
-	local powerSize = ns.config.power.size or 8
-		  powerSize = DefaultCompactUnitFrameSetupOptions.displayPowerBar and powerSize or 0
-		  powerSize = ns:ShouldDisplayPowerBar(frame) and powerSize or 0
-	local powerSpacing = DefaultCompactUnitFrameSetupOptions.displayBorder and 2 or 0
+	ns:ShowHidePowerBar(frame)
 
-	frame.powerBar:ClearAllPoints()
-	frame.healthBar:ClearAllPoints()
-	if powerSize > 0 and ns.config.power.vertical then
-		frame.powerBar:SetOrientation('vertical')
-		frame.powerBar:SetRotatesTexture(true)
-
-		if ns.config.power.changePosition then
-			-- left
-			frame.powerBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
-			frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT", 1 + powerSize, 1)
-
-			frame.healthBar:SetPoint("TOPLEFT", frame.powerBar, "TOPRIGHT", powerSpacing, 0);
-			frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
-
-			frame.horizDivider:Hide()
-		else
-			-- right
-			frame.powerBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
-			frame.powerBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -1 - powerSize, 0)
-
-			frame.healthBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1);
-			frame.healthBar:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMLEFT", -1*powerSpacing, 0)
-
-			frame.horizDivider:Hide()
-		end
-	elseif powerSize > 0 then
-		if ns.config.power.changePosition then
-			-- top
-			frame.powerBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, 1)
-			frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -1, -1 - powerSize)
-		
-			frame.healthBar:SetPoint("TOPLEFT", frame.powerBar, "BOTTOMLEFT", 0, -1*powerSpacing);
-			frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
-
-			frame.horizDivider:Hide()
-		else
-			-- bottom [DEFAULT]
-			frame.healthBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
-			frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1 + powerSize)
-
-			frame.powerBar:SetPoint("TOPLEFT", frame.healthBar, "BOTTOMLEFT", 0, -1 * powerSpacing)
-			frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
-
-			frame.horizDivider:SetHeight(powerSize)
-			frame.horizDivider:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, 1 + powerSize)
-			frame.horizDivider:SetPoint("TOPRIGHT", frame, "BOTTOMRIGHT", 0, 1 + powerSize)
-		end
-	else
-		frame.healthBar:ClearAllPoints()
-		frame.healthBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
-  		frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
-
-  		-- when hiding unwanted power types, tell the client, too
-		frame.powerBar:Hide()
-		frame.horizDivider:Hide()
-	end 
 	frame.powerBar:SetStatusBarTexture( ns.config.power.texture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill', 'BORDER');
 	frame.powerBar.background:SetTexture( ns.config.power.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Background' )
 
@@ -248,10 +171,135 @@ function ns:UnitFrameSetup(frame)
 	frame.debuffFrames[1]:ClearAllPoints()
 	frame.debuffFrames[1]:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMLEFT", ns.config.debuffs.posX or 3, ns.config.debuffs.posY or 0)
 
-	local overlay = CreateFrame("Button", frame:GetName() .. "CUFOverlay", frame, "CompactAuraTemplate")
-	overlay:SetPoint("CENTER", ns.config.indicators.center.posX or 0, ns.config.indicators.center.posY or 0)
-	overlay:EnableMouse(false); overlay:EnableMouseWheel(false)
-	frame.overlay = overlay
+	--[[ Icons ]]--
+	-- frame.roleIcon:ClearAllPoints();
+	frame.roleIcon:SetPoint("TOPLEFT", frame.healthBar, 3, -2);
+	frame.dispelDebuffFrames[1]:SetPoint("TOPRIGHT", frame.healthBar, -3, -2);
+
+	--[[ Texts ]]--
+	-- frame.name:SetJustifyH("LEFT");
+	-- frame.name:SetPoint("TOPLEFT", frame.roleIcon, "TOPRIGHT", 0, -1);
+	-- frame.name:SetPoint("TOPRIGHT", frame.healthBar, -3, -3);
+end
+
+function ns:SetHealthBarVertical(frame)
+	frame.healthBar:SetOrientation('vertical')
+	frame.healthBar:SetRotatesTexture(true)
+
+	frame.myHealPredictionBar:SetOrientation('vertical')
+	frame.myHealPredictionBar:ClearAllPoints()
+	frame.myHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
+	frame.myHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
+	frame.myHealPredictionBar:SetHeight(frame.optionsTable.height)
+	frame.myHealPredictionBar:SetRotatesTexture(true)
+
+	frame.otherHealPredictionBar:SetOrientation('vertical')
+	frame.otherHealPredictionBar:ClearAllPoints()
+	frame.otherHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
+	frame.otherHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
+	frame.otherHealPredictionBar:SetHeight(frame.optionsTable.height)
+	frame.otherHealPredictionBar:SetRotatesTexture(true)
+end
+function ns:ShowHidePowerBar(frame)
+	if not frame.optionsTable then frame.optionsTable = DefaultCompactUnitFrameSetupOptions end
+	local powerSize = ns.config.power.size or 8
+		  powerSize = frame.optionsTable.displayPowerBar and powerSize or 0
+		  powerSize = ns:ShouldDisplayPowerBar(frame) and powerSize or 0
+
+	frame.powerBar:ClearAllPoints()
+	frame.healthBar:ClearAllPoints()
+	if powerSize > 0 then
+		local powerSpacing = (frame.optionsTable.displayBorder and not ns.config.unitframe.hidePowerSeperator) and 2 or 0
+		local togglePosition = ns.config.power.changePosition
+
+		if ns.config.power.vertical then
+			ns:SetPowerBarVertical(frame, powerSize, powerSpacing, togglePosition)
+		else
+			ns:SetPowerBarHorizontal(frame, powerSize, powerSpacing, togglePosition)
+		end
+	else
+		ns:SetPowerBarHidden(frame)
+	end
+end
+function ns:SetPowerBarVertical(frame, powerSize, powerSpacing, togglePosition)
+	frame.horizDivider:SetTexture("Interface\\RaidFrame\\Raid-VSeparator")
+	frame.horizDivider:ClearAllPoints()
+
+	frame.powerBar:SetOrientation('vertical')
+	frame.powerBar:SetRotatesTexture(true)
+
+	if togglePosition then
+		-- left
+		frame.powerBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+		frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT", 1+powerSize, 1)
+
+		if powerSpacing > 0 then
+			frame.horizDivider:SetPoint("TOPLEFT", frame.powerBar, "TOPRIGHT")
+			frame.horizDivider:SetPoint("BOTTOMLEFT", frame.powerBar, "BOTTOMRIGHT")
+		else
+			frame.horizDivider:Hide()
+		end
+
+		frame.healthBar:SetPoint("TOPLEFT", frame.powerBar, "TOPRIGHT", powerSpacing, 0)
+		frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+	else
+		-- right
+		frame.powerBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
+		frame.powerBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -1-powerSize, 1)
+
+		if powerSpacing > 0 then
+			frame.horizDivider:SetPoint("TOPRIGHT", frame.powerBar, "TOPLEFT", 6, 0)
+			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMLEFT", 6, 0)
+		else
+			frame.horizDivider:Hide()
+		end
+
+		frame.healthBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1);
+		frame.healthBar:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMLEFT", -powerSpacing, 0)
+	end
+end
+function ns:SetPowerBarHorizontal(frame, powerSize, powerSpacing, togglePosition)
+	frame.horizDivider:SetTexture("Interface\\RaidFrame\\Raid-HSeparator")
+	frame.horizDivider:ClearAllPoints()
+
+	if togglePosition then
+		-- top
+		frame.powerBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+		frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -1, -1-powerSize)
+
+		if powerSpacing > 0 then
+			frame.horizDivider:SetPoint("TOPLEFT", frame.powerBar, "BOTTOMLEFT")
+			frame.horizDivider:SetPoint("TOPRIGHT", frame.powerBar, "BOTTOMRIGHT")
+		else
+			frame.horizDivider:Hide()
+		end
+
+		frame.healthBar:SetPoint("TOPLEFT", frame.powerBar, "BOTTOMLEFT", 0, -powerSpacing)
+		frame.healthBar:SetPoint("BOTTOMRIGHT", frame, -1, 1)
+	else
+		-- bottom [DEFAULT]
+		frame.powerBar:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, powerSize)
+		frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+
+		if powerSpacing > 0 then
+			frame.horizDivider:SetPoint("BOTTOMLEFT", frame.powerBar, "TOPLEFT", 0, -6)
+			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "TOPRIGHT", 0, -6)
+		else
+			frame.horizDivider:Hide()
+		end
+
+		frame.healthBar:SetPoint("TOPLEFT", frame, 1, -1)
+		frame.healthBar:SetPoint("BOTTOMRIGHT", frame.powerBar, "TOPRIGHT", 0, powerSpacing)
+	end
+end
+function ns:SetPowerBarHidden(frame)
+	frame.healthBar:ClearAllPoints()
+	frame.healthBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+	frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+
+	-- when hiding unwanted power types, tell the client, too
+	frame.powerBar:Hide()
+	frame.horizDivider:Hide()
 end
 
 function ns:UpdateHealthColor()
@@ -261,6 +309,8 @@ function ns:UpdateHealthColor()
 	end
 end
 function ns:UpdatePowerColor()
+	ns:ShowHidePowerBar(self)
+	
 	local r, g, b = ns:GetColorSetting( ns.config.power.color, self.unit )
 	if UnitIsConnected(self.unit) and r then
 		self.powerBar:SetStatusBarColor(r, g, b)
@@ -269,7 +319,7 @@ end
 function ns:UpdateName()
 	local name = GetUnitName(self.unit, true)
 	if ns.config.name.format == 'shorten' then
-		-- self.name:SetText()
+		self.name:SetText( ns:ShortenString(GetUnitName(self.unit), ns.config.name.size) )
 	end
 
 	local r, g, b = ns:GetColorSetting( ns.config.name.color, self.unit )
@@ -283,12 +333,13 @@ function ns:UpdateStatus()
 		and (self.optionTable.healthText == 'losthealth' or self.optionTable.healthText == 'health') then
 
 		if ns.config.status.shorten then
-			self.statusText:SetText( ns:ShortValue(value) )
+			self.statusText:SetText( ns:ShortenNumber(value) )
 		end
 	end
 end
 
---[[ function ns:UpdateBuffs(frame)
+function ns:UpdateBuffs(frame)
+	local frame = frame or self
 	if ( not frame.optionTable.displayBuffs ) then
 		CompactUnitFrame_HideAllBuffs(frame);
 		return;
@@ -298,7 +349,7 @@ end
 	while frameNum <= frame.maxBuffs do
 		local buffName = UnitBuff(frame.displayedUnit, index, filter)
 		if buffName then
-			if ns:ShouldDisplayBuff(frame.displayedUnit, index, filter) then
+			if ns:ShouldDisplayAura(true, frame.displayedUnit, buffName, filter) then
 				local buffFrame = frame.buffFrames[frameNum]
 				CompactUnitFrame_UtilSetBuff(buffFrame, frame.displayedUnit, index, filter)
 				frameNum = frameNum + 1
@@ -312,7 +363,7 @@ end
 		local buffFrame = frame.buffFrames[i]
 		buffFrame:Hide()
 	end
-end ]]--
+end
 
 function ns:UpdateBuff(buffFrame, unit, index, filter)
 	-- ns:Print('Updating buff', buffFrame, unit, index, filter)
@@ -326,8 +377,16 @@ end
 
 function ns:SetUnit(frame, unit)
 	-- ns:Print("CompactUnitFrame_SetUnit", frame, unit)
+	if CompactRaidFrameManager.collapsed then 	-- [TODO] FIXME
+        CompactRaidFrameManager_Collapse(CompactRaidFrameManager)
+    else
+        CompactRaidFrameManager_Expand(CompactRaidFrameManager)
+    end
 end
 
 function ns:DisplayDebuffType(dispellDebuffFrame, debuffType, index)
 	-- ns:Print('Display debuff type', dispellDebuffFrame:GetName(), debuffType, index)
+
+	-- local color = DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+	-- debuffFrame.border:SetVertexColor(color.r, color.g, color.b)
 end
