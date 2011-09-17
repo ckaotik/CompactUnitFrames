@@ -143,14 +143,16 @@ function ns:ShouldDisplayPowerBar(frame)
 	end
 end
 
-function ns:ShouldDisplayAura(isBuff, unit, buffName, filter)
+function ns:ShouldDisplayAura(isBuff, unit, index, filter)
+	local auraName
 	if isBuff then
 		dataTable = ns.config.buffs
+		auraName = UnitBuff(unit, index, filter)
 	else
 		dataTable = ns.config.debuffs
+		auraName = UnitDebuff(unit, index, filter)
 	end
 
-	-- [TODO] prioritize
 	local spell
 	for _, dataSpell in pairs(dataTable.hide) do
 		if type(dataSpell) == "number" then
@@ -159,22 +161,23 @@ function ns:ShouldDisplayAura(isBuff, unit, buffName, filter)
 			spell = dataSpell
 		end
 
-		if spell == buffName then
+		if spell == auraName then
 			return nil
 		end
 	end
-	return true
-end
---[[
-function CompactUnitFrame_UtilShouldDisplayBuff(unit, index, filter)
-	local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura = UnitBuff(unit, index, filter);
-	if ( UnitAffectingCombat("player") ) then
-		return (unitCaster == "player" or unitCaster == "pet") and not shouldConsolidate and duration > 0 and canApplyAura;
-	else
-		return canApplyAura;
+	for _, dataSpell in pairs(dataTable.show) do
+		if type(dataSpell) == "number" then
+			spell = ( GetSpellInfo(dataSpell) )
+		else
+			spell = dataSpell
+		end
+
+		if spell == auraName then
+			return true
+		end
 	end
+	return CompactUnitFrame_UtilShouldDisplayBuff(unit, index, filter)
 end
-]]
 
 
 

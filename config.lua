@@ -38,8 +38,8 @@ ns.config = {
 	},
 	health = {
 		vertical = nil,
-		texture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
-		bgtexture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
+		texture = nil,
+		bgtexture = nil,
 		color = '0.16:0.19:0.23',
 		bgcolor = '0.74:0.75:0.77',
 	},
@@ -49,7 +49,7 @@ ns.config = {
 		texture = nil,
 		bgtexture = nil,
 		color = 'default',
-		bgcolor = nil,
+		bgcolor = '0:0:0',
 		size = 6,
 		types = {
 			showSelf = true,
@@ -70,7 +70,7 @@ ns.config = {
 		},
 	},
 	name = {
-		size = 7,
+		size = nil,
 		color = 'class', -- [TODO] what about pets?
 		format = 'shorten',
 		-- font = nil,
@@ -85,15 +85,15 @@ ns.config = {
 	},
 	buffs = {
 		-- filter = nil,
+		hide = { 93825, 94462, 93827 },
 		show = {},
-		hide = { "Champion von Orgrimmar", "Champion von Unterstadt", "Champion der Dunkelspeertrolle" },
 		posX = 1,
 		posY = 1,
 	},
 	debuffs = {
 		-- filter = nil,
-		-- alwaysShow = {},
-		-- alwaysHide = {},
+		hide = {},
+		show = {},
 		offsetX = 1,
 		offsetY = 1,
 	},

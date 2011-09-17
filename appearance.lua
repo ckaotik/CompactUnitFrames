@@ -125,7 +125,7 @@ function ns:RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_UtilSetDebuff", ns.UpdateDebuff)
 	hooksecurefunc("CompactUnitFrame_UtilSetDispelDebuff", ns.DisplayDebuffType)
 
-	-- hooksecurefunc("CompactUnitFrame_UpdateBuffs", ns.UpdateBuffs)
+	hooksecurefunc("CompactUnitFrame_UpdateBuffs", ns.UpdateBuffs)
 
 	-- hooksecurefunc("CompactUnitFrame_SetUpFrame", ns.UnitFrameSetup)
 	hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup)	-- players
@@ -206,12 +206,14 @@ function ns:ShowHidePowerBar(frame)
 		  powerSize = frame.optionsTable.displayPowerBar and powerSize or 0
 		  powerSize = ns:ShouldDisplayPowerBar(frame) and powerSize or 0
 
-	frame.powerBar:ClearAllPoints()
-	frame.healthBar:ClearAllPoints()
 	if powerSize > 0 then
 		local powerSpacing = (frame.optionsTable.displayBorder and not ns.config.unitframe.hidePowerSeperator) and 2 or 0
 		local togglePosition = ns.config.power.changePosition
 
+		frame.healthBar:ClearAllPoints() -- HealthBar for reanchoring
+		frame.powerBar:ClearAllPoints()
+		frame.powerBar:Show()
+		if powerSpacing > 0 then frame.horizDivider:Show() end
 		if ns.config.power.vertical then
 			ns:SetPowerBarVertical(frame, powerSize, powerSpacing, togglePosition)
 		else
@@ -248,8 +250,8 @@ function ns:SetPowerBarVertical(frame, powerSize, powerSpacing, togglePosition)
 		frame.powerBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -1-powerSize, 1)
 
 		if powerSpacing > 0 then
-			frame.horizDivider:SetPoint("TOPRIGHT", frame.powerBar, "TOPLEFT", 6, 0)
-			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMLEFT", 6, 0)
+			frame.horizDivider:SetPoint("TOPRIGHT", frame.powerBar, "TOPLEFT", 6+1, 0)
+			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "BOTTOMLEFT", 6+1, 0)
 		else
 			frame.horizDivider:Hide()
 		end
@@ -282,8 +284,8 @@ function ns:SetPowerBarHorizontal(frame, powerSize, powerSpacing, togglePosition
 		frame.powerBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
 
 		if powerSpacing > 0 then
-			frame.horizDivider:SetPoint("BOTTOMLEFT", frame.powerBar, "TOPLEFT", 0, -6)
-			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "TOPRIGHT", 0, -6)
+			frame.horizDivider:SetPoint("BOTTOMLEFT", frame.powerBar, "TOPLEFT", 0, -6-1)
+			frame.horizDivider:SetPoint("BOTTOMRIGHT", frame.powerBar, "TOPRIGHT", 0, -6-1)
 		else
 			frame.horizDivider:Hide()
 		end
@@ -318,7 +320,7 @@ function ns:UpdatePowerColor()
 end
 function ns:UpdateName()
 	local name = GetUnitName(self.unit, true)
-	if ns.config.name.format == 'shorten' then
+	if ns.config.name.size and ns.config.name.format == 'shorten' then
 		self.name:SetText( ns:ShortenString(GetUnitName(self.unit), ns.config.name.size) )
 	end
 
@@ -349,7 +351,9 @@ function ns:UpdateBuffs(frame)
 	while frameNum <= frame.maxBuffs do
 		local buffName = UnitBuff(frame.displayedUnit, index, filter)
 		if buffName then
-			if ns:ShouldDisplayAura(true, frame.displayedUnit, buffName, filter) then
+			if CompactUnitFrame_UtilShouldDisplayBuff(frame.displayedUnit, index, filter)
+				and ns:ShouldDisplayAura(true, frame.displayedUnit, buffName, filter) then
+
 				local buffFrame = frame.buffFrames[frameNum]
 				CompactUnitFrame_UtilSetBuff(buffFrame, frame.displayedUnit, index, filter)
 				frameNum = frameNum + 1
