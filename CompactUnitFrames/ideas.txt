@@ -1,0 +1,118 @@
+Features one could implement:
+
+== Rather Simple/Basic ========================
++ change health bar texture
++ change health bar color (incl. "invert")
++ change health bar background
++ change power bar texture
++ change power bar color (incl. "invert")
++ change power bar background
++ change health bar filling direction
++ change power bar filling direction
+
++ change name color
++ change name font
++ change name text
+
++ change status color
++ change status font
++ change status text (e.g. "-17k")
+
++ hide blizzard config tab
++ hide frames completely (unregister events etc.)
++ change size of frame/power bar
+
+== Not So Simple =============================
+? filter buff/debuff information
+- utilize all corners
+- utilize all sides
+
++ disable right click in fight
+
+- replace unit names completely, from database (e.g. alt names, real names)
+- switch between .unit and .displayedUnit names
+
+[http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameContainer.lua]
+- re-anchor groups within container
+	- grow a different direction
+- horizontal groups without "grouping"
++ display when solo
+- raid debuff icons (=> DBM?)
++ import RUF profiles from any character?
+
+== Fancy Stuff ===============================
++ fill up flow container with dummy frames
++ live preview unit frame
++ nice ingame GUI (ace?)
++ offer libsharedmedia dropdowns etc
+- remove role icon, replace by corner icon
+
++ filter show powerbar by dungeon role
+- show mana bar for druids in shapes (only self)
+- "invert" texture as simple check box
+
+? enable use of grid modules?
+- allow different frame sizes in different profiles
+
+== Bugs =====================================
+- debuff filtering not working
++ if power bar not shown (default blizzard), disabled bar displays
+- when closing config pane, manager gets shown
+
+
+
+
+
+
+
+
+
+--[[
+	CompactUnitFrameProfiles_CheckAutoActivation()
+
+	FIXIT-Macro I
+	/run local f=CompactRaidFrameContainer;for _,v in pairs({"raid","pet","flagged","target"}) do CompactRaidFrameContainer_AddUnitFrame(f,"player",v)end;CompactRaidFrameContainer_UpdateDisplayedUnits(f);CompactRaidFrameContainer_TryUpdate(f)
+
+	FIXIT-Macro II
+	/run local f,s=CompactRaidFrameContainer,CompactRaidFrameManager_GetSetting("KeepGroupsTogether");CompactRaidFrameContainer_SetGroupMode(f,s and "discrete" or "flush");CompactRaidFrameContainer_TryUpdate(f)
+
+	FIXIT-Macro III
+	/run local f;for i=1,80 do f=_G["CompactRaidFrame"..i]; if f then f:SetAttribute("*type2", "menu");f:SetAttribute("*type1", "target");CompactUnitFrame_UpdateAll(f) end end;
+
+	FIXIT-Macro IV
+	/run local f;for i=1,80 do f=_G["CompactRaidFrame"..i]; if f then CompactUnitFrame_OnLoad(f) end end
+
+	== Bug List ==========
+	FIXIT in fight collapsing -> refer
+	FIXIT CompactUnitFrame_UpdateAll => CompactUnitFrame_UpdateVisible(CompactRaidFrame2)
+		DefaultCompactUnitFrameSetup, CompactUnitFrame_SetUpFrame
+]]
+
+--[[
+	http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameContainer.lua
+	http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameReservationManager.lua
+
+	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
+	CompactRaidFrameManager_AttachPartyFrames(manager) :: position first unit frame
+
+	FlowContainer_GetUsedBounds(container) :: size x, size y
+	FlowContainer_SetOrientation(container, "horizontal"), FlowContainer_SetMaxPerLine(container, maxPerLine)
+	FlowContainer_DoLayout, FlowContainer_ResumeUpdates
+	CompactRaidFrameContainer_UpdateDisplayedUnits, CompactRaidFrameContainer_UpdateBorder
+	CompactRaidGroup_UpdateBorder(frame), CompactRaidGroup_UpdateUnits(frame)
+
+	container.flowFrames, self.frameUpdateList = { normal = {}, mini = {}, group = {} } -> table with unit frames
+	container.units -> unit identifiers
+
+	CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, "player", "normal") "raid", "flagged" ...
+	CompactRaidFrameContainer_ApplyToFrames
+
+	DefaultCompactMiniFrameSetup, DefaultCompactUnitFrameSetup
+	CompactUnitFrame_SetUpFrame, CompactUnitFrame_UpdateAll, CompactUnitFrame_SetMaxBuffs/SetMaxDebuffs/SetMaxDispelDebuffs (create new buttons)
+
+	CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_UpdateCurrentPanel, CompactUnitFrameProfilesCheckButton_Update
+
+	----------
+	4.3 findings:
+	CompactRaidFrameManager_UpdateContainerVisibility()
+]]
