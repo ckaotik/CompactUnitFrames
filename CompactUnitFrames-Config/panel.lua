@@ -41,8 +41,9 @@ do
 		testFrame.healthBar:SetValue(0.4 * UnitHealthMax(testFrame.displayedUnit))
 		testFrame.powerBar:SetValue (0.55 * UnitPowerMax(testFrame.displayedUnit))
 
-		testFrame.myHealPredictionBar:SetValue(0.05 * UnitHealthMax(testFrame.displayedUnit))
-		testFrame.otherHealPredictionBar:SetValue(0.1 * UnitHealthMax(testFrame.displayedUnit))
+		-- TODO: update
+		-- testFrame.myHealPredictionBar:SetValue(0.05 * UnitHealthMax(testFrame.displayedUnit))
+		-- testFrame.otherHealPredictionBar:SetValue(0.1 * UnitHealthMax(testFrame.displayedUnit))
 
 		ns:Simulate_Buffs(testFrame, 1)
 		ns:Simulate_Debuffs(testFrame, 2)
@@ -1247,7 +1248,7 @@ do
 								get = function() return testFrame.powerBar:GetValue() / UnitPowerMax(testFrame.displayedUnit) end,
 								set = function(info, value) testFrame.powerBar:SetValue(value * UnitPowerMax(testFrame.displayedUnit)) end,
 							},
-							healPredict = {
+							--[[ healPredict = {
 								type = "range",
 								name = "Heal Prediction",
 								min = 0,
@@ -1268,7 +1269,7 @@ do
 
 								get = function() return testFrame.myHealPredictionBar:GetValue() / UnitHealthMax(testFrame.displayedUnit) end,
 								set = function(info, value) testFrame.myHealPredictionBar:SetValue(value * UnitHealthMax(testFrame.displayedUnit)) end,
-							},
+							}, --]]
 						},
 					},
 					debuffs = {

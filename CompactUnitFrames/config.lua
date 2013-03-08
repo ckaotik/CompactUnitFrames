@@ -46,6 +46,7 @@ ns.config = {
 		bgtexture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		color = '0.16:0.19:0.23',
 		bgcolor = '0.74:0.75:0.77',
+		flagsAsPvPColor = '0.64:0.07:0.07',
 	},
 	power = {
 		vertical = nil,

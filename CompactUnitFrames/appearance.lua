@@ -1,7 +1,7 @@
 local _, ns = ...
 
 function ns:ManagerSetup(frame)
-	if InCombatLockdown() then return end
+	-- if InCombatLockdown() then return end
 	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
 	ns:Manager_SetLeftBorder()
 
@@ -36,7 +36,7 @@ function ns:RegisterHooks()
 
 	-- unit frame hooks
 	-- hooksecurefunc("CompactUnitFrame_SetUnit", ns.SetUnit)
-	hooksecurefunc("CompactUnitFrame_SetMenuFunc", ns.SetMenuFunc)
+	-- hooksecurefunc("CompactUnitFrame_SetMenuFunc", ns.SetMenuFunc)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor)
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)
@@ -49,9 +49,9 @@ function ns:RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
 
 	hooksecurefunc("CompactUnitFrame_SetUpFrame", ns.UnitFrameSetup)
-	hooksecurefunc("CompactUnitFrame_SetOptionTable", function(frame)
+	--[[ hooksecurefunc("CompactUnitFrame_SetOptionTable", function(frame)
 		frame.optionTable.displayRaidRoleIcon = nil
-	end)
+	end) --]]
 	-- hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup)	-- players
 	hooksecurefunc("DefaultCompactMiniFrameSetup", ns.UnitFrameSetup)	-- pets
 end
@@ -60,24 +60,24 @@ function ns.UnitFrameSetup(frame)
 	if not frame then return end
 
 	--[[ Health Bar ]]--
-	ns:CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
-
 	ns:CUF_SetHealthTexture(frame, ns.db.health.texture)
 	ns:UpdateHealthColor(frame)
 	ns:CUF_SetHealthBGTexture(frame, ns.db.health.bgtexture)
 	ns:CUF_SetHealthBGColor(frame, ns:GetColorSetting( ns.db.health.bgcolor, frame.unit ))
 
 	--[[ Power Bar ]]--
-	ns:CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
-	ns:CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
-
 	ns:CUF_SetPowerTexture(frame, ns.db.power.texture)
 	ns:UpdatePowerColor(frame)
 	ns:CUF_SetPowerBGTexture(frame, ns.db.power.bgtexture)
 	ns:CUF_SetPowerBGColor(frame, ns:GetColorSetting(ns.db.power.bgcolor, frame.unit))
 
-	-- ns:CUF_SetPowerBarShown(frame, ns:ShouldDisplayPowerBar(frame)) -- gets called by CompactUnitFrame_UpdatePowerColor
-	-- ns:CUF_SetPowerSize(frame, ns.db.power.size) -- gets called by CUF_SetPowerBarShown
+	ns:CUF_SetPowerBarShown(frame, ns:ShouldDisplayPowerBar(frame)) -- gets called by CompactUnitFrame_UpdatePowerColor
+	ns:CUF_SetPowerSize(frame, ns.db.power.size) -- gets called by CUF_SetPowerBarShown
+
+	--[[ Bar Orientation ]]--
+	ns:CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
+	ns:CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
+	ns:CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
 
 	--[[ Auras ]]--
 	--[[frame.buffFrames[1]:ClearAllPoints()
@@ -107,7 +107,7 @@ function ns.UnitFrameSetup(frame)
 	-- RegisterUnitWatch(frame)
 end
 
-function ns.SetMenuFunc(frame)
+--[[ function ns.SetMenuFunc(frame)
 	-- don't touch anything if setting is inactive
 	if not ns.db.unitframe.noMenuClickInCombat then return end
 	-- [TODO] maybe it helps to create custom dropdown
@@ -116,11 +116,20 @@ function ns.SetMenuFunc(frame)
 			ToggleDropDownMenu(nil, nil, frame.dropDown, frame:GetName(), 0, 0)
 		end
 	end
-end
+end --]]
 
 function ns:UpdateHealthColor(frame)
 	local frame = frame or self
-	local r, g, b = ns:GetColorSetting( ns.db.health.color, frame.unit )
+	if not frame or not frame.unit then return end
+	local r, g, b
+
+	if (not UnitIsPVP("player") and UnitIsPVP(frame.unit))
+		or not UnitIsFriend("player", frame.unit) then -- [TODO] setting
+		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
+	end
+	if not r then
+		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
+	end
 	if r then
 		frame.healthBar:SetStatusBarColor(r, g, b)
 	end

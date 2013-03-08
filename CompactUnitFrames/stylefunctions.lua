@@ -110,36 +110,36 @@ end
 -- ==== [Health Bar] ========================================
 function ns:CUF_SetHealthBarVertical(frame, enable)
 	local settings = GetRaidProfileFlattenedOptions( GetActiveRaidProfile() )
-
+	
 	if enable then
 		frame.healthBar:SetOrientation('vertical')
 		frame.healthBar:SetRotatesTexture(true)
 
-		frame.myHealPredictionBar:SetOrientation('vertical')
-		frame.myHealPredictionBar:ClearAllPoints()
-		frame.myHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
-		frame.myHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.myHealPredictionBar:SetHeight(settings.frameHeight)
+		--[[ frame.myHealPrediction:SetOrientation('vertical')
+		frame.myHealPrediction:ClearAllPoints()
+		frame.myHealPrediction:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
+		frame.myHealPrediction:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
+		frame.myHealPrediction:SetHeight(settings.frameHeight)
 
-		frame.otherHealPredictionBar:SetOrientation('vertical')
-		frame.otherHealPredictionBar:ClearAllPoints()
-		frame.otherHealPredictionBar:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
-		frame.otherHealPredictionBar:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.otherHealPredictionBar:SetHeight(settings.frameHeight)
+		-- frame.otherHealPrediction:SetOrientation('vertical')
+		frame.otherHealPrediction:ClearAllPoints()
+		frame.otherHealPrediction:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
+		frame.otherHealPrediction:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
+		frame.otherHealPrediction:SetHeight(settings.frameHeight) --]]
 	else
 		frame.healthBar:SetOrientation("horizontal")
 
-		frame.myHealPredictionBar:SetOrientation("horizontal")
-		frame.myHealPredictionBar:ClearAllPoints()
-		frame.myHealPredictionBar:SetPoint("TOPLEFT", frame.healthBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
-		frame.myHealPredictionBar:SetPoint("BOTTOMLEFT", frame.healthBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-		frame.myHealPredictionBar:SetWidth(settings.frameWidth)
+		--[[ frame.myHealPrediction:SetOrientation("horizontal")
+		frame.myHealPrediction:ClearAllPoints()
+		frame.myHealPrediction:SetPoint("TOPLEFT", frame.healthBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
+		frame.myHealPrediction:SetPoint("BOTTOMLEFT", frame.healthBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
+		frame.myHealPrediction:SetWidth(settings.frameWidth)
 
-		frame.otherHealPredictionBar:SetOrientation("horizontal")
-		frame.otherHealPredictionBar:ClearAllPoints()
-		frame.otherHealPredictionBar:SetPoint("TOPLEFT", frame.myHealPredictionBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
-		frame.otherHealPredictionBar:SetPoint("BOTTOMLEFT", frame.myHealPredictionBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-		frame.otherHealPredictionBar:SetWidth(settings.frameWidth)
+		frame.otherHealPrediction:SetOrientation("horizontal")
+		frame.otherHealPrediction:ClearAllPoints()
+		frame.otherHealPrediction:SetPoint("TOPLEFT", frame.myHealPrediction:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
+		frame.otherHealPrediction:SetPoint("BOTTOMLEFT", frame.myHealPrediction:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
+		frame.otherHealPrediction:SetWidth(settings.frameWidth) --]]
 	end
 end
 
@@ -302,23 +302,23 @@ function ns:CUF_SetNameColor(frame, r, g, b)
 end
 
 function ns:CUF_SetNameText(frame, size)
-	local unitName, server = GetUnitName(frame.unit, true)
-	if ns.db.name.serverFormat == 'full' then
-		-- use as-is
-	else
-		unitName, server = string.split(" - ", unitName)
-		if ns.db.name.serverFormat == 'short' and server then
-			unitName = ns.db.name.serverPrefix .. unitName .. ns.db.name.serverSuffix
-		else -- 'none'
-			unitName = GetUnitName(frame.unit)
-		end
-	end
+	local unitName, server = string.split(" - ", GetUnitName(frame.unit, true))
 
 	if ns.db.name.format == 'shorten' then
-		frame.name:SetText(ns:ShortenString(unitName, size or 10))
+		unitName = ns:ShortenString(unitName, size or 10)
 	elseif ns.db.name.format == 'cut' then
-		frame.name:SetText(ns:utf8sub(unitName, 1, size or 10))
+		unitName = ns:utf8sub(unitName, 1, size or 10)
 	end
+
+	if ns.db.name.serverFormat == 'full' and server then
+		unitName = unitName .. " - " .. server
+	elseif ns.db.name.serverFormat == 'short' and server then
+		unitName = ns.db.name.serverPrefix .. unitName .. ns.db.name.serverSuffix
+	else -- 'none'
+		-- use only name part
+	end
+
+	frame.name:SetText(unitName)
 end
 
 function ns:CUF_SetNameJustifyH(frame, justify)

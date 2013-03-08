@@ -28,12 +28,12 @@ local function eventHandler(self, event, arg1, arg2)
 		hooksecurefunc("CreateFrame", function (frameType, frameName)
 			if ns.notSecure then return end
 
-			if frameName and string.find(frameName, "CompactRaidFrame") then
+			if frameName and frameName:match("Compact.-Frame") then
 				local secure, addon = issecurevariable(_G, frameName);
 				if (not secure) then
 					self:RegisterEvent("GROUP_ROSTER_UPDATE")
 					self:RegisterEvent("UNIT_PET")
-
+					print('non-secure compactunitframe created:', frameName)
 					ns.notSecure = true
 				end
 			end
@@ -43,7 +43,7 @@ local function eventHandler(self, event, arg1, arg2)
 
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		if ns.requiresUpdate then
-			CompactUnitFrameProfiles_ApplyCurrentSettings()
+			-- CompactUnitFrameProfiles_ApplyCurrentSettings()
 			ns.requiresUpdate = nil
 
 			eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -51,8 +51,8 @@ local function eventHandler(self, event, arg1, arg2)
 		ns:AfterCombatUpdate()
 
 	elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" then
-		ns.requiresUpdate = true
-		eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		-- ns.requiresUpdate = true
+		-- eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
 end
 eventFrame:RegisterEvent("ADDON_LOADED")
@@ -61,7 +61,7 @@ ns.eventFrame = eventFrame
 
 function ns:Call(func, frame, ...)
 	if false and InCombatLockdown() then -- [TODO] register for later update
-		eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		-- eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	else
 		func(frame, ...)
 	end
@@ -140,15 +140,7 @@ end
 
 function ns:ShortenNumber(value)
 	value = value and tonumber(value) or nil
-	if not value then return value end
-
-	if (value >= 1e6 or value <= -1e6) then
-		return ("%.2f"):format(value / 1e6):gsub("%.?0+$", "") .. "m"
-	elseif (value >= 1e3 or value <= -1e3) then
-		return ("%.1f"):format(value / 1e3):gsub("%.?0+$", "") .. "k"
-	else
-		return value
-	end
+	return value and AbbreviateLargeNumbers(value)
 end
 
 function ns:ShortenString(string, size)
@@ -195,13 +187,13 @@ end
 
 function ns:ShouldDisplayPowerBar(frame)
 	local displayBlizzard = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPowerBar")
-	if not displayBlizzard then
-		return nil
-	end
-	if not frame.displayedUnit and not frame.unit then return nil end
+	if not displayBlizzard then	return end
+	if not frame.displayedUnit and not frame.unit then return end
+	if not UnitIsConnected(frame.displayedUnit) or not UnitIsConnected(frame.unit) then return end
 
-	if ns.db.power.types.showSelf and (frame.unit == "player" or frame.displayedUnit == "player") then return true end
-	if string.find(frame.unit, "pet") then
+	if ns.db.power.types.showSelf and (frame.unit == "player" or frame.displayedUnit == "player") then
+		return true
+	elseif string.find(frame.unit, "pet") then
 		return ns.db.power.types.showPets
 	end
 
