@@ -1,11 +1,13 @@
 local _, ns = ...
 
-function ns:ManagerSetup(frame)
-	-- if InCombatLockdown() then return end
+function ns:ManagerSetup()
 	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
-	ns:Manager_SetLeftBorder()
+	-- if InCombatLockdown() then return end
+	-- unlink unit frames from manager
+	CompactRaidFrameManager.container:SetParent(UIParent)
 
-	ns:Manager_DisableCUF(ns.db.frames.disableCUF)
+	-- ns:Manager_SetLeftBorder()
+	-- ns:Manager_DisableCUF(ns.db.frames.disableCUF)
 
 	ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
 	hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
@@ -15,49 +17,75 @@ function ns:ManagerSetup(frame)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
 	end)
 
-	ns:Manager_ShowSolo(ns.db.frames.showSolo)
+	-- ns:Manager_ShowSolo(ns.db.frames.showSolo)
 	-- ns:MinifyPullout(ns.db.frames.pullout.minify)
-
-	ns:RegisterHooks()
 end
 
-function ns:ContainerSetup(frame)
+function ns:ContainerSetup()
+	local frame = CompactRaidFrameContainer
 	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
 	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
-	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
-	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
+	-- FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
+	-- FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
 end
 
 function ns:RegisterHooks()
-	hooksecurefunc("CompactRaidFrameContainer_LayoutFrames", ns.UpdateAllFrames)
-	hooksecurefunc("CompactPartyFrame_OnLoad", ns.UpdateAllFrames)
-	hooksecurefunc("CompactRaidFrameManager_UpdateShown", ns.ShowSolo)
-	-- hooksecurefunc(CompactRaidFrameContainer, "Show", ns.Manager_ShowSolo)
+	-- this eats little puppies. alive.
+	-- hooksecurefunc("CompactRaidFrameContainer_TryUpdate", ns.UpdateAll)
+	-- hooksecurefunc("CompactRaidFrameContainer_LayoutFrames", ns.UpdateAll)
+	hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup) -- function(frame) frame.changed = true end)
+	hooksecurefunc("DefaultCompactMiniFrameSetup", ns.UnitFrameSetup) -- function(frame) frame.changed = true end)
 
-	-- unit frame hooks
-	-- hooksecurefunc("CompactUnitFrame_SetUnit", ns.SetUnit)
-	-- hooksecurefunc("CompactUnitFrame_SetMenuFunc", ns.SetMenuFunc)
+	-- we're too late to hook into frame creation DefaultCompactXXXXFrameSetup functions
+	hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame)
+		if frame and not frame.customized then
+			ns.UnitFrameSetup(frame)
+		end
+	end)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
+
+	-- hooksecurefunc("CompactUnitFrame_UpdateInVehicle", ns.UpdateInVehicle)
+	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
+	-- hooksecurefunc("CompactUnitFrame_UpdateMaxHealth", ns.UpdateMaxHealth)
+	-- hooksecurefunc("CompactUnitFrame_UpdateHealth", ns.UpdateHealth)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor)
+	-- hooksecurefunc("CompactUnitFrame_UpdateMaxPower", ns.UpdateMaxPower)
+	-- hooksecurefunc("CompactUnitFrame_UpdatePower", ns.UpdatePower)
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
+	-- hooksecurefunc("CompactUnitFrame_UpdateSelectionHighlight", ns.UpdateSelectionHighlight)
+	-- hooksecurefunc("CompactUnitFrame_UpdateAggroHighlight", ns.UpdateAggroHighlight)
+	-- hooksecurefunc("CompactUnitFrame_UpdateInRange", ns.UpdateInRange)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
-	hooksecurefunc("CompactUnitFrame_UpdateBuffs", ns.UpdateBuffs)
+	-- hooksecurefunc("CompactUnitFrame_UpdateHealPrediction", ns.UpdateHealPrediction)
+	-- hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", ns.UpdateRoleIcon)
+	-- hooksecurefunc("CompactUnitFrame_UpdateReadyCheck", ns.UpdateReadyCheck)
+	-- hooksecurefunc("CompactUnitFrame_UpdateAuras", ns.UpdateAuras)
+	-- hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
 
-	hooksecurefunc("CompactUnitFrame_UtilSetDispelDebuff", ns.DisplayDebuffType)
-	hooksecurefunc("CompactUnitFrame_HideAllDispelDebuffs", ns.HideDisplayDebuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
+	-- hooksecurefunc("CompactUnitFrame_UtilSetDispelDebuff", ns.DisplayDebuffType)
+	-- hooksecurefunc("CompactUnitFrame_HideAllDispelDebuffs", ns.HideDisplayDebuffs)
+	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
 
-	hooksecurefunc("CompactUnitFrame_SetUpFrame", ns.UnitFrameSetup)
-	--[[ hooksecurefunc("CompactUnitFrame_SetOptionTable", function(frame)
-		frame.optionTable.displayRaidRoleIcon = nil
-	end) --]]
-	-- hooksecurefunc("DefaultCompactUnitFrameSetup", ns.UnitFrameSetup)	-- players
-	hooksecurefunc("DefaultCompactMiniFrameSetup", ns.UnitFrameSetup)	-- pets
+	-- hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
 end
 
+--[[ -- TODO: container mytheriously resizes
+function CompactRaidFrameContainer_UpdateBorder(self)
+  local usedX, usedY = FlowContainer_GetUsedBounds(CompactRaidFrameContainer)
+  if ( self.showBorder and self.groupMode ~= "discrete" and usedX > 0 and usedY > 0 ) then
+    self.borderFrame:SetSize(usedX + 11, usedY + 13);
+    self.borderFrame:Show();
+  else
+    self.borderFrame:Hide();
+  end
+end
+--]]
+
 function ns.UnitFrameSetup(frame)
-	if not frame then return end
+	local frame = frame or self
+	-- ns:Print("Setting up", frame:GetName(), frame:GetObjectType(), frame.changed)
+	-- if not frame.changed then return end
 
 	--[[ Health Bar ]]--
 	ns:CUF_SetHealthTexture(frame, ns.db.health.texture)
@@ -71,13 +99,10 @@ function ns.UnitFrameSetup(frame)
 	ns:CUF_SetPowerBGTexture(frame, ns.db.power.bgtexture)
 	ns:CUF_SetPowerBGColor(frame, ns:GetColorSetting(ns.db.power.bgcolor, frame.unit))
 
-	ns:CUF_SetPowerBarShown(frame, ns:ShouldDisplayPowerBar(frame)) -- gets called by CompactUnitFrame_UpdatePowerColor
-	ns:CUF_SetPowerSize(frame, ns.db.power.size) -- gets called by CUF_SetPowerBarShown
-
 	--[[ Bar Orientation ]]--
-	ns:CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
-	ns:CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
-	ns:CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
+	-- ns:CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
+	-- ns:CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
+	-- ns:CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
 
 	--[[ Auras ]]--
 	--[[frame.buffFrames[1]:ClearAllPoints()
@@ -99,39 +124,38 @@ function ns.UnitFrameSetup(frame)
 		frame.name:SetFont(ns.db.name.font or defaultFont, ns.db.name.fontSize or defaultSize, ns.db.name.fontStyle or defaultStyle)
 		frame.name:SetJustifyH(ns.db.name.justifyH or 'LEFT')
 	end
+
 	if ns.db.status.font or ns.db.status.fontSize or ns.db.status.fontStyle then
 		defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
 		frame.statusText:SetFont(ns.db.status.font or defaultFont, ns.db.status.fontSize or defaultSize, ns.db.status.fontStyle or defaultStyle)
 	end
 
-	-- RegisterUnitWatch(frame)
-end
+	--[[ Misc Changes ]]--
+	-- frame.roleIcon:SetSize(8, 8)
+	frame.totalAbsorbOverlay:SetTexture(nil)
+	frame.overAbsorbGlow:SetWidth(4)
+	frame.overAbsorbGlow:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMRIGHT", -2, 0)
+	frame.overAbsorbGlow:SetPoint("TOPLEFT", frame.healthBar, "TOPRIGHT", -2, 0)
 
---[[ function ns.SetMenuFunc(frame)
-	-- don't touch anything if setting is inactive
-	if not ns.db.unitframe.noMenuClickInCombat then return end
-	-- [TODO] maybe it helps to create custom dropdown
-	frame.menu = function()
-		if not (ns.db.unitframe.noMenuClickInCombat and UnitAffectingCombat(frame.displayedUnit)) then
-			ToggleDropDownMenu(nil, nil, frame.dropDown, frame:GetName(), 0, 0)
-		end
-	end
-end --]]
+	frame.customized = true
+end
 
 function ns:UpdateHealthColor(frame)
 	local frame = frame or self
 	if not frame or not frame.unit then return end
-	local r, g, b
 
-	if (not UnitIsPVP("player") and UnitIsPVP(frame.unit))
-		or not UnitIsFriend("player", frame.unit) then -- [TODO] setting
+	local r, g, b
+	if not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
-	end
-	if not r then
+	elseif not UnitIsFriend("player", frame.unit) then
+		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
+	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
 	end
-	if r then
+
+	if r and r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b then
 		frame.healthBar:SetStatusBarColor(r, g, b)
+		frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
 	end
 end
 function ns:UpdatePowerColor(frame)
@@ -166,7 +190,7 @@ function ns:UpdateStatus(frame)
 	ns:UpdateStatusColor(frame)
 end
 
-function ns.UpdateBuffs(frame)
+function ns.UpdateAuras(frame)
 	local frame = frame or self
 	if ( not frame.optionTable.displayBuffs ) then
 		CompactUnitFrame_HideAllBuffs(frame);
@@ -195,17 +219,12 @@ function ns.UpdateBuffs(frame)
 	end
 end
 
-function ns.SetUnit(frame, unit)
-	--[[ if CompactRaidFrameManager.collapsed then 	-- [TODO] FIXME
-        CompactRaidFrameManager_Collapse(CompactRaidFrameManager)
-    else
-        CompactRaidFrameManager_Expand(CompactRaidFrameManager)
-    end --]]
+function ns.OnUpdate(frame, elapsed)
+	ns.UpdateHealthColor(frame)
 end
 
 function ns.SetUpClicks(frame)
-	-- frame:SetAttribute("*type2", "menu")
-	-- frame:SetAttribute("*type1", "target")
+	frame:SetAttribute("*type2", "togglemenu")
 end
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)

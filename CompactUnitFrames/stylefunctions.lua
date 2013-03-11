@@ -19,9 +19,6 @@ function ns:Manager_DisableCUF(disable)
 		if not isHooked then
 			CompactRaidFrameManager_OnLoad(manager)
 		end
-
-		-- unlink unit frames from manager
-		manager.container:SetParent(UIParent)
 	end
 end
 
@@ -110,7 +107,7 @@ end
 -- ==== [Health Bar] ========================================
 function ns:CUF_SetHealthBarVertical(frame, enable)
 	local settings = GetRaidProfileFlattenedOptions( GetActiveRaidProfile() )
-	
+
 	if enable then
 		frame.healthBar:SetOrientation('vertical')
 		frame.healthBar:SetRotatesTexture(true)
@@ -170,11 +167,13 @@ end
 
 function ns:CUF_SetPowerSize(frame, size)
 	if not size then return end
-	if frame.powerBar.vertical then
-		frame.powerBar:SetWidth(size)
-	else
+	local padding = ns.db.unitframe.innerPadding
+	--if frame.powerBar.vertical then
+	--	frame.powerBar:SetWidth(size)
+	--else
 		frame.powerBar:SetHeight(size)
-	end
+		frame.healthBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1*padding, 1*padding + size)
+	--end
 end
 
 -- db.powerBar.vertical, db.unitframe.hidePowerSeperator, db.power.size
@@ -184,7 +183,7 @@ function ns:CUF_SetPowerBarShown(frame, enable)
 		ns:CUF_SetPowerSize(frame, ns.db.power.size)
 		ns:CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)
 	else
-		ns:CUF_SetPowerSize(frame, hiddenSize)
+		ns:CUF_SetPowerSize(frame, 0)
 		ns:CUF_SetSeperatorShown(frame, false)
 	end
 end

@@ -1,119 +1,58 @@
 local _, ns = ...
-ns.db = CUF_GlobalDB
-ns.name = "CompactUnitFrames"
-ns.color = "22EE55"
+CompactUnitFrames = ns -- external reference
 
-function ns:Enable()
-	ns.requiresUpdate = nil
+function ns:GetName() return "CompactUnitFrames" end
 
-	ns:ManagerSetup( CompactRaidFrameManager )
-	ns:ContainerSetup( CompactRaidFrameContainer )
-	ns:UpdateAllFrames( CompactUnitFrame_UpdateAll )
-end
-function ns:Disable()
-	-- [TODO]
-end
-
-local eventFrame = CreateFrame("Frame", "CompactUnitFrames_EventHandler", UIParent)
-local function eventHandler(self, event, arg1, arg2)
-	if event == "ADDON_LOADED" and arg1 == ns.name then
-		if CUF_GlobalDB then
+local eventFrame = CreateFrame("Frame")
+local function eventHandler(self, event, ...)
+	if event == "ADDON_LOADED" and ... == ns:GetName() then
+		ns.db = CUF_GlobalDB
+		--[[ if CUF_GlobalDB then
 			ns.db = CUF_GlobalDB
 		else
 			ns.db = ns.config
+		end --]]
+
+		-- TODO: don't let this happen in combat!
+		-- ns:ManagerSetup()
+		-- ns:ContainerSetup()
+
+		ns:RegisterHooks()
+		for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
+			ns.UnitFrameSetup(unitFrame)
+			-- redo hooks that happened sometime earlier
+			ns.UpdateName(unitFrame)
 		end
 
-		ns:Enable()
+		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		eventFrame:RegisterEvent("UNIT_PET")
 
-		hooksecurefunc("CreateFrame", function (frameType, frameName)
-			if ns.notSecure then return end
-
-			if frameName and frameName:match("Compact.-Frame") then
-				local secure, addon = issecurevariable(_G, frameName);
-				if (not secure) then
-					self:RegisterEvent("GROUP_ROSTER_UPDATE")
-					self:RegisterEvent("UNIT_PET")
-					print('non-secure compactunitframe created:', frameName)
-					ns.notSecure = true
-				end
-			end
-		end)
-
-		self:UnregisterEvent("ADDON_LOADED")
-
-	elseif event == "PLAYER_REGEN_ENABLED" then
-		if ns.requiresUpdate then
-			-- CompactUnitFrameProfiles_ApplyCurrentSettings()
-			ns.requiresUpdate = nil
-
-			eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		end
-		ns:AfterCombatUpdate()
+		eventFrame:UnregisterEvent("ADDON_LOADED")
 
 	elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" then
-		-- ns.requiresUpdate = true
-		-- eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		if InCombatLockdown() then
+			eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		end
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		CompactUnitFrameProfiles_ApplyCurrentSettings()
 	end
 end
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:SetScript("OnEvent", eventHandler)
 ns.eventFrame = eventFrame
 
-function ns:Call(func, frame, ...)
-	if false and InCombatLockdown() then -- [TODO] register for later update
-		-- eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	else
-		func(frame, ...)
+function ns.UpdateAll()
+	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
+		ns.UnitFrameSetup(unitFrame)
 	end
-end
-
-function ns:AfterCombatUpdate()
-	for i, frame in ipairs(CompactRaidFrameContainer.units) do
-		if frame.updateRequired then
-			ns.UnitFrameSetup(frame)
-		end
-	end
-	eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-end
-
-function ns:UpdateAllFrames(afterFunction, ...)
-	local group, member, frame
-	for member = 1, MAX_RAID_MEMBERS do
-		frame = _G["CompactRaidFrame"..member]
-		if frame then
-			ns.UnitFrameSetup(frame)
-			if afterFunction then
-				afterFunction(frame, ...)
-			end
-		end
-	end
-
-	for group = 1, MAX_RAID_GROUPS do
-		for member = 1, MEMBERS_PER_RAID_GROUP do
-			frame = _G["CompactRaidGroup"..group.."Member"..member]
-			if frame then
-				ns.UnitFrameSetup(frame)
-				if afterFunction then
-					afterFunction(frame, ...)
-				end
-			end
-		end
-	end
-
-	for member = 1, MEMBERS_PER_RAID_GROUP do
-    	local frame = _G["CompactPartyFrameMember"..member]
-    	if frame then
-			ns.UnitFrameSetup(frame)
-			if afterFunction then
-				afterFunction(frame, ...)
-			end
-		end
-	end
+	-- CompactRaidFrameContainer_ApplyToFrames(CompactRaidFrameContainer, "normal", ns.UnitFrameSetup)
+	-- CompactRaidFrameContainer_ApplyToFrames(CompactRaidFrameContainer, "mini",   ns.UnitFrameSetup)
 end
 
 -- == Misc Utility ==============================================
 function ns:Print(message, ...)
-	DEFAULT_CHAT_FRAME:AddMessage("|cff"..(ns.color)..(ns.name).."|r "..message
+	DEFAULT_CHAT_FRAME:AddMessage("|cff22EE55CompactUnitFrames|r "..message
 		..' '..string.join(", ", tostringall(...) ))
 end
 function ns:Debug(...)
@@ -171,15 +110,13 @@ function ns:GetClassColor(unit)
 		unit = matchUnit .. unitNum
 	end
 
-	local r, g, b
-	local classColor = RAID_CLASS_COLORS[ select(2, UnitClass(unit)) ]
-	if classColor then
-		r, g, b = classColor.r, classColor.g, classColor.b;
-	else
-		if ( UnitIsFriend("player", unit) ) then
-			r, g, b = 0.8, 1.0, 0.8;
+	local r, g, b = 0.5, 0.0, 0.0
+	if UnitIsFriend("player", unit) then
+		local classColor = RAID_CLASS_COLORS[ select(2, UnitClass(unit)) ]
+		if classColor then
+			r, g, b = classColor.r, classColor.g, classColor.b;
 		else
-			r, g, b = 0.5, 0.0, 0.0;
+			r, g, b = 0.8, 1.0, 0.8;
 		end
 	end
 	return r, g, b
@@ -251,5 +188,3 @@ function ns:ShouldDisplayAura(isBuff, unit, index, filter)
 	-- fallback
 	return CompactUnitFrame_UtilShouldDisplayBuff(unit, index, filter)
 end
-
-CompactUnitFrames = ns -- external reference
