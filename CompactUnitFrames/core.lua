@@ -24,6 +24,9 @@ local function eventHandler(self, event, ...)
 			ns.UpdateName(unitFrame)
 		end
 
+		-- make sure the container is sized properly
+		CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
+
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 		eventFrame:RegisterEvent("UNIT_PET")
 

@@ -43,6 +43,12 @@ function ns:RegisterHooks()
 		end
 	end)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
+	hooksecurefunc("CompactUnitFrame_SetUnit", function(frame, unit)
+		if not frame then return end
+		if not unit and frame:IsVisible() then
+			print(frame:GetName(), unit, frame.unit, frame.displayedUnit)
+		end
+	end)
 
 	-- hooksecurefunc("CompactUnitFrame_UpdateInVehicle", ns.UpdateInVehicle)
 	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
@@ -67,25 +73,21 @@ function ns:RegisterHooks()
 	-- hooksecurefunc("CompactUnitFrame_HideAllDispelDebuffs", ns.HideDisplayDebuffs)
 	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
 
-	-- hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
-end
+	hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
 
---[[ -- TODO: container mytheriously resizes
-function CompactRaidFrameContainer_UpdateBorder(self)
-  local usedX, usedY = FlowContainer_GetUsedBounds(CompactRaidFrameContainer)
-  if ( self.showBorder and self.groupMode ~= "discrete" and usedX > 0 and usedY > 0 ) then
-    self.borderFrame:SetSize(usedX + 11, usedY + 13);
-    self.borderFrame:Show();
-  else
-    self.borderFrame:Hide();
-  end
+	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
+		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") ~= "1" then
+			local resizerHeight = manager.containerResizeFrame:GetHeight()
+			local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
+			local spacing = (manager.container.flowVerticalSpacing or 0) + 1 -- TODO: is this correct?, account for flow direction!
+			local newHeight = (unitFrameHeight + spacing) * floor(resizerHeight / unitFrameHeight)
+			manager.container:SetHeight(newHeight)
+		end
+	end)
 end
---]]
 
 function ns.UnitFrameSetup(frame)
 	local frame = frame or self
-	-- ns:Print("Setting up", frame:GetName(), frame:GetObjectType(), frame.changed)
-	-- if not frame.changed then return end
 
 	--[[ Health Bar ]]--
 	ns:CUF_SetHealthTexture(frame, ns.db.health.texture)
