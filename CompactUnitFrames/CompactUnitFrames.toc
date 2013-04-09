@@ -12,6 +12,7 @@
 ## SavedVariablesPerCharacter:
 
 ## LoadManagers: AddonLoader, Addon Control Panel
+## X-LoadOn-Combat: true
 ## X-LoadOn-Always: delayed
 
 ## X-Website:

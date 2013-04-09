@@ -1,10 +1,52 @@
 local _, ns = ...
 CompactUnitFrames = ns -- external reference
 
+-- GLOBALS: CompactUnitFrames, CUF_GlobalDB, RAID_CLASS_COLORS, GameTooltip, DEFAULT_CHAT_FRAME, CompactRaidFrameManager, CompactRaidFrameContainer, CompactUnitFrameProfiles
+-- GLOBALS: UnitIsConnected, UnitPowerType, UnitClass, UnitIsFriend, GetSpellInfo, UnitBuff, UnitDebuff, UnitGroupRolesAssigned, AbbreviateLargeNumbers, InCombatLockdown, GetNumGroupMembers, GetActiveSpecGroup, GetRaidProfileOption, GetRaidProfileName, GetNumRaidProfiles, GetActiveRaidProfile
+-- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall
+-- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile
+local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
+
 function ns:GetName() return "CompactUnitFrames" end
+
+function ns:RunAutoActivation()
+	local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
+	if not success then return end
+
+	local lastActivationType, lastNumPlayers, lastSpec, lastEnemyType = CompactUnitFrameProfiles_GetLastActivationType()
+	local spec = GetActiveSpecGroup()
+
+	if lastActivationType == activationType and lastSpec == spec and lastEnemyType == enemyType then
+		-- and lastNumPlayers == numPlayers
+		-- If we last auto-adjusted for this same thing, we don't change. (In case they manually changed the profile.)
+		return
+	end
+
+	-- group sizes: 2, 3, 5, 10, 15, 25, 40
+	numPlayers = GetNumGroupMembers()
+	numPlayers = (numPlayers <= 2 and 2) or (numPlayers <= 3 and 3) or (numPlayers <= 5 and 5)
+			or (numPlayers <= 10 and 10) or (numPlayers <= 15 and 15) or (numPlayers <= 25 and 25) or 40
+
+	local profile = GetActiveRaidProfile()
+	if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
+		CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
+	else
+		for i=1, GetNumRaidProfiles() do
+			profile = GetRaidProfileName(i)
+			if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile,
+				numPlayers, spec, enemyType) then
+
+				CompactUnitFrameProfiles_ActivateRaidProfile(profile)
+				CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
+			end
+		end
+	end
+end
 
 local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, ...)
+	local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
+
 	if event == "ADDON_LOADED" and ... == ns:GetName() then
 		ns.db = CUF_GlobalDB
 		--[[ if CUF_GlobalDB then
@@ -26,18 +68,22 @@ local function eventHandler(self, event, ...)
 
 		-- make sure the container is sized properly
 		CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
+		ns:RunAutoActivation()
 
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 		eventFrame:RegisterEvent("UNIT_PET")
 
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
-	elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" then
+	elseif event == "GROUP_ROSTER_UPDATE" or (showPets and event == "UNIT_PET") then
 		if InCombatLockdown() then
 			eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		else
+			ns:RunAutoActivation()
 		end
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		ns:Print('applying settings ...')
 		CompactUnitFrameProfiles_ApplyCurrentSettings()
 	end
 end
@@ -56,11 +102,11 @@ end
 -- == Misc Utility ==============================================
 function ns:Print(message, ...)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff22EE55CompactUnitFrames|r "..message
-		..' '..string.join(", ", tostringall(...) ))
+		..' '..strjoin(", ", tostringall(...) ))
 end
 function ns:Debug(...)
 	if ns.db.debug then
-		ns.Print("!", (string.join(", ", tostringall(...))))
+		ns.Print("!", (strjoin(", ", tostringall(...))))
 	end
 end
 
@@ -87,18 +133,18 @@ end
 
 function ns:ShortenString(string, size)
 	if not string then return "" end
-	return (string.len(string) > size) and string.gsub(string, "%s?(.[\128-\191]*)%S+%s", "%1. ") or string
+	return (strlen(string) > size) and strgsub(string, "%s?(.[\128-\191]*)%S+%s", "%1. ") or string
 end
 
 -- checks config.lua for correct color
+local r, g, b
 function ns:GetColorSetting(data, unit)
-	local r, g, b
 	if not data or data == '' or data == 'default' then
 		return nil
 	elseif data == 'class' then
 		r, g, b = ns:GetClassColor(unit)
 	else
-		_, _, r, g, b = string.find(data, "(.-):(.-):(.+)")
+		_, _, r, g, b = strfind(data, "(.-):(.-):(.+)")
 		r, g, b = tonumber(r or ''), tonumber(g or ''), tonumber(b or '')
 
 		if not (r and g and b) then	return nil end
@@ -108,7 +154,7 @@ end
 
 -- provides class or reaction color for a given unit
 function ns:GetClassColor(unit)
-	local matchUnit, unitNum = string.match(unit, "^(.+)pet(%d*)$")
+	local matchUnit, unitNum = strmatch(unit, "^(.+)pet(%d*)$")
 	if matchUnit then
 		unit = matchUnit .. unitNum
 	end
@@ -133,7 +179,7 @@ function ns:ShouldDisplayPowerBar(frame)
 
 	if ns.db.power.types.showSelf and (frame.unit == "player" or frame.displayedUnit == "player") then
 		return true
-	elseif string.find(frame.unit, "pet") then
+	elseif strfind(frame.unit, "pet") then
 		return ns.db.power.types.showPets
 	end
 
@@ -179,7 +225,7 @@ function ns:ShouldDisplayAura(isBuff, unit, index, filter)
 	end
 	for _, dataSpell in pairs(dataTable.show) do
 		if type(dataSpell) == "number" then
-			spell = ( GetSpellInfo(dataSpell) )
+			spell = GetSpellInfo(dataSpell)
 		else
 			spell = dataSpell
 		end

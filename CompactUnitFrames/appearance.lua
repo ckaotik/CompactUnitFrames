@@ -1,5 +1,9 @@
 local _, ns = ...
 
+-- GLOBALS: UIParent. CompactRaidFrameManager, CompactRaidFrameContainer, DefaultCompactUnitFrameSetupOptions
+-- GLOBALS: UnitBuff, UnitIsPVP, UnitIsConnected, UnitIsFriend, DebuffTypeColor, CompactUnitFrame_UpdateSelectionHighlight, CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrame_UtilSetBuff, CompactUnitFrame_HideAllBuffs, FlowContainer_SetHorizontalSpacing, FlowContainer_SetVerticalSpacing, CompactRaidFrameManager_GetSetting
+-- GLOBALS: hooksecurefunc, pairs, type, floor
+
 function ns:ManagerSetup()
 	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
 	-- if InCombatLockdown() then return end
@@ -43,12 +47,12 @@ function ns:RegisterHooks()
 		end
 	end)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
-	hooksecurefunc("CompactUnitFrame_SetUnit", function(frame, unit)
+	--[[hooksecurefunc("CompactUnitFrame_SetUnit", function(frame, unit)
 		if not frame then return end
 		if not unit and frame:IsVisible() then
 			print(frame:GetName(), unit, frame.unit, frame.displayedUnit)
 		end
-	end)
+	end)--]]
 
 	-- hooksecurefunc("CompactUnitFrame_UpdateInVehicle", ns.UpdateInVehicle)
 	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
@@ -73,21 +77,31 @@ function ns:RegisterHooks()
 	-- hooksecurefunc("CompactUnitFrame_HideAllDispelDebuffs", ns.HideDisplayDebuffs)
 	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
 
-	hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
+	-- hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
 
 	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
 		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") ~= "1" then
 			local resizerHeight = manager.containerResizeFrame:GetHeight()
 			local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
-			local spacing = (manager.container.flowVerticalSpacing or 0) + 1 -- TODO: is this correct?, account for flow direction!
+			local spacing = 1 +
+				(  (manager.container.flowOrientation == 'vertical' and manager.container.flowVerticalSpacing)
+				or (manager.container.flowOrientation == 'horizontal' and manager.container.flowHorizontalSpacing)
+				or 0)
 			local newHeight = (unitFrameHeight + spacing) * floor(resizerHeight / unitFrameHeight)
 			manager.container:SetHeight(newHeight)
 		end
 	end)
+
+	-- DEBUG
+	--[[ hooksecurefunc('CompactRaidFrameContainer_AddPlayers', function(self) print('cuf', 'adding players') end)
+	hooksecurefunc('CompactRaidFrameContainer_AddUnitFrame', function(self, unit, frameType) print('cuf', 'addint unit', unit, frameType) end)
+	hooksecurefunc('FlowContainer_SetOrientation', function(container, dir) if container == CompactRaidFrameContainer then print('cuf', 'set flow direction', dir) end end)
+	hooksecurefunc('FlowContainer_DoLayout', function(container) if container == CompactRaidFrameContainer then print('cuf', 'do layout', container.flowPauseUpdates) end  end) --]]
 end
 
+local defaultFont, defaultSize, defaultStyle
 function ns.UnitFrameSetup(frame)
-	local frame = frame or self
+	if not frame or type(frame) ~= "table" then return end -- might be things like "linebreak"
 
 	--[[ Health Bar ]]--
 	ns:CUF_SetHealthTexture(frame, ns.db.health.texture)
@@ -120,7 +134,6 @@ function ns.UnitFrameSetup(frame)
 	-- frame.dispelDebuffFrames[1]:SetPoint("TOPRIGHT", frame.healthBar, -3, -2);
 
 	--[[ Texts ]]--
-	local defaultFont, defaultSize, defaultStyle
 	if ns.db.name.font or ns.db.name.fontSize or ns.db.name.fontStyle then
 		defaultFont, defaultSize, defaultStyle = frame.name:GetFont()
 		frame.name:SetFont(ns.db.name.font or defaultFont, ns.db.name.fontSize or defaultSize, ns.db.name.fontStyle or defaultStyle)
@@ -144,12 +157,12 @@ end
 
 function ns:UpdateHealthColor(frame)
 	local frame = frame or self
-	if not frame or not frame.unit then return end
+	if not frame or type(frame) ~= "table" then return end
 
 	local r, g, b
-	if not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
+	if frame.unit and not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
-	elseif not UnitIsFriend("player", frame.unit) then
+	elseif frame.unit and not UnitIsFriend("player", frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
 	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
@@ -162,14 +175,14 @@ function ns:UpdateHealthColor(frame)
 end
 function ns:UpdatePowerColor(frame)
 	local frame = frame or self
+	if not frame or type(frame) ~= "table" then return end
 	local unit = frame.unit or frame.displayedUnit
-	if not unit then return end
 
 	local displayPowerBar = ns:ShouldDisplayPowerBar(frame)
 	ns:CUF_SetPowerBarShown(frame, displayPowerBar)
 
 	local r, g, b = ns:GetColorSetting( ns.db.power.color, frame.unit )
-	if UnitIsConnected(unit) and r then
+	if r and (not unit or UnitIsConnected(unit)) then
 		frame.powerBar:SetStatusBarColor(r, g, b)
 	end
 end
@@ -179,6 +192,8 @@ function ns:UpdateNameColor(frame)
 end
 function ns:UpdateName(frame)
 	local frame = frame or self
+	if not frame or type(frame) ~= "table" then return end
+
 	ns:CUF_SetNameText(frame, ns.db.name.size)
 	ns:UpdateNameColor(frame)
 end
@@ -188,12 +203,13 @@ function ns:UpdateStatusColor(frame)
 end
 function ns:UpdateStatus(frame)
 	local frame = frame or self
+	if not frame or type(frame) ~= "table" then return end
+
 	ns:CUF_SetStatusText(frame)
 	ns:UpdateStatusColor(frame)
 end
 
 function ns.UpdateAuras(frame)
-	local frame = frame or self
 	if ( not frame.optionTable.displayBuffs ) then
 		CompactUnitFrame_HideAllBuffs(frame);
 		return;
@@ -225,9 +241,9 @@ function ns.OnUpdate(frame, elapsed)
 	ns.UpdateHealthColor(frame)
 end
 
-function ns.SetUpClicks(frame)
+--[[ function ns.SetUpClicks(frame)
 	frame:SetAttribute("*type2", "togglemenu")
-end
+end --]]
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)
 	local frame = dispellDebuffFrame:GetParent()

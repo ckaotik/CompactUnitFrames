@@ -1,7 +1,9 @@
 local addonName, ns = ...
+-- GLOBALS: _G, UIParent, CompactRaidFrameManager, RAID_BORDERS_SHOWN
+-- GLOBALS: HidePartyFrame, CompactRaidFrameManager_OnLoad, GetUnitName, UnitIsDeadOrGhost, UnitIsConnected, GetNumGroupMembers, CompactRaidFrameManager_Collapse
+-- GLOBALS: hooksecurefunc, pairs, ipairs, string
 
 local manager = CompactRaidFrameManager
-
 local hiddenSize = 0.000001
 
 function ns:Manager_DisableCUF(disable)
@@ -106,7 +108,7 @@ end
 
 -- ==== [Health Bar] ========================================
 function ns:CUF_SetHealthBarVertical(frame, enable)
-	local settings = GetRaidProfileFlattenedOptions( GetActiveRaidProfile() )
+	local width, height = frame:GetSize()
 
 	if enable then
 		frame.healthBar:SetOrientation('vertical')
@@ -116,13 +118,13 @@ function ns:CUF_SetHealthBarVertical(frame, enable)
 		frame.myHealPrediction:ClearAllPoints()
 		frame.myHealPrediction:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
 		frame.myHealPrediction:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.myHealPrediction:SetHeight(settings.frameHeight)
+		frame.myHealPrediction:SetHeight(height)
 
 		-- frame.otherHealPrediction:SetOrientation('vertical')
 		frame.otherHealPrediction:ClearAllPoints()
 		frame.otherHealPrediction:SetPoint('BOTTOMLEFT', frame.healthBar:GetStatusBarTexture(), 'TOPLEFT', 0, 0)
 		frame.otherHealPrediction:SetPoint('BOTTOMRIGHT', frame.healthBar:GetStatusBarTexture(), 'TOPRIGHT', 0, 0)
-		frame.otherHealPrediction:SetHeight(settings.frameHeight) --]]
+		frame.otherHealPrediction:SetHeight(height) --]]
 	else
 		frame.healthBar:SetOrientation("horizontal")
 
@@ -130,13 +132,13 @@ function ns:CUF_SetHealthBarVertical(frame, enable)
 		frame.myHealPrediction:ClearAllPoints()
 		frame.myHealPrediction:SetPoint("TOPLEFT", frame.healthBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
 		frame.myHealPrediction:SetPoint("BOTTOMLEFT", frame.healthBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-		frame.myHealPrediction:SetWidth(settings.frameWidth)
+		frame.myHealPrediction:SetWidth(width)
 
 		frame.otherHealPrediction:SetOrientation("horizontal")
 		frame.otherHealPrediction:ClearAllPoints()
 		frame.otherHealPrediction:SetPoint("TOPLEFT", frame.myHealPrediction:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
 		frame.otherHealPrediction:SetPoint("BOTTOMLEFT", frame.myHealPrediction:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-		frame.otherHealPrediction:SetWidth(settings.frameWidth) --]]
+		frame.otherHealPrediction:SetWidth(width) --]]
 	end
 end
 
@@ -340,15 +342,11 @@ function ns:CUF_SetStatusColor(frame, r, g, b)
 end
 
 function ns:CUF_SetStatusText(frame)
-	local value = frame.statusText:GetText()
-	local settings = GetRaidProfileFlattenedOptions( GetActiveRaidProfile() )
-
-	if UnitIsConnected(frame.unit) and not UnitIsDeadOrGhost(frame.displayedUnit)
-		and (settings.healthText == 'losthealth' or settings.healthText == 'health') then
-
-		if ns.db.status.format == 'shorten' then
-			frame.statusText:SetText( ns:ShortenNumber(value) )
-		end
+	local setting = frame.optionTable.healthText
+	if (setting == 'losthealth' or setting == 'health') and ns.db.status.format == 'shorten'
+		and UnitIsConnected(frame.unit) and not UnitIsDeadOrGhost(frame.displayedUnit) then
+		local value = frame.statusText:GetText()
+		frame.statusText:SetText( ns:ShortenNumber(value) )
 	end
 end
 
