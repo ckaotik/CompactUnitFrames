@@ -59,6 +59,33 @@ local function eventHandler(self, event, ...)
 		-- ns:ManagerSetup()
 		-- ns:ContainerSetup()
 
+		-- CompactUnitFrame_UpdateCenterStatusIcon(self)
+		local function GetUnitIndex(token)
+			for i,v in ipairs(CompactRaidFrameContainer.units) do
+				if v == token then
+					return i
+				end
+			end
+			return 1
+		end
+		local origsort = CompactRaidFrameContainer.flowSortFunc
+		local function newsort(token1, token2)
+			if InCombatLockdown() then
+				return GetUnitIndex(token1) < GetUnitIndex(token2)
+			elseif origsort then
+				return origsort(token1, token2)
+			else
+				return CRFSort_Role(token1, token2)
+			end
+		end
+		CompactRaidFrameContainer_SetFlowSortFunction(CompactRaidFrameContainer, newsort)
+		hooksecurefunc('CompactRaidFrameContainer_SetFlowSortFunction', function(self, func, isRecursion)
+			if not isRecursion then
+				origsort = func
+				CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
+			end
+		end)
+
 		ns:RegisterHooks()
 		for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
 			ns.UnitFrameSetup(unitFrame)
@@ -83,8 +110,10 @@ local function eventHandler(self, event, ...)
 		end
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		ns:Print('applying settings ...')
-		CompactUnitFrameProfiles_ApplyCurrentSettings()
+		-- ns:Print('applying settings ...')
+		-- CompactUnitFrameProfiles_ApplyCurrentSettings()
+		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
+		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
 	end
 end
 eventFrame:RegisterEvent("ADDON_LOADED")

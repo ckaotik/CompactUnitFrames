@@ -77,7 +77,7 @@ function ns:RegisterHooks()
 	-- hooksecurefunc("CompactUnitFrame_HideAllDispelDebuffs", ns.HideDisplayDebuffs)
 	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", ns.HideDisplayDebuffs)
 
-	-- hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
+	hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
 
 	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
 		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") ~= "1" then
