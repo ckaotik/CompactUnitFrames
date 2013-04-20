@@ -3,32 +3,32 @@ local addonName, ns = ...
 --[[ Attribute		Possible Values
 	-----------		----------------
 	colors			class, default, r.r:g.g:b.b
-	orientations	true:vertical, false/nil:horizontal
+	orientations	true:vertical, false/false:horizontal
 	text formats	shorten, cut
 	font style 		'MONOCHROME', 'OUTLINE', 'THICKOUTLINE'
 	justifyH		'LEFT', 'CENTER', 'RIGHT'
 	justifyV		'TOP', 'MIDDLE', 'BOTTOM'
 ]]--
-ns.config = {
+ns.defaults = {
 	frames = {
-		disableCUF = nil,
-		showSolo = nil,
+		disableCUF = false,
+		showSolo = false,
 		pullout = {
-			posX = nil,
-			posY = nil,
-			minify = nil,
+			posX = false,
+			posY = false,
+			minify = false,
 			passiveAlpha = 0.3,
 			activeAlpha = 1,
 		},
-		-- horizontal = nil,
-		-- numRows = nil,
-		-- numColumns = nil,
-		-- maxWidth = nil,
-		-- maxHeight = nil,
+		-- horizontal = false,
+		-- numRows = false,
+		-- numColumns = false,
+		-- maxWidth = false,
+		-- maxHeight = false,
 	},
 	unitframe = {
-		width = nil,
-		height = nil,
+		width = false,
+		height = false,
 		-- anchor = 'TOPLEFT',
 
 		innerPadding = 1,
@@ -36,12 +36,16 @@ ns.config = {
 		spacingY = 0,
 
 		-- tooltip = true,
-		-- tooltipInCombat = nil,
-		noMenuClickInCombat = nil,
-		hidePowerSeperator = nil,
+		-- tooltipInCombat = false,
+		noMenuClickInCombat = false,
+		hidePowerSeperator = false,
+
+		enableGPS = true,
+		gpsOnHover = true,
+		gpsOutOfRange = true,
 	},
 	health = {
-		vertical = nil,
+		vertical = false,
 		texture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		bgtexture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		color = '0.16:0.19:0.23',
@@ -49,8 +53,8 @@ ns.config = {
 		flagsAsPvPColor = '0.64:0.07:0.07',
 	},
 	power = {
-		vertical = nil,
-		changePosition = nil,	-- [vertical] true:left, false:right; [horizontal] true:top, false:bottom
+		vertical = false,
+		changePosition = false,	-- [vertical] true:left, false:right; [horizontal] true:top, false:bottom
 		texture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		bgtexture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		color = 'default',
@@ -58,18 +62,18 @@ ns.config = {
 		size = 6,
 		types = {
 			showSelf = true,
-			showPets = nil,
+			showPets = false,
 			showUnknown = true,
 
-			[SPELL_POWER_MANA] = { --[[color = nil,]] hide = nil },
-			[SPELL_POWER_RAGE] = { --[[color = nil,]] hide = true },
-			[SPELL_POWER_FOCUS] = { --[[color = nil,]] hide = true },
-			[SPELL_POWER_ENERGY] = { --[[color = nil,]] hide = true },
-			[SPELL_POWER_RUNES] = { --[[color = nil,]] hide = nil },
-			[SPELL_POWER_RUNIC_POWER] = { --[[color = nil,]] hide = true },
-			[SPELL_POWER_SOUL_SHARDS] = { --[[color = nil,]] hide = nil },
-			[SPELL_POWER_ECLIPSE] = { --[[color = nil,]] hide = nil },
-			[SPELL_POWER_HOLY_POWER] = { --[[color = nil,]] hide = nil },
+			[SPELL_POWER_MANA] = { --[[color = false,]] hide = false },
+			[SPELL_POWER_RAGE] = { --[[color = false,]] hide = true },
+			[SPELL_POWER_FOCUS] = { --[[color = false,]] hide = true },
+			[SPELL_POWER_ENERGY] = { --[[color = false,]] hide = true },
+			[SPELL_POWER_RUNES] = { --[[color = false,]] hide = false },
+			[SPELL_POWER_RUNIC_POWER] = { --[[color = false,]] hide = true },
+			[SPELL_POWER_SOUL_SHARDS] = { --[[color = false,]] hide = false },
+			[SPELL_POWER_ECLIPSE] = { --[[color = false,]] hide = false },
+			[SPELL_POWER_HOLY_POWER] = { --[[color = false,]] hide = false },
 			-- /dump PowerBarColor > ALTERNATE_POWER_INDEX, FUEL, UNUSED
 		},
 		roles = {
@@ -87,23 +91,23 @@ ns.config = {
 		serverPrefix = '',
 		serverSuffix = '*',			-- only applies when serverFormat is set to 'short'
 
-		font = nil,
-		fontSize = nil,
-		fontStyle = nil,
-		justifyH = nil,
+		font = false,
+		fontSize = false,
+		fontStyle = false,
+		justifyH = false,
 	},
 	status = {
 		size = 7,
-		color = nil,
+		color = false,
 		format = 'shorten',
 
-		font = nil,
-		fontSize = nil,
-		fontStyle = nil,
-		justifyH = nil,
+		font = false,
+		fontSize = false,
+		fontStyle = false,
+		justifyH = false,
 	},
 	buffs = {
-		-- filter = nil,
+		-- filter = false,
 		hide = { 93825, 94462, 93827 },
 		show = {},
 		hidePermanent = true,
@@ -112,7 +116,7 @@ ns.config = {
 		posY = 1,
 	},
 	debuffs = {
-		-- filter = nil,
+		-- filter = false,
 		hide = { 57724, 80354, 57723, 90355, 36032, 96328 }, -- heroism x4, arcane blast, toxic torment
 		show = {},
 		hidePermanent = true,
@@ -121,15 +125,15 @@ ns.config = {
 		offsetY = 1,
 	},
 	indicators = {
-		showDispellBorder = nil,
-		hideDispellIcons = nil,
+		showDispellBorder = false,
+		hideDispellIcons = false,
 
 		center = {
 			size = 10,
-			posX = nil,
-			posY = nil,
+			posX = false,
+			posY = false,
 			-- alpha = 1,
-			-- borderColor = nil,
+			-- borderColor = false,
 		},
 		-- top, right, bottom, left, topleft, topright, bottomright, bottomleft
 	},

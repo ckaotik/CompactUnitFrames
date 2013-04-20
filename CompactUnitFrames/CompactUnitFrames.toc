@@ -23,6 +23,8 @@
 
 core.lua
 stylefunctions.lua
-appearance.lua
+gps.lua
 raidauras.lua
-config.lua
+setup.lua
+
+defaults.lua

@@ -152,6 +152,22 @@ function ns.UnitFrameSetup(frame)
 	frame.overAbsorbGlow:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMRIGHT", -2, 0)
 	frame.overAbsorbGlow:SetPoint("TOPLEFT", frame.healthBar, "TOPRIGHT", -2, 0)
 
+	-- plugins
+	if ns.db.unitframe.enableGPS then
+		local gps = CreateFrame("Frame", nil, frame.healthBar)
+		gps:SetPoint('CENTER')
+		gps:SetSize(40, 40)
+		gps:Hide()
+		local tex = gps:CreateTexture("OVERLAY")
+		tex:SetTexture("Interface\\Minimap\\Minimap-QuestArrow") -- DeadArrow
+		tex:SetAllPoints()
+		gps.outOfRange = ns.db.unitframe.gpsOutOfRange
+		gps.onMouseOver = ns.db.unitframe.gpsOnHover
+		frame.GPS = gps
+		frame.GPS.Texture = tex -- .Text is also possible
+		ns.EnableGPS(frame)
+	end
+
 	frame.customized = true
 end
 
@@ -160,9 +176,10 @@ function ns:UpdateHealthColor(frame)
 	if not frame or type(frame) ~= "table" then return end
 
 	local r, g, b
-	if frame.unit and not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
-		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
-	elseif frame.unit and not UnitIsFriend("player", frame.unit) then
+	if not frame.unit then
+		r, g, b = ns:GetColorSetting(ns.db.health.bgcolor, frame.unit)
+	elseif (UnitIsPVP("player") and UnitIsPVP(frame.unit))
+		or not UnitIsFriend("player", frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
 	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
