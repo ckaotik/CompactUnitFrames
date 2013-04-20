@@ -3,8 +3,8 @@ CompactUnitFrames = ns -- external reference
 
 -- GLOBALS: CompactUnitFrames, CUF_GlobalDB, RAID_CLASS_COLORS, GameTooltip, DEFAULT_CHAT_FRAME, CompactRaidFrameManager, CompactRaidFrameContainer, CompactUnitFrameProfiles
 -- GLOBALS: UnitIsConnected, UnitPowerType, UnitClass, UnitIsFriend, GetSpellInfo, UnitBuff, UnitDebuff, UnitGroupRolesAssigned, AbbreviateLargeNumbers, InCombatLockdown, GetNumGroupMembers, GetActiveSpecGroup, GetRaidProfileOption, GetRaidProfileName, GetNumRaidProfiles, GetActiveRaidProfile
--- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall
--- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile
+-- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall, hooksecurefunc
+-- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile, CompactRaidFrameContainer_SetFlowSortFunction, CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether, CRFSort_Role
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
 function ns:GetName() return "CompactUnitFrames" end
@@ -43,17 +43,31 @@ function ns:RunAutoActivation()
 	end
 end
 
+function ns.SetDefaultSettings(db, defaults)
+    for key, value in pairs(defaults) do
+        if db[key] == nil then
+            if type(value) == 'table' then
+                db[key] = {}
+                ns.SetDefaultSettings(db[key], value)
+            else
+                db[key] = value
+            end
+        else
+            if type(value) == 'table' then
+                ns.SetDefaultSettings(db[key], value)
+            end
+        end
+    end
+end
+
 local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, ...)
 	local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
 
 	if event == "ADDON_LOADED" and ... == ns:GetName() then
+		if not CUF_GlobalDB then CUF_GlobalDB = {} end
 		ns.db = CUF_GlobalDB
-		--[[ if CUF_GlobalDB then
-			ns.db = CUF_GlobalDB
-		else
-			ns.db = ns.config
-		end --]]
+		ns.SetDefaultSettings(ns.db, ns.defaults)
 
 		-- TODO: don't let this happen in combat!
 		-- ns:ManagerSetup()
@@ -166,17 +180,15 @@ function ns:ShortenString(string, size)
 end
 
 -- checks config.lua for correct color
-local r, g, b
 function ns:GetColorSetting(data, unit)
+	local r, g, b
 	if not data or data == '' or data == 'default' then
 		return nil
-	elseif data == 'class' then
-		r, g, b = ns:GetClassColor(unit)
-	else
+	elseif data ~= 'class' then
 		_, _, r, g, b = strfind(data, "(.-):(.-):(.+)")
 		r, g, b = tonumber(r or ''), tonumber(g or ''), tonumber(b or '')
-
-		if not (r and g and b) then	return nil end
+	elseif unit then
+		r, g, b = ns:GetClassColor(unit)
 	end
 	return r, g, b
 end

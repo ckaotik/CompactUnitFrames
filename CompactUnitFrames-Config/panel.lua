@@ -1192,7 +1192,7 @@ do
 								get = function(info) return CompactUnitFrames.db.status.format or "ellipsis" end,
 								set = function(info, shorten)
 									CompactUnitFrames.db.status.format = shorten
-									CompactUnitFrames:CUF_SetStatusText(testFrame, ns.config.status.size) -- [FIXME]
+									CompactUnitFrames:CUF_SetStatusText(testFrame, CompactUnitFrames.db.status.size)
 								end,
 							},
 						},
