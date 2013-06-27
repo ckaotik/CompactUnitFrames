@@ -1,7 +1,8 @@
 ## Title: CompactUnitFrames
 ## Author: ckaotik
-## Dependencies: Blizzard_CompactRaidFrames, Blizzard_CUFProfiles
+## Dependencies:
 ## OptionalDeps:
+# Blizzard_CompactRaidFrames, Blizzard_CUFProfiles
 
 ## Version: 0.1
 ## Interface: 50200

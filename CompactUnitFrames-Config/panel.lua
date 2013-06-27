@@ -190,7 +190,12 @@ do
 								desc = "Check to disable menu popups in combat",
 								order = 2,
 
-								set = function(info, val) CompactUnitFrames.db.unitframe.noMenuClickInCombat = val end,
+								set = function(info, val)
+									CompactUnitFrames.db.unitframe.noMenuClickInCombat = val
+									-- TODO: CompactUnitFrames.UpdateAll(
+									--	function(frame) CompactUnitFrames.SetUpClicks(frame)
+									-- end)
+								end,
 								get = function(info) return CompactUnitFrames.db.unitframe.noMenuClickInCombat end,
 							},
 							noSeperator = {

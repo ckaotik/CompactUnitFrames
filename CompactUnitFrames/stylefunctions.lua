@@ -76,7 +76,7 @@ function ns:MinifyPullout(enable)
 			end
 		end
 		-- [TODO] FIXME
-		hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
+		--[[hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
 			self:SetAlpha(1)
 			self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", (ns.db.frames.pullout.posX or 0) -7, ns.db.frames.pullout.posY or -140)
 			for _, region in ipairs( borderParts ) do
@@ -100,9 +100,9 @@ function ns:MinifyPullout(enable)
 			self.toggleButton:GetNormalTexture():SetTexCoord(0.1, 0.5, 0.3, 0.7)
 			self.toggleButton:SetPoint("RIGHT", -6, 1)
 			self.toggleButton:SetSize(16, 32)
-		end)
+		end)--]]
 		-- hooksecurefunc("CompactRaidFrameManager_UpdateLeaderButtonsShown", SetCRFManagerSize)
-		CompactRaidFrameManager_Collapse( CompactRaidFrameManager )
+		-- CompactRaidFrameManager_Collapse( CompactRaidFrameManager )
 	end
 end
 
@@ -168,7 +168,7 @@ function ns:CUF_SetPowerBGColor(frame, r, g, b)
 end
 
 function ns:CUF_SetPowerSize(frame, size)
-	if not size then return end
+	if not size or ns.DelayInCombat(frame, ns.CUF_SetPowerBarShown) then return end
 	local padding = ns.db.unitframe.innerPadding
 	--if frame.powerBar.vertical then
 	--	frame.powerBar:SetWidth(size)
@@ -180,7 +180,9 @@ end
 
 -- db.powerBar.vertical, db.unitframe.hidePowerSeperator, db.power.size
 function ns:CUF_SetPowerBarShown(frame, enable)
-	frame.powerBar.shown = enable
+	if enable == nil then enable = frame.powerBar.shown
+	else frame.powerBar.shown = enable end
+
 	if enable then
 		ns:CUF_SetPowerSize(frame, ns.db.power.size)
 		ns:CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)

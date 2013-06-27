@@ -1,16 +1,15 @@
-local _, ns = ...
+local addonName, ns, _ = ...
 CompactUnitFrames = ns -- external reference
 
 -- GLOBALS: CompactUnitFrames, CUF_GlobalDB, RAID_CLASS_COLORS, GameTooltip, DEFAULT_CHAT_FRAME, CompactRaidFrameManager, CompactRaidFrameContainer, CompactUnitFrameProfiles
 -- GLOBALS: UnitIsConnected, UnitPowerType, UnitClass, UnitIsFriend, GetSpellInfo, UnitBuff, UnitDebuff, UnitGroupRolesAssigned, AbbreviateLargeNumbers, InCombatLockdown, GetNumGroupMembers, GetActiveSpecGroup, GetRaidProfileOption, GetRaidProfileName, GetNumRaidProfiles, GetActiveRaidProfile
--- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall, hooksecurefunc
+-- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall, hooksecurefunc, loadstring
 -- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile, CompactRaidFrameContainer_SetFlowSortFunction, CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether, CRFSort_Role
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
-function ns:GetName() return "CompactUnitFrames" end
-
-function ns:RunAutoActivation()
-	local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
+function ns.RunAutoActivation()
+	if true then return end -- [TODO]
+	--[[ local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
 	if not success then return end
 
 	local lastActivationType, lastNumPlayers, lastSpec, lastEnemyType = CompactUnitFrameProfiles_GetLastActivationType()
@@ -40,7 +39,7 @@ function ns:RunAutoActivation()
 				CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
 			end
 		end
-	end
+	end --]]
 end
 
 function ns.SetDefaultSettings(db, defaults)
@@ -61,10 +60,10 @@ function ns.SetDefaultSettings(db, defaults)
 end
 
 local eventFrame = CreateFrame("Frame")
-local function eventHandler(self, event, ...)
+local function eventHandler(self, event, arg1)
 	local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
 
-	if event == "ADDON_LOADED" and ... == ns:GetName() then
+	if event == "ADDON_LOADED" and arg1 == addonName then
 		if not CUF_GlobalDB then CUF_GlobalDB = {} end
 		ns.db = CUF_GlobalDB
 		ns.SetDefaultSettings(ns.db, ns.defaults)
@@ -73,73 +72,62 @@ local function eventHandler(self, event, ...)
 		-- ns:ManagerSetup()
 		-- ns:ContainerSetup()
 
-		-- CompactUnitFrame_UpdateCenterStatusIcon(self)
-		local function GetUnitIndex(token)
-			for i,v in ipairs(CompactRaidFrameContainer.units) do
-				if v == token then
-					return i
-				end
-			end
-			return 1
-		end
-		local origsort = CompactRaidFrameContainer.flowSortFunc
-		local function newsort(token1, token2)
-			if InCombatLockdown() then
-				return GetUnitIndex(token1) < GetUnitIndex(token2)
-			elseif origsort then
-				return origsort(token1, token2)
-			else
-				return CRFSort_Role(token1, token2)
-			end
-		end
-		CompactRaidFrameContainer_SetFlowSortFunction(CompactRaidFrameContainer, newsort)
-		hooksecurefunc('CompactRaidFrameContainer_SetFlowSortFunction', function(self, func, isRecursion)
-			if not isRecursion then
-				origsort = func
-				CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
-			end
-		end)
-
 		ns:RegisterHooks()
-		for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
-			ns.UnitFrameSetup(unitFrame)
-			-- redo hooks that happened sometime earlier
-			ns.UpdateName(unitFrame)
-		end
+
+		-- update any existing frames
+		ns.UpdateAll(function(frame)
+			ns.SetUpClicks(frame)
+			ns.UpdateHealthColor(frame)
+			ns.UpdatePowerColor(frame)
+			ns.UpdateName(frame)
+			ns.UpdateStatus(frame)
+		end)
 
 		-- make sure the container is sized properly
 		CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
-		ns:RunAutoActivation()
+		ns.RunAutoActivation()
 
-		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-		eventFrame:RegisterEvent("UNIT_PET")
-
+		-- eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		-- eventFrame:RegisterEvent("UNIT_PET")
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
 	elseif event == "GROUP_ROSTER_UPDATE" or (showPets and event == "UNIT_PET") then
-		if InCombatLockdown() then
-			eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-		else
-			ns:RunAutoActivation()
-		end
+		ns.RunAutoActivation()
 	elseif event == "PLAYER_REGEN_ENABLED" then
+		ns.RunAfterCombat()
 		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		-- ns:Print('applying settings ...')
-		-- CompactUnitFrameProfiles_ApplyCurrentSettings()
-		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
-		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
 	end
 end
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:SetScript("OnEvent", eventHandler)
 ns.eventFrame = eventFrame
 
-function ns.UpdateAll()
+function ns.UpdateAll(func)
 	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
-		ns.UnitFrameSetup(unitFrame)
+		ns.UpdateVisible(unitFrame)
+		if func then func(unitFrame) end
 	end
-	-- CompactRaidFrameContainer_ApplyToFrames(CompactRaidFrameContainer, "normal", ns.UnitFrameSetup)
-	-- CompactRaidFrameContainer_ApplyToFrames(CompactRaidFrameContainer, "mini",   ns.UnitFrameSetup)
+end
+
+local afterCombat = {}
+function ns.RunAfterCombat()
+	for frame, tasks in pairs(afterCombat) do
+		for _, func in pairs(tasks) do
+			func(frame)
+		end
+		wipe(tasks)
+	end
+end
+function ns.DelayInCombat(frame, func)
+	local delay = nil
+	if InCombatLockdown() then
+		if not afterCombat[frame] then afterCombat[frame] = {} end
+		tinsert(afterCombat[frame], func)
+		eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		delay = true
+	end
+
+	return delay
 end
 
 -- == Misc Utility ==============================================
