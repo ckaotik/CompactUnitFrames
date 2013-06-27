@@ -206,7 +206,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.unitframe.hideSeperator end,
 								set = function(info, hide)
-									CompactUnitFrames:CUF_SetSeperatorShown(testFrame, not hide)
+									CompactUnitFrames.CUF_SetSeperatorShown(testFrame, not hide)
 									CompactUnitFrames.db.unitframe.hideSeperator = hide
 								end,
 							},
@@ -246,7 +246,7 @@ do
 								get = function(info) return CompactUnitFrames.db.unitframe.innerPadding or 0 end,
 								set = function(info, value)
 									CompactUnitFrames.db.unitframe.innerPadding = value
-									CompactUnitFrames:CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, CompactUnitFrames.db.power.changePosition)
+									CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, CompactUnitFrames.db.power.changePosition)
 								end,
 								step = 1,
 								min = 0,
@@ -534,7 +534,7 @@ do
 								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.health.texture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
-									CompactUnitFrames:CUF_SetHealthTexture(testFrame, texture)
+									CompactUnitFrames.CUF_SetHealthTexture(testFrame, texture)
 									CompactUnitFrames.db.health.texture = texture
 								end,
 							},
@@ -549,7 +549,7 @@ do
 								end,
 								set = function(info, r, g, b)
 									CompactUnitFrames.db.health.bgcolor = r..":"..g..":"..b
-									CompactUnitFrames:CUF_SetHealthBGColor(testFrame, r, g, b)
+									CompactUnitFrames.CUF_SetHealthBGColor(testFrame, r, g, b)
 								end,
 							},
 							healthBGColorClass = {
@@ -561,7 +561,7 @@ do
 								get = function(info) return CompactUnitFrames.db.health.bgcolor == 'class' end,
 								set = function(info, enable)
 									CompactUnitFrames.db.health.bgcolor = enable and 'class' or CompactUnitFrames.db.health.bgcolor
-									CompactUnitFrames:CUF_SetHealthBGColor(testFrame,
+									CompactUnitFrames.CUF_SetHealthBGColor(testFrame,
 										CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.health.bgcolor, testFrame.displayedUnit)
 									)
 								end,
@@ -577,7 +577,7 @@ do
 								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.health.bgtexture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
-									CompactUnitFrames:CUF_SetHealthBGTexture(testFrame, texture)
+									CompactUnitFrames.CUF_SetHealthBGTexture(testFrame, texture)
 									CompactUnitFrames.db.health.bgtexture = texture
 								end,
 							},
@@ -589,7 +589,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.health.vertical end,
 								set = function(info, enable)
-									CompactUnitFrames:CUF_SetHealthBarVertical(testFrame, enable)
+									CompactUnitFrames.CUF_SetHealthBarVertical(testFrame, enable)
 									CompactUnitFrames.db.health.vertical = enable
 								end,
 							},
@@ -639,7 +639,7 @@ do
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
 									CompactUnitFrames.db.power.texture = texture
-									CompactUnitFrames:CUF_SetPowerTexture(testFrame, texture)
+									CompactUnitFrames.CUF_SetPowerTexture(testFrame, texture)
 								end,
 							},
 							powerBGColor = {
@@ -653,7 +653,7 @@ do
 								end,
 								set = function(info, r, g, b)
 									CompactUnitFrames.db.power.bgcolor = r..":"..g..":"..b
-									CompactUnitFrames:CUF_SetPowerBGColor(testFrame, r, g, b)
+									CompactUnitFrames.CUF_SetPowerBGColor(testFrame, r, g, b)
 								end,
 							},
 							powerBGColorClass = {
@@ -665,7 +665,7 @@ do
 								get = function(info) return CompactUnitFrames.db.power.bgcolor == 'class' end,
 								set = function(info, enable)
 									CompactUnitFrames.db.power.bgcolor = enable and 'class' or CompactUnitFrames.db.power.bgcolor
-									CompactUnitFrames:CUF_SetPowerBGColor(testFrame,
+									CompactUnitFrames.CUF_SetPowerBGColor(testFrame,
 										CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.power.bgcolor, testFrame.displayedUnit)
 									)
 								end,
@@ -681,7 +681,7 @@ do
 								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.power.bgtexture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
-									CompactUnitFrames:CUF_SetPowerBGTexture(testFrame, texture)
+									CompactUnitFrames.CUF_SetPowerBGTexture(testFrame, texture)
 									CompactUnitFrames.db.power.bgtexture = texture
 								end,
 							},
@@ -693,9 +693,9 @@ do
 
 								get = function(info) return CompactUnitFrames.db.power.vertical end,
 								set = function(info, enable)
-									CompactUnitFrames:CUF_SetPowerBarVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
-									CompactUnitFrames:CUF_SetSeperatorVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
-									CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+									CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
+									CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
+									CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 									CompactUnitFrames.db.power.vertical = enable
 								end,
 							},
@@ -706,9 +706,9 @@ do
 								order = 8,
 
 								set = function(info, togglePosition)
-									CompactUnitFrames:CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
-									CompactUnitFrames:CUF_SetSeperatorVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
-									CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+									CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
+									CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
+									CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 									CompactUnitFrames.db.power.changePosition = togglePosition
 								end,
 								get = function(info) return CompactUnitFrames.db.power.changePosition end,
@@ -722,7 +722,7 @@ do
 								get = function(info) return CompactUnitFrames.db.power.size end,
 								set = function(info, size)
 									CompactUnitFrames.db.power.size = size
-									CompactUnitFrames:CUF_SetPowerSize(testFrame, size)
+									CompactUnitFrames.CUF_SetPowerSize(testFrame, size)
 								end,
 								step = 1,
 								min = 1,
@@ -743,7 +743,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.types.showSelf end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types.showSelf = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showPets = {
@@ -774,7 +774,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.types.showUnknown end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types.showUnknown = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 
@@ -787,7 +787,7 @@ do
 										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_MANA].hide end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types[SPELL_POWER_MANA].hide = not enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showRage = {
@@ -799,7 +799,7 @@ do
 										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_RAGE].hide end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types[SPELL_POWER_RAGE].hide = not enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showFocus = {
@@ -811,7 +811,7 @@ do
 										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_FOCUS].hide end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types[SPELL_POWER_FOCUS].hide = not enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showEnergy = {
@@ -823,7 +823,7 @@ do
 										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_ENERGY].hide end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types[SPELL_POWER_ENERGY].hide = not enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showRunicPower = {
@@ -835,7 +835,7 @@ do
 										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_RUNIC_POWER].hide end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.types[SPELL_POWER_RUNIC_POWER].hide = not enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									--[[showRunes = {
@@ -879,7 +879,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.roles["NONE"] end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.roles["NONE"] = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showDamage = {
@@ -891,7 +891,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.roles["DAMAGER"] end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.roles["DAMAGER"] = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showTank = {
@@ -903,7 +903,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.roles["TANK"] end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.roles["TANK"] = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 									showHeal = {
@@ -915,7 +915,7 @@ do
 										get = function(info) return CompactUnitFrames.db.power.roles["HEALER"] end,
 										set = function(info, enable)
 											CompactUnitFrames.db.power.roles["HEALER"] = enable
-											CompactUnitFrames:CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
+											CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
 								}
@@ -963,7 +963,7 @@ do
 								values = {["LEFT"] = "LEFT", ["CENTER"] = "CENTER", ["RIGHT"] = "RIGHT"},
 								get = function() return CompactUnitFrames.db.name.justifyH or testFrame.name:GetJustifyH() end,
 								set = function(self, justify)
-									CompactUnitFrames:CUF_SetNameJustifyH(testFrame, justify)
+									CompactUnitFrames.CUF_SetNameJustifyH(testFrame, justify)
 									CompactUnitFrames.db.name.justifyH = justify
 								end,
 							},
@@ -975,7 +975,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.name.fontSize or 10 end,
 								set = function(info, size)
-									CompactUnitFrames:CUF_SetNameFontSize(testFrame, size)
+									CompactUnitFrames.CUF_SetNameFontSize(testFrame, size)
 									CompactUnitFrames.db.name.fontSize = size
 								end,
 								step = 1,
@@ -993,7 +993,7 @@ do
 								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.name.font) end,
 								set = function(info, font)
 									font = SharedMedia:Fetch("font", font)
-									CompactUnitFrames:CUF_SetNameFont(testFrame, font)
+									CompactUnitFrames.CUF_SetNameFont(testFrame, font)
 									CompactUnitFrames.db.name.font = font
 								end,
 							},
@@ -1006,7 +1006,7 @@ do
 								values = {["NONE"] = "NONE", ["OUTLINE"] = "OUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE", ["MONOCHROME"] = "MONOCHROME"},
 								get = function() return CompactUnitFrames.db.name.fontStyle or "NONE" end,
 								set = function(self, outline)
-									CompactUnitFrames:CUF_SetNameFontStyle(testFrame, outline)
+									CompactUnitFrames.CUF_SetNameFontStyle(testFrame, outline)
 									CompactUnitFrames.db.name.fontStyle = outline
 								end,
 							},
@@ -1018,7 +1018,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.name.size or 10 end,
 								set = function(info, size)
-									CompactUnitFrames:CUF_SetNameText(testFrame, size)
+									CompactUnitFrames.CUF_SetNameText(testFrame, size)
 									CompactUnitFrames.db.name.size = size
 								end,
 								step = 1,
@@ -1035,7 +1035,7 @@ do
 								get = function(info) return CompactUnitFrames.db.name.format or "ellipsis" end,
 								set = function(info, shorten)
 									CompactUnitFrames.db.name.format = shorten
-									CompactUnitFrames:CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
 								end,
 							},
 							serverHeading = {
@@ -1053,7 +1053,7 @@ do
 								get = function(info) return CompactUnitFrames.db.name.serverFormat or "full" end,
 								set = function(info, format)
 									CompactUnitFrames.db.name.serverFormat = format
-									CompactUnitFrames:CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
 								end,
 							},
 							serverPrefix = {
@@ -1066,7 +1066,7 @@ do
 								get = function(info) return CompactUnitFrames.db.name.serverPrefix or "full" end,
 								set = function(info, format)
 									CompactUnitFrames.db.name.serverPrefix = format
-									CompactUnitFrames:CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
 								end,
 							},
 							serverSuffix = {
@@ -1079,7 +1079,7 @@ do
 								get = function(info) return CompactUnitFrames.db.name.serverSuffix or "full" end,
 								set = function(info, format)
 									CompactUnitFrames.db.name.serverSuffix = format
-									CompactUnitFrames:CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
 								end,
 							},
 						},
@@ -1125,7 +1125,7 @@ do
 								values = {["LEFT"] = "LEFT", ["CENTER"] = "CENTER", ["RIGHT"] = "RIGHT"},
 								get = function() return CompactUnitFrames.db.status.justifyH or testFrame.statusText:GetJustifyH() end,
 								set = function(self, justify)
-									CompactUnitFrames:CUF_SetStatusJustifyH(testFrame, justify)
+									CompactUnitFrames.CUF_SetStatusJustifyH(testFrame, justify)
 									CompactUnitFrames.db.status.justifyH = justify
 								end,
 							},
@@ -1137,7 +1137,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.status.fontSize or 10 end,
 								set = function(info, size)
-									CompactUnitFrames:CUF_SetStatusFontSize(frame, size)
+									CompactUnitFrames.CUF_SetStatusFontSize(frame, size)
 									CompactUnitFrames.db.status.fontSize = size
 								end,
 								step = 1,
@@ -1155,7 +1155,7 @@ do
 								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.status.font) end,
 								set = function(info, font)
 									font = SharedMedia:Fetch("font", font)
-									CompactUnitFrames:CUF_SetStatusFont(testFrame, font)
+									CompactUnitFrames.CUF_SetStatusFont(testFrame, font)
 									CompactUnitFrames.db.status.font = font
 								end,
 							},
@@ -1168,7 +1168,7 @@ do
 								values = {["NONE"] = "NONE", ["OUTLINE"] = "OUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE", ["MONOCHROME"] = "MONOCHROME"},
 								get = function() return CompactUnitFrames.db.status.fontStyle or "NONE" end,
 								set = function(self, outline)
-									CompactUnitFrames:CUF_SetStatusFontStyle(testFrame, outline)
+									CompactUnitFrames.CUF_SetStatusFontStyle(testFrame, outline)
 									CompactUnitFrames.db.status.fontStyle = outline
 								end,
 							},
@@ -1180,7 +1180,7 @@ do
 
 								get = function(info) return CompactUnitFrames.db.status.size or 10 end,
 								set = function(info, size)
-									CompactUnitFrames:CUF_SetStatusText(testFrame, size)
+									CompactUnitFrames.CUF_SetStatusText(testFrame, size)
 									CompactUnitFrames.db.status.size = size
 								end,
 								step = 1,
@@ -1197,7 +1197,7 @@ do
 								get = function(info) return CompactUnitFrames.db.status.format or "ellipsis" end,
 								set = function(info, shorten)
 									CompactUnitFrames.db.status.format = shorten
-									CompactUnitFrames:CUF_SetStatusText(testFrame, CompactUnitFrames.db.status.size)
+									CompactUnitFrames.CUF_SetStatusText(testFrame, CompactUnitFrames.db.status.size)
 								end,
 							},
 						},

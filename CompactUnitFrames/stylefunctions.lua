@@ -107,7 +107,7 @@ function ns:MinifyPullout(enable)
 end
 
 -- ==== [Health Bar] ========================================
-function ns:CUF_SetHealthBarVertical(frame, enable)
+function ns.CUF_SetHealthBarVertical(frame, enable)
 	local width, height = frame:GetSize()
 
 	if enable then
@@ -142,32 +142,32 @@ function ns:CUF_SetHealthBarVertical(frame, enable)
 	end
 end
 
-function ns:CUF_SetHealthTexture(frame, texture)
+function ns.CUF_SetHealthTexture(frame, texture)
 	frame.healthBar:SetStatusBarTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill', 'BORDER')
 end
 
-function ns:CUF_SetHealthBGTexture(frame, texture)
+function ns.CUF_SetHealthBGTexture(frame, texture)
 	frame.healthBar.background:SetTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
 end
 
-function ns:CUF_SetHealthBGColor(frame, r, g, b)
+function ns.CUF_SetHealthBGColor(frame, r, g, b)
 	frame.healthBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 end
 
 -- ==== [Power Bar] ========================================
-function ns:CUF_SetPowerTexture(frame, texture)
+function ns.CUF_SetPowerTexture(frame, texture)
 	frame.powerBar:SetStatusBarTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill', 'BORDER')
 end
 
-function ns:CUF_SetPowerBGTexture(frame, texture)
+function ns.CUF_SetPowerBGTexture(frame, texture)
 	frame.powerBar.background:SetTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Background', 'BORDER')
 end
 
-function ns:CUF_SetPowerBGColor(frame, r, g, b)
+function ns.CUF_SetPowerBGColor(frame, r, g, b)
 	frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 end
 
-function ns:CUF_SetPowerSize(frame, size)
+function ns.CUF_SetPowerSize(frame, size)
 	if not size or ns.DelayInCombat(frame, ns.CUF_SetPowerBarShown) then return end
 	local padding = ns.db.unitframe.innerPadding
 	--if frame.powerBar.vertical then
@@ -179,20 +179,20 @@ function ns:CUF_SetPowerSize(frame, size)
 end
 
 -- db.powerBar.vertical, db.unitframe.hidePowerSeperator, db.power.size
-function ns:CUF_SetPowerBarShown(frame, enable)
+function ns.CUF_SetPowerBarShown(frame, enable)
 	if enable == nil then enable = frame.powerBar.shown
 	else frame.powerBar.shown = enable end
 
 	if enable then
-		ns:CUF_SetPowerSize(frame, ns.db.power.size)
-		ns:CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)
+		ns.CUF_SetPowerSize(frame, ns.db.power.size)
+		ns.CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)
 	else
-		ns:CUF_SetPowerSize(frame, 0)
-		ns:CUF_SetSeperatorShown(frame, false)
+		ns.CUF_SetPowerSize(frame, 0)
+		ns.CUF_SetSeperatorShown(frame, false)
 	end
 end
 
-function ns:CUF_SetPowerBarVertical(frame, enable, togglePosition)
+function ns.CUF_SetPowerBarVertical(frame, enable, togglePosition)
 	frame.powerBar.vertical = enable
 
 	frame.powerBar:ClearAllPoints()
@@ -235,7 +235,7 @@ function ns:CUF_SetPowerBarVertical(frame, enable, togglePosition)
 	end
 end
 
-function ns:CUF_SetSeperatorShown(frame, enable)
+function ns.CUF_SetSeperatorShown(frame, enable)
 	local seperatorSize = 1
 
 	if not RAID_BORDERS_SHOWN then
@@ -267,7 +267,7 @@ function ns:CUF_SetSeperatorShown(frame, enable)
 	end
 end
 
-function ns:CUF_SetSeperatorVertical(frame, enable, togglePosition)
+function ns.CUF_SetSeperatorVertical(frame, enable, togglePosition)
 	frame.horizDivider:ClearAllPoints()
 	frame.horizDivider:SetParent(frame.powerBar)
 	frame.horizDivider:SetDrawLayer("BORDER", 5)
@@ -300,11 +300,11 @@ function ns:CUF_SetSeperatorVertical(frame, enable, togglePosition)
 end
 
 -- ==== [Texts] ========================================
-function ns:CUF_SetNameColor(frame, r, g, b)
+function ns.CUF_SetNameColor(frame, r, g, b)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
-function ns:CUF_SetNameText(frame, size)
+function ns.CUF_SetNameText(frame, size)
 	local unitName, server = string.split(" - ", GetUnitName(frame.unit, true))
 
 	if ns.db.name.format == 'shorten' then
@@ -324,26 +324,26 @@ function ns:CUF_SetNameText(frame, size)
 	frame.name:SetText(unitName)
 end
 
-function ns:CUF_SetNameJustifyH(frame, justify)
+function ns.CUF_SetNameJustifyH(frame, justify)
 	frame.name:SetJustifyH(justify or "LEFT")
 end
 
-function ns:CUF_SetNameFont(frame, font)
+function ns.CUF_SetNameFont(frame, font)
 	ns:Util_UpdateFont(frame.name, font, ns.db.name.fontSize, ns.db.name.fontStyle)
 end
-function ns:CUF_SetNameFontSize(frame, size)
+function ns.CUF_SetNameFontSize(frame, size)
 	ns:Util_UpdateFont(frame.name, ns.db.name.font, size, ns.db.name.fontStyle)
 end
-function ns:CUF_SetNameFontStyle(frame, style)
+function ns.CUF_SetNameFontStyle(frame, style)
 	style = style ~= "NONE" and style or nil
 	ns:Util_UpdateFont(frame.name, ns.db.name.font, ns.db.name.fontSize, style)
 end
 
-function ns:CUF_SetStatusColor(frame, r, g, b)
+function ns.CUF_SetStatusColor(frame, r, g, b)
 	frame.statusText:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, 1)
 end
 
-function ns:CUF_SetStatusText(frame)
+function ns.CUF_SetStatusText(frame)
 	local setting = frame.optionTable.healthText
 	if (setting == 'losthealth' or setting == 'health') and ns.db.status.format == 'shorten'
 		and UnitIsConnected(frame.unit) and not UnitIsDeadOrGhost(frame.displayedUnit) then
@@ -352,17 +352,17 @@ function ns:CUF_SetStatusText(frame)
 	end
 end
 
-function ns:CUF_SetStatusJustifyH(frame, justify)
+function ns.CUF_SetStatusJustifyH(frame, justify)
 	frame.name:SetJustifyH(justify or "LEFT")
 end
 
-function ns:CUF_SetStatusFont(frame, font)
+function ns.CUF_SetStatusFont(frame, font)
 	ns:Util_UpdateFont(frame.name, font, ns.db.name.fontSize, ns.db.name.fontStyle)
 end
-function ns:CUF_SetStatusFontSize(frame, size)
+function ns.CUF_SetStatusFontSize(frame, size)
 	ns:Util_UpdateFont(frame.name, ns.db.name.font, size, ns.db.name.fontStyle)
 end
-function ns:CUF_SetStatusFontStyle(frame, style)
+function ns.CUF_SetStatusFontStyle(frame, style)
 	style = style ~= "NONE" and style or nil
 	ns:Util_UpdateFont(frame.name, ns.db.name.font, ns.db.name.fontSize, style)
 end

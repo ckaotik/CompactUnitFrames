@@ -78,14 +78,14 @@ function ns.UpdateVisible(frame)
 	if not frame:IsVisible() then return end
 
 	--[[ Health Bar ]]--
-	ns:CUF_SetHealthTexture(frame, ns.db.health.texture)
-	ns:CUF_SetHealthBGTexture(frame, ns.db.health.bgtexture)
-	ns:CUF_SetHealthBGColor(frame, ns:GetColorSetting( ns.db.health.bgcolor, frame.unit ))
+	ns.CUF_SetHealthTexture(frame, ns.db.health.texture)
+	ns.CUF_SetHealthBGTexture(frame, ns.db.health.bgtexture)
+	ns.CUF_SetHealthBGColor(frame, ns:GetColorSetting( ns.db.health.bgcolor, frame.unit ))
 
 	--[[ Power Bar ]]--
-	ns:CUF_SetPowerTexture(frame, ns.db.power.texture)
-	ns:CUF_SetPowerBGTexture(frame, ns.db.power.bgtexture)
-	ns:CUF_SetPowerBGColor(frame, ns:GetColorSetting(ns.db.power.bgcolor, frame.unit))
+	ns.CUF_SetPowerTexture(frame, ns.db.power.texture)
+	ns.CUF_SetPowerBGTexture(frame, ns.db.power.bgtexture)
+	ns.CUF_SetPowerBGColor(frame, ns:GetColorSetting(ns.db.power.bgcolor, frame.unit))
 
 	--[[ Texts ]]--
 	if ns.db.name.font or ns.db.name.fontSize or ns.db.name.fontStyle then
@@ -100,9 +100,9 @@ function ns.UpdateVisible(frame)
 	end
 
 	--[[ Bar Orientation ]]--
-	-- ns:CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
-	-- ns:CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
-	-- ns:CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
+	-- ns.CUF_SetHealthBarVertical(frame, ns.db.health.vertical)
+	-- ns.CUF_SetPowerBarVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
+	-- ns.CUF_SetSeperatorVertical(frame, ns.db.power.vertical, ns.db.power.changePosition)
 
 	--[[ Auras ]]--
 	--[[frame.buffFrames[1]:ClearAllPoints()
@@ -163,7 +163,7 @@ function ns.UpdatePowerColor(frame)
 	local unit = frame.unit or frame.displayedUnit
 
 	local displayPowerBar = ns:ShouldDisplayPowerBar(frame)
-	ns:CUF_SetPowerBarShown(frame, displayPowerBar)
+	ns.CUF_SetPowerBarShown(frame, displayPowerBar)
 
 	local r, g, b = ns:GetColorSetting( ns.db.power.color, frame.unit )
 	if r and (not unit or UnitIsConnected(unit)) then
@@ -172,22 +172,22 @@ function ns.UpdatePowerColor(frame)
 end
 function ns.UpdateNameColor(frame)
 	local r, g, b = ns:GetColorSetting(ns.db.name.color, frame.unit)
-	ns:CUF_SetNameColor(frame, r, g, b)
+	ns.CUF_SetNameColor(frame, r, g, b)
 end
 function ns.UpdateName(frame)
 	if not frame or type(frame) ~= "table" then return end
 
-	ns:CUF_SetNameText(frame, ns.db.name.size)
+	ns.CUF_SetNameText(frame, ns.db.name.size)
 	ns.UpdateNameColor(frame)
 end
 function ns.UpdateStatusColor(frame)
 	local r, g, b = ns:GetColorSetting(ns.db.status.color, frame.unit)
-	ns:CUF_SetStatusColor(frame, r, g, b)
+	ns.CUF_SetStatusColor(frame, r, g, b)
 end
 function ns.UpdateStatus(frame)
 	if not frame or type(frame) ~= "table" then return end
 
-	ns:CUF_SetStatusText(frame)
+	ns.CUF_SetStatusText(frame)
 	ns.UpdateStatusColor(frame)
 end
 
