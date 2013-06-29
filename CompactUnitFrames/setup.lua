@@ -236,14 +236,8 @@ end
 
 function ns.SetUpClicks(frame)
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
-
-	if frame:GetAttribute("*type2") == "menu" then frame:SetAttribute("*type2", "togglemenu") end
-
-	local combatMenu = ns.db.unitframe.noMenuClickInCombat and "" or "togglemenu"
-	RegisterStateDriver(frame, "rightclick", "[combat] "..combatMenu.."; togglemenu")
-	frame:SetAttribute("_onstate-rightclick", [[ -- arguments: self, stateid, newstate
-		self:SetAttribute("*type2", newstate)
-	]])
+	local combatMenu = ns.db.unitframe.noMenuClickInCombat and "" or "menu"
+	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
 end
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)
