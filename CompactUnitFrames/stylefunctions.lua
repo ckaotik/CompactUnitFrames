@@ -14,9 +14,7 @@ function ns:Manager_DisableCUF(disable)
 		manager:Hide()
 		manager.container:UnregisterAllEvents()
 		manager.container:Hide()
-
-		HidePartyFrame()
-		-- UIErrorsFrame:Hide()
+		-- HidePartyFrame()
 	elseif not disable then
 		if not isHooked then
 			CompactRaidFrameManager_OnLoad(manager)
@@ -38,19 +36,6 @@ function ns:Manager_SetLeftBorder()
 		borderLeft:SetTexture("Interface\\RaidFrame\\RaidPanel-Left")
 		borderLeft:SetVertTile(true)
 	end
-end
-
-function ns:Manager_ShowSolo(enable)
-	if enable then
-		manager:Show()
-		manager.container:Show()
-	elseif GetNumGroupMembers() < 1 then
-		manager:Hide()
-		manager.container:Hide()
-	end
-end
-function ns:ShowSolo()
-	ns:Manager_ShowSolo(ns.db.frames.showSolo)
 end
 
 function ns:MinifyPullout(enable)

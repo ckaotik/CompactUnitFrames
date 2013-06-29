@@ -68,11 +68,10 @@ local function eventHandler(self, event, arg1)
 		ns.db = CUF_GlobalDB
 		ns.SetDefaultSettings(ns.db, ns.defaults)
 
-		-- TODO: don't let this happen in combat!
-		-- ns:ManagerSetup()
+		ns.ManagerSetup()
 		-- ns:ContainerSetup()
 
-		ns:RegisterHooks()
+		ns.RegisterHooks()
 
 		-- update any existing frames
 		ns.UpdateAll(function(frame)

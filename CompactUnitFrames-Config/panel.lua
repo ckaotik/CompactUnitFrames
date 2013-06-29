@@ -180,8 +180,8 @@ do
 
 								get = function(info) return CompactUnitFrames.db.frames.showSolo end,
 								set = function(info, enable)
-									CompactUnitFrames:Manager_ShowSolo(enable)
 									CompactUnitFrames.db.frames.showSolo = enable
+									CompactRaidFrameManager_UpdateShown()
 								end,
 							},
 							noMenu = {
@@ -192,9 +192,9 @@ do
 
 								set = function(info, val)
 									CompactUnitFrames.db.unitframe.noMenuClickInCombat = val
-									-- TODO: CompactUnitFrames.UpdateAll(
-									--	function(frame) CompactUnitFrames.SetUpClicks(frame)
-									-- end)
+									CompactUnitFrames.UpdateAll(
+										function(frame) CompactUnitFrames.SetUpClicks(frame)
+									end)
 								end,
 								get = function(info) return CompactUnitFrames.db.unitframe.noMenuClickInCombat end,
 							},

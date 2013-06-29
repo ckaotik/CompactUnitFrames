@@ -4,29 +4,40 @@ local _, ns = ...
 -- GLOBALS: UnitBuff, UnitIsPVP, UnitIsConnected, UnitIsFriend, DebuffTypeColor, CompactUnitFrame_UpdateSelectionHighlight, CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrame_UtilSetBuff, CompactUnitFrame_HideAllBuffs, FlowContainer_SetHorizontalSpacing, FlowContainer_SetVerticalSpacing, CompactRaidFrameManager_GetSetting
 -- GLOBALS: hooksecurefunc, pairs, type, floor
 
---[[
-function ns:ManagerSetup()
+function ns.ManagerSetup()
 	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
 	-- if InCombatLockdown() then return end
 	-- unlink unit frames from manager
-	CompactRaidFrameManager.container:SetParent(UIParent)
+	-- CompactRaidFrameManager.container:SetParent(UIParent)
 
 	-- ns:Manager_SetLeftBorder()
 	-- ns:Manager_DisableCUF(ns.db.frames.disableCUF)
 
-	ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
+	--[[ ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
 	hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.activeAlpha)
 	end)
 	hooksecurefunc("CompactRaidFrameManager_Collapse", function(self)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
+	end) --]]
+
+	-- ns:MinifyPullout(ns.db.frames.pullout.minify)
+	hooksecurefunc("CompactRaidFrameManager_UpdateShown", function(self)
+		if ns.db.frames.showSolo then
+			self:Show()
+		end
+	end)
+	hooksecurefunc("CompactRaidFrameManager_UpdateContainerVisibility", function()
+		local container = CompactRaidFrameContainer
+		if ns.db.frames.showSolo and container.enabled then
+			container:Show()
+		end
 	end)
 
-	-- ns:Manager_ShowSolo(ns.db.frames.showSolo)
-	-- ns:MinifyPullout(ns.db.frames.pullout.minify)
+	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 end
 
-function ns:ContainerSetup()
+--[[ function ns:ContainerSetup()
 	local frame = CompactRaidFrameContainer
 	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
 	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
@@ -35,7 +46,7 @@ function ns:ContainerSetup()
 end
 --]]
 
-function ns:RegisterHooks()
+function ns.RegisterHooks()
 	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
 	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor)
