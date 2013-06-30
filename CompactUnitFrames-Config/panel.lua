@@ -181,7 +181,7 @@ do
 								get = function(info) return CompactUnitFrames.db.frames.showSolo end,
 								set = function(info, enable)
 									CompactUnitFrames.db.frames.showSolo = enable
-									CompactRaidFrameManager_UpdateShown()
+									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 								end,
 							},
 							noMenu = {
