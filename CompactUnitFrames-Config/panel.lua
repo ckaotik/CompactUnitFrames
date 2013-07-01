@@ -184,6 +184,17 @@ do
 									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 								end,
 							},
+							taintFix = {
+								type = "toggle",
+								name = "Fix taints",
+								order = 1,
+								desc = "Check to update unit frames after combat",
+
+								get = function(info) return CompactUnitFrames.db.frames.taintUpdate end,
+								set = function(info, enable)
+									CompactUnitFrames.db.frames.taintUpdate = enable
+								end,
+							},
 							noMenu = {
 								type = "toggle",
 								name = "No menu in combat",

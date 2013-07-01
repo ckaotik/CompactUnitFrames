@@ -13,6 +13,7 @@ ns.defaults = {
 	frames = {
 		disableCUF = false,
 		showSolo = false,
+		taintUpdate = true,
 		pullout = {
 			posX = false,
 			posY = false,

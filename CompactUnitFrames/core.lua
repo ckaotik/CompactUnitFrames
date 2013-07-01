@@ -116,6 +116,11 @@ function ns.RunAfterCombat()
 		end
 		wipe(tasks)
 	end
+
+	if ns.db.frames.taintUpdate then
+		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
+		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
+	end
 end
 function ns.DelayInCombat(frame, func)
 	local delay = nil
