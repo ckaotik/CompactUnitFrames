@@ -37,14 +37,43 @@ function ns.ManagerSetup()
 	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 end
 
---[[ function ns:ContainerSetup()
+--[[ local function GetUnitIndex(token)
+	for i,v in ipairs(CompactRaidFrameContainer.units) do
+		if v == token then
+			return i
+		end
+	end
+	return 1
+end --]]
+
+function ns.ContainerSetup()
 	local frame = CompactRaidFrameContainer
 	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
 	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
 	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
 	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
+
+	-- try and keep frames usable when group changes mid fight
+	local origsort = CompactRaidFrameContainer.flowSortFunc
+	local function newsort(token1, token2)
+		if InCombatLockdown() then -- TODO: this does not work properly
+			local index1, index2 = token1:match('(%d+)'), token2:match('(%d+)')
+			return tonumber(index1 or 0) < tonumber(index2 or 0)
+			-- return GetUnitIndex(token1) < GetUnitIndex(token2)
+		elseif origsort then
+			return origsort(token1, token2)
+		else
+			return CRFSort_Role(token1, token2)
+		end
+	end
+	CompactRaidFrameContainer_SetFlowSortFunction(CompactRaidFrameContainer, newsort)
+	hooksecurefunc('CompactRaidFrameContainer_SetFlowSortFunction', function(self, func, isRecursion)
+		if not isRecursion then
+			origsort = func
+			CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
+		end
+	end)
 end
---]]
 
 function ns.RegisterHooks()
 	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238

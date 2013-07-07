@@ -8,8 +8,7 @@ CompactUnitFrames = ns -- external reference
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
 function ns.RunAutoActivation()
-	if true then return end -- [TODO]
-	--[[ local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
+	local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
 	if not success then return end
 
 	local lastActivationType, lastNumPlayers, lastSpec, lastEnemyType = CompactUnitFrameProfiles_GetLastActivationType()
@@ -25,6 +24,7 @@ function ns.RunAutoActivation()
 	numPlayers = GetNumGroupMembers()
 	numPlayers = (numPlayers <= 2 and 2) or (numPlayers <= 3 and 3) or (numPlayers <= 5 and 5)
 			or (numPlayers <= 10 and 10) or (numPlayers <= 15 and 15) or (numPlayers <= 25 and 25) or 40
+	print('should display profile for', numPlayers)
 
 	local profile = GetActiveRaidProfile()
 	if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
@@ -32,9 +32,7 @@ function ns.RunAutoActivation()
 	else
 		for i=1, GetNumRaidProfiles() do
 			profile = GetRaidProfileName(i)
-			if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile,
-				numPlayers, spec, enemyType) then
-
+			if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
 				CompactUnitFrameProfiles_ActivateRaidProfile(profile)
 				CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
 			end
@@ -69,8 +67,7 @@ local function eventHandler(self, event, arg1)
 		ns.SetDefaultSettings(ns.db, ns.defaults)
 
 		ns.ManagerSetup()
-		-- ns:ContainerSetup()
-
+		ns.ContainerSetup()
 		ns.RegisterHooks()
 
 		-- update any existing frames
@@ -86,8 +83,8 @@ local function eventHandler(self, event, arg1)
 		CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
 		ns.RunAutoActivation()
 
-		-- eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-		-- eventFrame:RegisterEvent("UNIT_PET")
+		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		eventFrame:RegisterEvent("UNIT_PET") -- TODO: update pet frames when pets die/get replaced/...
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
 	elseif event == "GROUP_ROSTER_UPDATE" or (showPets and event == "UNIT_PET") then
