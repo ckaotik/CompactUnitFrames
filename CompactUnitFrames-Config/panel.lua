@@ -182,6 +182,7 @@ do
 								set = function(info, enable)
 									CompactUnitFrames.db.frames.showSolo = enable
 									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
+									CompactUnitFrames.UpdateAll()
 								end,
 							},
 							taintFix = {
@@ -228,8 +229,8 @@ do
 
 								get = function(info) return CompactUnitFrames.db.unitframe.spacingX or 0 end,
 								set = function(info, value)
+									FlowContainer_SetHorizontalSpacing(CompactRaidFrameContainer, value)
 									CompactUnitFrames.db.unitframe.spacingX = value
-									CompactUnitFrames:ContainerSetup(CompactRaidFrameContainer)
 								end,
 								step = 1,
 								min = -10,
@@ -242,8 +243,8 @@ do
 
 								get = function(info) return CompactUnitFrames.db.unitframe.spacingY or 0 end,
 								set = function(info, value)
+									FlowContainer_SetVerticalSpacing(CompactRaidFrameContainer, value)
 									CompactUnitFrames.db.unitframe.spacingY = value
-									CompactUnitFrames:ContainerSetup(CompactRaidFrameContainer)
 								end,
 								step = 1,
 								min = -10,
@@ -272,8 +273,8 @@ do
 								get = function(info) return CompactUnitFrames.db.unitframe.numPerLine end,
 								set = function(info, value)
 									if value == 0 then value = nil end
+									FlowContainer_SetMaxPerLine(CompactRaidFrameContainer, value)
 									CompactUnitFrames.db.unitframe.numPerLine = value
-									CompactUnitFrames:ContainerSetup(CompactRaidFrameContainer)
 								end,
 								step = 1,
 								min = 0,
@@ -286,8 +287,8 @@ do
 
 								get = function(info) return CompactUnitFrames.db.unitframe.orientation end,
 								set = function(info, value)
+									FlowContainer_SetOrientation(CompactRaidFrameContainer, value)
 									CompactUnitFrames.db.unitframe.orientation = value
-									CompactUnitFrames:ContainerSetup(CompactRaidFrameContainer)
 								end,
 								values = {["horizontal"] = "horizontal", ["vertical"] = "vertical"},
 							},

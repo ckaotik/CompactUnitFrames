@@ -4,40 +4,38 @@ CompactUnitFrames = ns -- external reference
 -- GLOBALS: CompactUnitFrames, CUF_GlobalDB, RAID_CLASS_COLORS, GameTooltip, DEFAULT_CHAT_FRAME, CompactRaidFrameManager, CompactRaidFrameContainer, CompactUnitFrameProfiles
 -- GLOBALS: UnitIsConnected, UnitPowerType, UnitClass, UnitIsFriend, GetSpellInfo, UnitBuff, UnitDebuff, UnitGroupRolesAssigned, AbbreviateLargeNumbers, InCombatLockdown, GetNumGroupMembers, GetActiveSpecGroup, GetRaidProfileOption, GetRaidProfileName, GetNumRaidProfiles, GetActiveRaidProfile
 -- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall, hooksecurefunc, loadstring
--- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile, CompactRaidFrameContainer_SetFlowSortFunction, CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether, CRFSort_Role
+-- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile, CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
 function ns.RunAutoActivation()
-	local success, numPlayers, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
+	local success, _, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
+	-- returns: true, 40, "world", "PvE"
 	if not success then return end
-
-	local lastActivationType, lastNumPlayers, lastSpec, lastEnemyType = CompactUnitFrameProfiles_GetLastActivationType()
-	local spec = GetActiveSpecGroup()
-
-	if lastActivationType == activationType and lastSpec == spec and lastEnemyType == enemyType then
-		-- and lastNumPlayers == numPlayers
-		-- If we last auto-adjusted for this same thing, we don't change. (In case they manually changed the profile.)
-		return
-	end
 
 	-- group sizes: 2, 3, 5, 10, 15, 25, 40
 	numPlayers = GetNumGroupMembers()
 	numPlayers = (numPlayers <= 2 and 2) or (numPlayers <= 3 and 3) or (numPlayers <= 5 and 5)
 			or (numPlayers <= 10 and 10) or (numPlayers <= 15 and 15) or (numPlayers <= 25 and 25) or 40
-	print('should display profile for', numPlayers)
 
-	local profile = GetActiveRaidProfile()
-	if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
-		CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
-	else
-		for i=1, GetNumRaidProfiles() do
-			profile = GetRaidProfileName(i)
-			if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
-				CompactUnitFrameProfiles_ActivateRaidProfile(profile)
-				CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
-			end
+	local lastActivationType, lastNumPlayers, lastSpec, lastEnemyType = CompactUnitFrameProfiles_GetLastActivationType()
+	local spec = GetActiveSpecGroup()
+
+	if lastSpec == spec and lastEnemyType == enemyType and lastNumPlayers == numPlayers
+		or CompactUnitFrameProfiles_ProfileMatchesAutoActivation(GetActiveRaidProfile(), numPlayers, spec, enemyType) then
+		return
+	end
+
+	local changed
+	for i=1, GetNumRaidProfiles() do
+		local profile = GetRaidProfileName(i)
+		if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
+			CompactUnitFrameProfiles_ActivateRaidProfile(profile)
+			CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
+			changed = true
+			break
 		end
-	end --]]
+	end
+	print('should display profile for', numPlayers, changed)
 end
 
 function ns.SetDefaultSettings(db, defaults)
@@ -69,6 +67,7 @@ local function eventHandler(self, event, arg1)
 		ns.ManagerSetup()
 		ns.ContainerSetup()
 		ns.RegisterHooks()
+		ns.RunAutoActivation()
 
 		-- update any existing frames
 		ns.UpdateAll(function(frame)
@@ -79,15 +78,12 @@ local function eventHandler(self, event, arg1)
 			ns.UpdateStatus(frame)
 		end)
 
-		-- make sure the container is sized properly
-		CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
-		ns.RunAutoActivation()
-
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-		eventFrame:RegisterEvent("UNIT_PET") -- TODO: update pet frames when pets die/get replaced/...
+		eventFrame:RegisterEvent("GROUP_JOINED")
+		-- eventFrame:RegisterEvent("UNIT_PET") -- TODO: update pet frames when pets die/get replaced/...
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
-	elseif event == "GROUP_ROSTER_UPDATE" or (showPets and event == "UNIT_PET") then
+	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then -- or (showPets and event == "UNIT_PET") then
 		ns.RunAutoActivation()
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		ns.RunAfterCombat()
@@ -127,7 +123,6 @@ function ns.DelayInCombat(frame, func)
 		eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 		delay = true
 	end
-
 	return delay
 end
 

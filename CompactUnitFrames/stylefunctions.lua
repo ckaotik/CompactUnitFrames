@@ -289,7 +289,7 @@ function ns.CUF_SetNameColor(frame, r, g, b)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
-function ns.CUF_SetNameText(frame, size)
+function ns.CUF_SetNameText(frame, size) -- FIXME: use GetTextWidth()
 	local unitName, server = string.split(" - ", GetUnitName(frame.unit, true))
 
 	if ns.db.name.format == 'shorten' then

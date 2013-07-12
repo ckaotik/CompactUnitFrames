@@ -19,9 +19,42 @@ function ns.ManagerSetup()
 	end)
 	hooksecurefunc("CompactRaidFrameManager_Collapse", function(self)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
-	end) --]]
+	end)
+	ns:MinifyPullout(ns.db.frames.pullout.minify) --]]
 
-	-- ns:MinifyPullout(ns.db.frames.pullout.minify)
+	-- restore manager settings if <show solo>
+	hooksecurefunc("CompactRaidFrameManager_UpdateContainerLockVisibility", function(self)
+		if ns.db.frames.showSolo and CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode then
+			CompactRaidFrameManager_UnlockContainer(self)
+		end
+	end)
+	hooksecurefunc("CompactRaidFrameManager_UpdateOptionsFlowContainer", function(self)
+		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
+		-- settings: profile selector, filter options, raid markers, leader options, convert to raid, lock/unlock, all assist
+		local container = self.displayFrame.optionsFlowContainer
+		FlowContainer_PauseUpdates(container)
+
+		-- profile selector
+		FlowContainer_AddLineBreak(container)
+		FlowContainer_AddObject(container, self.displayFrame.profileSelector)
+    	self.displayFrame.profileSelector:Show()
+
+    	-- lock / unlock
+		FlowContainer_AddLineBreak(container)
+		FlowContainer_AddSpacer(container, 20)
+		FlowContainer_AddObject(container, self.displayFrame.lockedModeToggle)
+		FlowContainer_AddObject(container, self.displayFrame.hiddenModeToggle)
+		self.displayFrame.lockedModeToggle:Show()
+		self.displayFrame.hiddenModeToggle:Show()
+
+		FlowContainer_ResumeUpdates(container)
+
+		-- fix size
+		local usedX, usedY = FlowContainer_GetUsedBounds(container)
+  		self:SetHeight(usedY + 40)
+	end)
+
+	-- show solo functionality
 	hooksecurefunc("CompactRaidFrameManager_UpdateShown", function(self)
 		if ns.db.frames.showSolo then
 			self:Show()
@@ -33,18 +66,31 @@ function ns.ManagerSetup()
 			container:Show()
 		end
 	end)
-
 	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
+
+	-- fix container snapping to weird sizes (hint: CRF1:GetHeight() > DefaultCompactUnitFrameSetupOptions.height)
+	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
+		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") == "1" then return end
+
+		local resizerHeight = manager.containerResizeFrame:GetHeight()
+		local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
+		local spacing = manager.container.flowVerticalSpacing or 0
+
+		-- add 1px dummy to offset rounding errors
+		local newHeight = (unitFrameHeight + spacing) * floor(resizerHeight / unitFrameHeight) + 1
+		manager.container:SetHeight(newHeight)
+	end)
+	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
 end
 
---[[ local function GetUnitIndex(token)
+local function GetUnitIndex(token)
 	for i,v in ipairs(CompactRaidFrameContainer.units) do
 		if v == token then
 			return i
 		end
 	end
 	return 1
-end --]]
+end
 
 function ns.ContainerSetup()
 	local frame = CompactRaidFrameContainer
@@ -53,13 +99,14 @@ function ns.ContainerSetup()
 	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
 	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
 
+
 	-- try and keep frames usable when group changes mid fight
 	local origsort = CompactRaidFrameContainer.flowSortFunc
 	local function newsort(token1, token2)
 		if InCombatLockdown() then -- TODO: this does not work properly
-			local index1, index2 = token1:match('(%d+)'), token2:match('(%d+)')
-			return tonumber(index1 or 0) < tonumber(index2 or 0)
-			-- return GetUnitIndex(token1) < GetUnitIndex(token2)
+			-- local index1, index2 = token1:match('(%d+)'), token2:match('(%d+)')
+			-- return tonumber(index1 or 0) < tonumber(index2 or 0)
+			return GetUnitIndex(token1) < GetUnitIndex(token2)
 		elseif origsort then
 			return origsort(token1, token2)
 		else
@@ -73,6 +120,13 @@ function ns.ContainerSetup()
 			CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
 		end
 	end)
+
+	--[[
+	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
+	hooksecurefunc("CompactRaidFrameContainer_LayoutFrames", function(self)
+		FlowContainer_AddLineBreak(self)
+		CompactRaidFrameContainer_AddPets(self)
+	end) --]]
 end
 
 function ns.RegisterHooks()
@@ -85,32 +139,6 @@ function ns.RegisterHooks()
 
 	hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 	hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
-
-	--[[
-	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
-	hooksecurefunc("CompactRaidFrameContainer_LayoutFrames", function(self)
-		FlowContainer_AddLineBreak(self)
-		CompactRaidFrameContainer_AddPets(self)
-	end) --]]
-
-	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
-		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") == "1" then return end
-
-		local resizerHeight = manager.containerResizeFrame:GetHeight()
-		local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
-		local spacing = 1 +
-			(  (manager.container.flowOrientation == 'vertical' and manager.container.flowVerticalSpacing)
-			or (manager.container.flowOrientation == 'horizontal' and manager.container.flowHorizontalSpacing)
-			or 0)
-		local newHeight = (unitFrameHeight + spacing) * floor(resizerHeight / unitFrameHeight)
-
-		--[[local blizz_unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height;
-		local blizz_resizerHeight = manager.containerResizeFrame:GetHeight() - RESIZE_VERTICAL_OUTSETS * 2;
-		local blizz_newHeight = blizz_unitFrameHeight * math.floor(resizerHeight / blizz_unitFrameHeight)
-		print("Resizing", newHeight, blizz_newHeight, blizz_unitFrameHeight, blizz_resizerHeight)--]]
-
-		manager.container:SetHeight(newHeight)
-	end)
 end
 
 local defaultFont, defaultSize, defaultStyle
