@@ -84,12 +84,13 @@ function ns.ManagerSetup()
 end
 
 local function GetUnitIndex(token)
+	-- CompactRaidFrameContainer.units vs. .flowFrames
 	for i,v in ipairs(CompactRaidFrameContainer.units) do
-		if v == token then
+		if unit == token then
 			return i
 		end
 	end
-	return 1
+	return 100
 end
 
 function ns.ContainerSetup()
@@ -103,9 +104,7 @@ function ns.ContainerSetup()
 	-- try and keep frames usable when group changes mid fight
 	local origsort = CompactRaidFrameContainer.flowSortFunc
 	local function newsort(token1, token2)
-		if InCombatLockdown() then -- TODO: this does not work properly
-			-- local index1, index2 = token1:match('(%d+)'), token2:match('(%d+)')
-			-- return tonumber(index1 or 0) < tonumber(index2 or 0)
+		if InCombatLockdown() then
 			return GetUnitIndex(token1) < GetUnitIndex(token2)
 		elseif origsort then
 			return origsort(token1, token2)
@@ -119,7 +118,7 @@ function ns.ContainerSetup()
 			origsort = func
 			CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
 		end
-	end)
+	end) --]]
 
 	--[[
 	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
@@ -295,6 +294,8 @@ function ns.SetUpClicks(frame)
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
 	local combatMenu = ns.db.unitframe.noMenuClickInCombat and "" or "menu"
 	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
+
+	-- RegisterUnitWatch(frame, false)
 end
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)

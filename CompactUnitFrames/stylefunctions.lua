@@ -60,7 +60,7 @@ function ns:MinifyPullout(enable)
 				self:SetSize(widthDefault, currentHeight)
 			end
 		end
-		-- [TODO] FIXME
+		-- [TODO]
 		--[[hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
 			self:SetAlpha(1)
 			self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", (ns.db.frames.pullout.posX or 0) -7, ns.db.frames.pullout.posY or -140)

@@ -35,7 +35,7 @@ function ns.RunAutoActivation()
 			break
 		end
 	end
-	print('should display profile for', numPlayers, changed)
+	-- print('should display profile for', numPlayers, changed)
 end
 
 function ns.SetDefaultSettings(db, defaults)
@@ -80,11 +80,13 @@ local function eventHandler(self, event, arg1)
 
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 		eventFrame:RegisterEvent("GROUP_JOINED")
-		-- eventFrame:RegisterEvent("UNIT_PET") -- TODO: update pet frames when pets die/get replaced/...
+		eventFrame:RegisterEvent("UNIT_PET")
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
-	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then -- or (showPets and event == "UNIT_PET") then
+	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then
 		ns.RunAutoActivation()
+	elseif event ==  (showPets and event == "UNIT_PET") then
+		ns.UpdatePets(arg1)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		ns.RunAfterCombat()
 		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -96,8 +98,20 @@ ns.eventFrame = eventFrame
 
 function ns.UpdateAll(func)
 	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
-		ns.UpdateVisible(unitFrame)
-		if func then func(unitFrame) end
+		if unitFrame and unitFrame.IsVisible then
+			ns.UpdateVisible(unitFrame)
+			if func then func(unitFrame) end
+		end
+	end
+end
+
+function ns.UpdatePets(unit, func)
+	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
+		if (unit and unitFrame.unit == unit..'pet') or (not unit and unitFrame.unit:find('pet')) then
+			CompactUnitFrame_UpdateHealth(unitFrame)
+			CompactUnitFrame_UpdateName(unitFrame)
+			if func then func(unitFrame) end
+		end
 	end
 end
 
