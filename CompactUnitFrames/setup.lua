@@ -130,14 +130,13 @@ end
 
 function ns.RegisterHooks()
 	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
+	hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
+
 	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor)
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
-
-	hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
-	hooksecurefunc("CompactUnitFrame_OnUpdate", ns.OnUpdate)
 end
 
 local defaultFont, defaultSize, defaultStyle
@@ -204,6 +203,15 @@ function ns.UpdateVisible(frame)
 		frame.GPS = gps
 		frame.GPS.Texture = tex -- .Text is also possible
 		ns.EnableGPS(frame)
+	end
+
+	if not frame:IsEventRegistered("UNIT_FACTION") then
+		frame:RegisterEvent("UNIT_FACTION")
+		frame:HookScript("OnEvent", function(self, event, unit)
+			if event == "UNIT_FACTION" and unit == self.unit then
+				ns.UpdateHealthColor(self)
+			end
+		end)
 	end
 end
 
@@ -286,16 +294,10 @@ function ns.UpdateAuras(frame)
 	end
 end
 
-function ns.OnUpdate(frame, elapsed)
-	ns.UpdateHealthColor(frame)
-end
-
 function ns.SetUpClicks(frame)
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
 	local combatMenu = ns.db.unitframe.noMenuClickInCombat and "" or "menu"
 	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
-
-	-- RegisterUnitWatch(frame, false)
 end
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)
