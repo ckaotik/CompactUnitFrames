@@ -174,7 +174,7 @@ end
 
 function ns:ShortenString(string, size)
 	if not string then return "" end
-	return (strlen(string) > size) and strgsub(string, "%s?(.[\128-\191]*)%S+%s", "%1. ") or string
+	return (strlenutf8(string) > size) and strgsub(string, "%s?(.[\128-\191]*)%S+%s", "%1. ") or string
 end
 
 -- checks config.lua for correct color

@@ -51,7 +51,8 @@ ns.defaults = {
 		bgtexture = 'Interface\\Addons\\Midget\\media\\TukTexture.tga',
 		color = '0.16:0.19:0.23',
 		bgcolor = '0.74:0.75:0.77',
-		flagsAsPvPColor = '0.64:0.07:0.07',
+		flagsAsPvPColor = '0:0.6:0.1',
+		isEnemyColor = '0.8:0.3:0.22', -- was '0.64:0.07:0.07'
 	},
 	power = {
 		vertical = false,

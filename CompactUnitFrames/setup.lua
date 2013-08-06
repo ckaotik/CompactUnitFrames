@@ -221,8 +221,9 @@ function ns.UpdateHealthColor(frame)
 	local r, g, b
 	if not frame.unit then
 		r, g, b = ns:GetColorSetting(ns.db.health.bgcolor, frame.unit)
-	elseif (not UnitIsPVP("player") and UnitIsPVP(frame.unit))
-		or not UnitIsFriend("player", frame.unit) then
+	elseif UnitCanAttack("player", frame.unit) then
+		r, g, b = ns:GetColorSetting(ns.db.health.isEnemyColor, frame.unit)
+	elseif (not UnitIsPVP("player") and UnitIsPVP(frame.unit)) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
 	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
