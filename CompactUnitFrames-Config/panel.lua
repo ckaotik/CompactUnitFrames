@@ -41,16 +41,19 @@ do
 		testFrame.healthBar:SetValue(0.4 * UnitHealthMax(testFrame.displayedUnit))
 		testFrame.powerBar:SetValue (0.55 * UnitPowerMax(testFrame.displayedUnit))
 
-		-- TODO: update
-		-- testFrame.myHealPredictionBar:SetValue(0.05 * UnitHealthMax(testFrame.displayedUnit))
-		-- testFrame.otherHealPredictionBar:SetValue(0.1 * UnitHealthMax(testFrame.displayedUnit))
+		local maxHealth = UnitHealthMax(testFrame.displayedUnit)
+		local previousTexture = testFrame.healthBar:GetStatusBarTexture()
+		      previousTexture = CompactUnitFrameUtil_UpdateFillBar(testFrame, previousTexture, testFrame.myHealAbsorb, 0.05*maxHealth)
+		      previousTexture = CompactUnitFrameUtil_UpdateFillBar(testFrame, previousTexture, testFrame.myHealPrediction, 0.05*maxHealth)
+		      previousTexture = CompactUnitFrameUtil_UpdateFillBar(testFrame, previousTexture, testFrame.otherHealPrediction, 0.15*maxHealth)
+		      previousTexture = CompactUnitFrameUtil_UpdateFillBar(testFrame, previousTexture, testFrame.totalAbsorb, 0)
 
-		ns:Simulate_Buffs(testFrame, 1)
+		ns:Simulate_Buffs(testFrame, 2)
 		ns:Simulate_Debuffs(testFrame, 2)
-		ns:Simulate_BossDebuff(testFrame, 2)
+		ns:Simulate_BossDebuff(testFrame, 1)
 
 		ns:Simulate_DebuffIcon(testFrame, "Disease", true)
-		-- ns:Simulate_DebuffBorder(testFrame, "Disease", true)
+		ns:Simulate_DebuffBorder(testFrame, "Disease", true)
 	end
 
 	local optionsTable = {
@@ -884,7 +887,7 @@ do
 								args = {
 									showNone = {
 										type = "toggle",
-										name = NONE,
+										name = NO_ROLE,
 										desc = "Check to allow power bars for units without chosen roles.",
 										order = 10,
 

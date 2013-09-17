@@ -1,34 +1,72 @@
 local addonName, ns = ...
 
-function ns:Simulate_Buffs(frame, count)
-	for index = 1, count do
-		if UnitAura("player", 1, "HELPFUL") then
-			CompactUnitFrame_UtilSetBuff(frame.buffFrames[1], frame.displayedUnit, index, "HELPFUL")
+local UnitDebuff, UnitBuff
+do
+	local fakeDebuffs = {
+		{ "Allergies", false, "Ability_Creature_Disease_04", 0, false, 180, false, false, 31427, false, true, false },
+		{ "Amplify Damage", false, "Spell_Shadow_Shadowfury", 99, false, 10, false, false, 39095, false, true, false },
+		{ "Brood Affliction: Black", false, "INV_Misc_Head_Dragon_Black", 0, "Curse", 600, false, false, 23154, false, true, false },
+		{ "Corruption", false, "Spell_Shadow_AbominationExplosion", 0, "Magic", 18, false, false, 172, false, false, true },
+		{ "Enhance Magic", false, "Spell_Arcane_ArcanePotency", 0, "Magic", 8, true, false, 91624, false, false, false },
+		{ "Enrage", false, "Ability_Druid_Enrage", 0, "", 10, false, false, 5229, false, false, true },
+		{ "Furious Poison", false, "Spell_Yorsahj_Bloodboil_Green", 4, "Poison", 10, false, false, 115087, false, false, false },
+		{ "Ghoul Rot", false, "Spell_Shadow_CreepingPlague", 0, "Disease", 20, false, false, 12541, false, false, false },
+	}
+	function UnitDebuff(unit, index, ...)
+		if type(index) == "number" then
+			local name, rank, icon, count, debuffType, duration, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, isCastByPlayer = unpack(fakeDebuffs[random(#fakeDebuffs)])
+			local expirationTime = GetTime() + duration - random(1, duration - 1)
+			local unitCaster = "boss1" -- "player"
+			icon = "Interface\\Icons\\"..icon
+			return name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, isCastByPlayer
+		else
+			return _G.UnitDebuff(unit, index, ...)
 		end
 	end
+	function UnitBuff(unit, index, ...)
+		if type(index) == "number" then
+			local name, rank, icon, count, debuffType, duration, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, isCastByPlayer = unpack(fakeDebuffs[random(#fakeDebuffs)])
+			local expirationTime = GetTime() + duration - random(1, duration - 1)
+			local unitCaster = "boss1" -- "player"
+			icon = "Interface\\Icons\\"..icon
+			return name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId, canApplyAura, isBossDebuff, isCastByPlayer
+		else
+			return _G.UnitBuff(unit, index, ...)
+		end
+	end
+end
+
+function ns:Simulate_Buffs(frame, count)
+	local origUnitBuff = _G.UnitBuff
+	_G.UnitBuff = UnitBuff
+
+	for index = 1, count do
+		CompactUnitFrame_UtilSetBuff(frame.buffFrames[index], frame.displayedUnit, index, "HELPFUL", false, false)
+	end
+
+	_G.UnitBuff = origUnitBuff
 end
 
 function ns:Simulate_Debuffs(frame, count)
-	--[[local origUnitDebuff = UnitDebuff
-	UnitDebuff = function(unit, index, filter)
-		--     name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, shouldConsolidate, spellId
-		return "TestDebuff", 1, "Interface\\Icons\\ability_warrior_rampage", 1, index, 20, 10, "Chuck Norris", false, false, 70304
-	end ]]--
+	local origUnitDebuff = _G.UnitDebuff
+	_G.UnitDebuff = UnitDebuff
 
 	for index = 1, count do
-		if UnitAura("player", 1, "HARMFUL") then
-			CompactUnitFrame_UtilSetDebuff(frame.debuffFrames[1], frame.displayedUnit, count, "HARMFUL")
-			print("Set debuff "..index)
-		end
+		CompactUnitFrame_UtilSetDebuff(frame.debuffFrames[index], frame.displayedUnit, index, "HARMFUL", false, false)
 	end
 
-	-- UnitDebuff = origUnitDebuff
+	_G.UnitDebuff = origUnitDebuff
 end
 
 function ns:Simulate_BossDebuff(frame, index)
-	--[[if frame.debuffFrames[index] then
-		CompactUnitFrame_UtilSetDebuffBossDebuff(frame.debuffFrames[index], true)
-	end--]]
+	local origUnitDebuff = _G.UnitDebuff
+	_G.UnitDebuff = UnitDebuff
+
+	if frame.debuffFrames[index] then
+		CompactUnitFrame_UtilSetDebuff(frame.debuffFrames[index], frame.displayedUnit, index, "HARMFUL", true, false)
+	end
+
+	_G.UnitDebuff = origUnitDebuff
 end
 
 function ns:Simulate_DebuffIcon(frame, debuffType, enable)
@@ -36,9 +74,9 @@ function ns:Simulate_DebuffIcon(frame, debuffType, enable)
 	ns:UpdateDispellDebuffDisplay(frame)
 end
 
---[[ function ns:Simulate_DebuffBorder(frame, debuffType)
+function ns:Simulate_DebuffBorder(frame, debuffType)
 	CompactUnitFrame_UtilSetDispelDebuff(frame.dispelDebuffFrames[1], debuffType, 1)
-end ]]
+end
 
 function ns:UpdateDispellDebuffDisplay(frame)
 	local i = 1
