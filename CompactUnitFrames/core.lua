@@ -13,7 +13,7 @@ function ns.RunAutoActivation()
 	if not success then return end
 
 	-- group sizes: 2, 3, 5, 10, 15, 25, 40
-	numPlayers = GetNumGroupMembers()
+	local numPlayers = GetNumGroupMembers()
 	numPlayers = (numPlayers <= 2 and 2) or (numPlayers <= 3 and 3) or (numPlayers <= 5 and 5)
 			or (numPlayers <= 10 and 10) or (numPlayers <= 15 and 15) or (numPlayers <= 25 and 25) or 40
 
