@@ -153,7 +153,6 @@ function ns.CUF_SetPowerBGColor(frame, r, g, b)
 end
 
 function ns.CUF_SetPowerSize(frame, size)
-	if not size or ns.DelayInCombat(frame, ns.CUF_SetPowerBarShown) then return end
 	local padding = ns.db.unitframe.innerPadding
 	--if frame.powerBar.vertical then
 	--	frame.powerBar:SetWidth(size)
@@ -165,15 +164,12 @@ end
 
 -- db.powerBar.vertical, db.unitframe.hidePowerSeperator, db.power.size
 function ns.CUF_SetPowerBarShown(frame, enable)
-	if enable == nil then enable = frame.powerBar.shown
-	else frame.powerBar.shown = enable end
-
 	if enable then
 		ns.CUF_SetPowerSize(frame, ns.db.power.size)
-		ns.CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)
+		-- ns.CUF_SetSeperatorShown(frame, not ns.db.unitframe.hideSeperator)
 	else
 		ns.CUF_SetPowerSize(frame, 0)
-		ns.CUF_SetSeperatorShown(frame, false)
+		-- ns.CUF_SetSeperatorShown(frame, false)
 	end
 end
 
@@ -221,6 +217,7 @@ function ns.CUF_SetPowerBarVertical(frame, enable, togglePosition)
 end
 
 function ns.CUF_SetSeperatorShown(frame, enable)
+	-- FIXME: major taint
 	local seperatorSize = 1
 
 	if not RAID_BORDERS_SHOWN then

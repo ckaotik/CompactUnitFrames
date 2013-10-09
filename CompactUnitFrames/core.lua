@@ -141,11 +141,11 @@ function ns.DelayInCombat(frame, func)
 end
 
 -- == Misc Utility ==============================================
-function ns:Print(message, ...)
+function ns.Print(message, ...)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff22EE55CompactUnitFrames|r "..message
 		..' '..strjoin(", ", tostringall(...) ))
 end
-function ns:Debug(...)
+function ns.Debug(...)
 	if ns.db.debug then
 		ns.Print("!", (strjoin(", ", tostringall(...))))
 	end

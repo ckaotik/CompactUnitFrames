@@ -95,14 +95,14 @@ end
 
 function ns.ContainerSetup()
 	local frame = CompactRaidFrameContainer
-	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
-	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
-	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
-	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
-
+	-- FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
+	-- FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
+	-- FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
+	-- FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
 
 	-- try and keep frames usable when group changes mid fight
-	local origsort = CompactRaidFrameContainer.flowSortFunc
+	-- CompactRaidFrameContainer.units and CompactRaidFrameContainer.flowFrames order must match :/
+	--[[local origsort = CompactRaidFrameContainer.flowSortFunc
 	local function newsort(token1, token2)
 		if InCombatLockdown() then
 			return GetUnitIndex(token1) < GetUnitIndex(token2)
@@ -133,8 +133,8 @@ function ns.RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 
 	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
-	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor)
-	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)
+	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
+	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor) -- major taint, prevents creation
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
 end
@@ -207,8 +207,11 @@ function ns.UpdateVisible(frame)
 
 	if not frame:IsEventRegistered("UNIT_FACTION") then
 		frame:RegisterEvent("UNIT_FACTION")
+		-- frame:RegisterEvent("UNIT_FLAGS")
 		frame:HookScript("OnEvent", function(self, event, unit)
-			if event == "UNIT_FACTION" and unit == self.unit then
+			-- ns.Print('event', event, unit, self:GetName())
+			if unit == self.unit and (event == "UNIT_FACTION" or event == "UNIT_FLAGS") then
+				ns.Print("Updating PVP/Faction of", unit, UnitName(unit), UnitFactionGroup(unit), UnitIsPVP(unit), UnitIsPVPFreeForAll(unit), UnitIsCharmed(unit), UnitIsEnemy("player", unit))
 				ns.UpdateHealthColor(self)
 			end
 		end)
@@ -229,10 +232,11 @@ function ns.UpdateHealthColor(frame)
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
 	end
 
-	if r and r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b then
+	-- performance improvement, but causes taint so we can't use that :(
+	--if r and r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b then
 		frame.healthBar:SetStatusBarColor(r, g, b)
-		frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
-	end
+		-- frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
+	--end
 end
 function ns.UpdatePowerColor(frame)
 	if not frame or type(frame) ~= "table" then return end
@@ -295,10 +299,13 @@ function ns.UpdateAuras(frame)
 	end
 end
 
+-- causes taint too easily, use Clique or similar if you really need the feature
 function ns.SetUpClicks(frame)
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
+	-- frame:SetAttribute("*type2", 'togglemenu')
+	-- works with either menu or togglemenu. blizz uses menu, so stick to that
 	local combatMenu = ns.db.unitframe.noMenuClickInCombat and "" or "menu"
-	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
+	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)--]]
 end
 
 function ns.DisplayDebuffType(dispellDebuffFrame, debuffType, index)
