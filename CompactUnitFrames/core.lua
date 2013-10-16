@@ -25,17 +25,23 @@ function ns.RunAutoActivation()
 		return
 	end
 
-	local changed
-	for i=1, GetNumRaidProfiles() do
+	for i = 1, GetNumRaidProfiles() do
 		local profile = GetRaidProfileName(i)
 		if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
-			CompactUnitFrameProfiles_ActivateRaidProfile(profile)
+			-- CompactUnitFrameProfiles_ActivateRaidProfile(profile) -- causes taint as this updates dropdown values
+			CompactUnitFrameProfiles.selectedProfile = profile
+			SetActiveRaidProfile(profile)
+			CompactUnitFrameProfiles_ApplyProfile(profile)
+
+			UIDropDownMenu_SetSelectedValue(CompactUnitFrameProfilesProfileSelector, profile)
+			UIDropDownMenu_SetText(CompactUnitFrameProfilesProfileSelector, profile)
+			UIDropDownMenu_SetSelectedValue(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
+			UIDropDownMenu_SetText(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
+
 			CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
-			changed = true
 			break
 		end
 	end
-	-- print('should display profile for', numPlayers, changed)
 end
 
 function ns.SetDefaultSettings(db, defaults)

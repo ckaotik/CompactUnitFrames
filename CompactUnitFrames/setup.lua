@@ -190,7 +190,8 @@ function ns.UpdateVisible(frame)
 	frame.overAbsorbGlow:SetPoint("TOPLEFT", frame.healthBar, "TOPRIGHT", -2, 0)
 
 	-- plugins
-	if ns.db.unitframe.enableGPS and not frame.GPS then
+	if ns.db.unitframe.enableGPS and not frame.GPS
+		and frame.unit and not frame.unit:find('pet') then
 		local gps = CreateFrame("Frame", nil, frame.healthBar)
 		gps:SetPoint('CENTER')
 		gps:SetSize(40, 40)
@@ -211,7 +212,7 @@ function ns.UpdateVisible(frame)
 		frame:HookScript("OnEvent", function(self, event, unit)
 			-- ns.Print('event', event, unit, self:GetName())
 			if unit == self.unit and (event == "UNIT_FACTION" or event == "UNIT_FLAGS") then
-				ns.Print("Updating PVP/Faction of", unit, UnitName(unit), UnitFactionGroup(unit), UnitIsPVP(unit), UnitIsPVPFreeForAll(unit), UnitIsCharmed(unit), UnitIsEnemy("player", unit))
+				-- ns.Print("Updating PVP/Faction of", unit, UnitName(unit), UnitFactionGroup(unit), UnitIsPVP(unit), UnitIsPVPFreeForAll(unit))
 				ns.UpdateHealthColor(self)
 			end
 		end)
@@ -224,9 +225,9 @@ function ns.UpdateHealthColor(frame)
 	local r, g, b
 	if not frame.unit then
 		r, g, b = ns:GetColorSetting(ns.db.health.bgcolor, frame.unit)
-	elseif UnitCanAttack("player", frame.unit) then
+	elseif UnitCanAttack("player", frame.unit) or UnitIsEnemy("player", frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.isEnemyColor, frame.unit)
-	elseif (not UnitIsPVP("player") and UnitIsPVP(frame.unit)) then
+	elseif not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
 		r, g, b = ns:GetColorSetting(ns.db.health.flagsAsPvPColor, frame.unit)
 	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
@@ -301,6 +302,7 @@ end
 
 -- causes taint too easily, use Clique or similar if you really need the feature
 function ns.SetUpClicks(frame)
+	if true then return end
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
 	-- frame:SetAttribute("*type2", 'togglemenu')
 	-- works with either menu or togglemenu. blizz uses menu, so stick to that
