@@ -54,6 +54,14 @@ function ns.ManagerSetup()
   		self:SetHeight(usedY + 40)
 	end)
 
+	-- update actual container size so we can anchor differently
+	--[[
+	hooksecurefunc("CompactRaidFrameContainer_UpdateBorder", function(self)
+		local usedX, usedY = FlowContainer_GetUsedBounds(self)
+		self:SetSize(usedX, usedY)
+	end)
+	--]]
+
 	-- show solo functionality
 	hooksecurefunc("CompactRaidFrameManager_UpdateShown", function(self)
 		if ns.db.frames.showSolo then
@@ -68,7 +76,7 @@ function ns.ManagerSetup()
 	end)
 	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 
-	-- fix container snapping to weird sizes (hint: CRF1:GetHeight() > DefaultCompactUnitFrameSetupOptions.height)
+	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() > DefaultCompactUnitFrameSetupOptions.height)
 	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
 		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") == "1" then return end
 
@@ -81,6 +89,25 @@ function ns.ManagerSetup()
 		manager.container:SetHeight(newHeight)
 	end)
 	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
+
+	-- we can help with ConfigMode!
+	CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
+	local containerWasLocked
+	CONFIGMODE_CALLBACKS["Blizzard - CompactRaidFrame"] = function(action)
+		if action == "ON" then
+			containerWasLocked = not CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode
+			if containerWasLocked then
+				CompactRaidFrameManager:Show()
+				CompactRaidFrameContainer:Show()
+				CompactRaidFrameManager_UnlockContainer(CompactRaidFrameManager)
+			end
+		elseif action == "OFF" and containerWasLocked then
+			CompactRaidFrameManager_SetSetting("Locked", 1)
+			CompactRaidFrameManager_LockContainer(CompactRaidFrameManager)
+			CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
+			containerWasLocked = nil
+		end
+	end
 end
 
 local function GetUnitIndex(token)
