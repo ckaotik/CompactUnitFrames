@@ -8,6 +8,9 @@ CompactUnitFrames = ns -- external reference
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
 function ns.RunAutoActivation()
+	-- ty, Blizzard. The only wrapper I could use taints CUF_HORIZONTAL_GROUPS. Imediately.
+	if true then return end
+
 	local success, _, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
 	-- returns: true, 40, "world", "PvE"
 	if not success then return end
@@ -29,14 +32,15 @@ function ns.RunAutoActivation()
 		local profile = GetRaidProfileName(i)
 		if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
 			-- CompactUnitFrameProfiles_ActivateRaidProfile(profile) -- causes taint as this updates dropdown values
-			CompactUnitFrameProfiles.selectedProfile = profile
+			--[[ CompactUnitFrameProfiles.selectedProfile = profile
 			SetActiveRaidProfile(profile)
-			CompactUnitFrameProfiles_ApplyProfile(profile)
+			CompactUnitFrameProfiles_ApplyProfile(profile) -- TAINTS!
+			print('activate', i, profile, issecurevariable("CUF_HORIZONTAL_GROUPS"))
 
 			UIDropDownMenu_SetSelectedValue(CompactUnitFrameProfilesProfileSelector, profile)
 			UIDropDownMenu_SetText(CompactUnitFrameProfilesProfileSelector, profile)
 			UIDropDownMenu_SetSelectedValue(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
-			UIDropDownMenu_SetText(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
+			UIDropDownMenu_SetText(CompactRaidFrameManagerDisplayFrameProfileSelector, profile) --]]
 
 			CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
 			break
@@ -63,7 +67,7 @@ end
 
 local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, arg1)
-	local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
+	-- local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
 
 	if event == "ADDON_LOADED" and arg1 == addonName then
 		if not CUF_GlobalDB then CUF_GlobalDB = {} end
@@ -87,11 +91,12 @@ local function eventHandler(self, event, arg1)
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 		eventFrame:RegisterEvent("GROUP_JOINED")
 		eventFrame:RegisterEvent("UNIT_PET")
+		eventFrame:RegisterEvent("CHAT_MSG_PET_INFO")
 		eventFrame:UnregisterEvent("ADDON_LOADED")
 
 	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then
 		ns.RunAutoActivation()
-	elseif event ==  (showPets and event == "UNIT_PET") then
+	elseif event == "UNIT_PET" or event == "CHAT_MSG_PET_INFO" then
 		ns.UpdatePets(arg1)
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		ns.RunAfterCombat()
