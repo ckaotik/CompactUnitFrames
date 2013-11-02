@@ -79,21 +79,6 @@ local Update = function(self, elapsed)
 	end
 end
 
-local Enable = function(self)
-	local GPS = self.GPS
-	if GPS then
-		tinsert(_FRAMES, self)
-
-		if not OnUpdateFrame then
-			OnUpdateFrame = CreateFrame("Frame")
-			OnUpdateFrame:SetScript("OnUpdate", Update)
-		end
-
-		OnUpdateFrame:Show()
-		return true
-	end
-end
-
 local Disable = function(self)
 	local GPS = self.GPS
 	if GPS then
@@ -108,6 +93,22 @@ local Disable = function(self)
 		if #_FRAMES == 0 and OnUpdateFrame then
 			OnUpdateFrame:Hide()
 		end
+	end
+end
+
+local Enable = function(self)
+	local GPS = self.GPS
+	if GPS then
+		tinsert(_FRAMES, self)
+
+		if not OnUpdateFrame then
+			OnUpdateFrame = CreateFrame("Frame")
+			OnUpdateFrame:SetScript("OnUpdate", Update)
+		end
+		hooksecurefunc(self, "unusedFunc", Disable)
+
+		OnUpdateFrame:Show()
+		return true
 	end
 end
 

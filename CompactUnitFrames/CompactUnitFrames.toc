@@ -5,7 +5,7 @@
 # Blizzard_CompactRaidFrames, Blizzard_CUFProfiles
 
 ## Version: 0.1
-## Interface: 50200
+## Interface: 50400
 ## Notes: Customize Blizzard's compact raid/party frames to your liking
 ## Notes-deDE: Passe Blizzards CompactRaidFrames (oder PartyFrames) an, wie du es magst
 
@@ -22,10 +22,13 @@
 ## X-Credits:
 ## X-License: BSD
 
+libs\LibStub.lua
+libs\DRData-1.0\DRData-1.0.xml
+
 core.lua
 stylefunctions.lua
 gps.lua
-raidauras.lua
+overlay.lua
 setup.lua
 
 defaults.lua

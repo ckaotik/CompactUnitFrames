@@ -1,0 +1,30 @@
+tag v2.8.5
+554b252ed04877ad81a81d0963310ca411e6feff
+Adirelle <adirelle@gmail.com>
+2013-10-20 09:46:05 +0200
+
+Updated according to http://us.battle.net/wow/en/forum/topic/10195910192.
+
+
+--------------------
+
+Guillaume Perréal:
+	- Adding translations using wowace localization system.
+	See http://www.wowace.com/addons/drdata-1-0/localization/.
+Adirelle:
+	- Typos.
+	- Forgot two silences.
+	- Updated stuns, according to http://us.battle.net/wow/en/forum/topic/10195910192#3.
+	- Updated mesmerizes (previously called "disorients") and added short mesmerizes, according to http://us.battle.net/wow/en/forum/topic/10195910192#4.
+	- Updated fears and horrors according to http://us.battle.net/wow/en/forum/topic/10195910192#5.
+	- Updates silences according to http://us.battle.net/wow/en/forum/topic/10195910192#6.
+	- Updated Disarms according to http://us.battle.net/wow/en/forum/topic/10195910192#7.
+	- Removing categories that does not exist.
+	- Added "knockback" DR category to follow the changes in 5.4.
+	- Added "Roots (short)" category, according to http://us.battle.net/wow/en/forum/topic/10195910192#2.
+	- Fixed whitespaces.
+	Conflicts:
+		DRData-1.0.lua
+	- Updated roots, according to http://us.battle.net/wow/en/forum/topic/10195910192#1.
+Zenima:
+	- Updated for 5.4 Added the new Paladin talent (Evil is a Point of View)

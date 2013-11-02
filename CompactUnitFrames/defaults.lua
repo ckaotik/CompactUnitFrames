@@ -44,6 +44,7 @@ ns.defaults = {
 		enableGPS = true,
 		gpsOnHover = true,
 		gpsOutOfRange = true,
+		enableOverlay = true,
 	},
 	health = {
 		vertical = false,

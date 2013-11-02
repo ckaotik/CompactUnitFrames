@@ -76,7 +76,7 @@ function ns.ManagerSetup()
 	end)
 	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 
-	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() > DefaultCompactUnitFrameSetupOptions.height)
+	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() ~= DefaultCompactUnitFrameSetupOptions.height)
 	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
 		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") == "1" then return end
 
@@ -110,42 +110,12 @@ function ns.ManagerSetup()
 	end
 end
 
-local function GetUnitIndex(token)
-	-- CompactRaidFrameContainer.units vs. .flowFrames
-	for i,v in ipairs(CompactRaidFrameContainer.units) do
-		if unit == token then
-			return i
-		end
-	end
-	return 100
-end
-
 function ns.ContainerSetup()
 	local frame = CompactRaidFrameContainer
 	-- FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
 	-- FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
 	-- FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
 	-- FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
-
-	-- try and keep frames usable when group changes mid fight
-	-- CompactRaidFrameContainer.units and CompactRaidFrameContainer.flowFrames order must match :/
-	--[[local origsort = CompactRaidFrameContainer.flowSortFunc
-	local function newsort(token1, token2)
-		if InCombatLockdown() then
-			return GetUnitIndex(token1) < GetUnitIndex(token2)
-		elseif origsort then
-			return origsort(token1, token2)
-		else
-			return CRFSort_Role(token1, token2)
-		end
-	end
-	CompactRaidFrameContainer_SetFlowSortFunction(CompactRaidFrameContainer, newsort)
-	hooksecurefunc('CompactRaidFrameContainer_SetFlowSortFunction', function(self, func, isRecursion)
-		if not isRecursion then
-			origsort = func
-			CompactRaidFrameContainer_SetFlowSortFunction(self, newsort, true)
-		end
-	end) --]]
 
 	--[[
 	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
@@ -217,8 +187,7 @@ function ns.UpdateVisible(frame)
 	frame.overAbsorbGlow:SetPoint("TOPLEFT", frame.healthBar, "TOPRIGHT", -2, 0)
 
 	-- plugins
-	if ns.db.unitframe.enableGPS and not frame.GPS
-		and frame.unit and not frame.unit:find('pet') then
+	if ns.db.unitframe.enableGPS and not frame.GPS and frame.unit and not frame.unit:find('pet') then
 		local gps = CreateFrame("Frame", nil, frame.healthBar)
 		gps:SetPoint('CENTER')
 		gps:SetSize(40, 40)
@@ -231,6 +200,17 @@ function ns.UpdateVisible(frame)
 		frame.GPS = gps
 		frame.GPS.Texture = tex -- .Text is also possible
 		ns.EnableGPS(frame)
+	end
+
+	if ns.db.unitframe.enableOverlay and not frame.Overlay and frame.unit and not frame.unit:find('pet') then
+		local overlay = CreateFrame("Button", "$parentCUFOverlay", frame, "CompactAuraTemplate")
+		      overlay:SetPoint('CENTER', ns.db.indicators.center.posX or 0, ns.db.indicators.center.posY or 0)
+		      overlay:SetSize(20, 20)
+		      overlay:EnableMouse(false)
+		      overlay:EnableMouseWheel(false)
+		      overlay:Hide()
+		frame.Overlay = overlay
+		ns.EnableOverlay(frame)
 	end
 
 	if not frame:IsEventRegistered("UNIT_FACTION") then
