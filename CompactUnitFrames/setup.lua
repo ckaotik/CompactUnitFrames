@@ -131,9 +131,11 @@ function ns.RegisterHooks()
 
 	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
-	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor) -- major taint, prevents creation
+	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)   -- major taint, prevents creation
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
+	-- fix sticky incoming ressurect icon
+	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
 end
 
 local defaultFont, defaultSize, defaultStyle
@@ -187,7 +189,7 @@ function ns.UpdateVisible(frame)
 	frame.overAbsorbGlow:SetPoint("TOPLEFT", frame.healthBar, "TOPRIGHT", -2, 0)
 
 	-- plugins
-	if ns.db.unitframe.enableGPS and not frame.GPS and frame.unit and not frame.unit:find('pet') then
+	if ns.db.unitframe.enableGPS and not frame.GPS then -- and frame.unit and not frame.unit:find('pet') then
 		local gps = CreateFrame("Frame", nil, frame.healthBar)
 		gps:SetPoint('CENTER')
 		gps:SetSize(40, 40)
@@ -277,6 +279,15 @@ function ns.UpdateStatus(frame)
 
 	ns.CUF_SetStatusText(frame)
 	ns.UpdateStatusColor(frame)
+end
+function ns.UpdateCenterStatusIcon(frame)
+	if ns.DelayInCombat(frame, ns.UpdateCenterStatusIcon) then return end
+	if frame.centerStatusIcon:IsShown() and not frame.centerStatusIcon.tooltip then
+		-- currently displaying ressurect icon
+		if not UnitIsDead(frame.unit) then
+			frame.centerStatusIcon:Hide()
+		end
+	end
 end
 
 function ns.UpdateAuras(frame)
