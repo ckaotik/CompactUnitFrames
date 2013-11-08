@@ -105,7 +105,7 @@ local Enable = function(self)
 			OnUpdateFrame = CreateFrame("Frame")
 			OnUpdateFrame:SetScript("OnUpdate", Update)
 		end
-		hooksecurefunc(self, "unusedFunc", Disable)
+		-- hooksecurefunc(self, "unusedFunc", Disable)
 
 		OnUpdateFrame:Show()
 		return true

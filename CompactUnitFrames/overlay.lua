@@ -80,7 +80,7 @@ local Enable = function(self)
 			hooksecurefunc("CompactUnitFrame_UpdateDebuffs", UpdateOverlay)
 			isHooked = true
 		end
-		hooksecurefunc(self, "unusedFunc", Disable)
+		-- hooksecurefunc(self, "unusedFunc", Disable)
 
 		return true
 	end
