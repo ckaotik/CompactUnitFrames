@@ -127,14 +127,13 @@ end
 
 function ns.RegisterHooks()
 	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
-	hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
+	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 
 	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)   -- major taint, prevents creation
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
-	-- fix sticky incoming ressurect icon
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
 end
 
@@ -241,12 +240,7 @@ function ns.UpdateHealthColor(frame)
 	else
 		r, g, b = ns:GetColorSetting(ns.db.health.color, frame.unit)
 	end
-
-	-- performance improvement, but causes taint so we can't use that :(
-	--if r and r ~= frame.healthBar.r or g ~= frame.healthBar.g or b ~= frame.healthBar.b then
-		frame.healthBar:SetStatusBarColor(r, g, b)
-		-- frame.healthBar.r, frame.healthBar.g, frame.healthBar.b = r, g, b
-	--end
+	frame.healthBar:SetStatusBarColor(r, g, b)
 end
 function ns.UpdatePowerColor(frame)
 	if not frame or type(frame) ~= "table" then return end
@@ -281,6 +275,7 @@ function ns.UpdateStatus(frame)
 	ns.UpdateStatusColor(frame)
 end
 function ns.UpdateCenterStatusIcon(frame)
+	-- fix sticky incoming ressurect icon
 	if ns.DelayInCombat(frame, ns.UpdateCenterStatusIcon) then return end
 	if frame.centerStatusIcon:IsShown() and not frame.centerStatusIcon.tooltip then
 		-- currently displaying ressurect icon
@@ -320,7 +315,6 @@ end
 
 -- causes taint too easily, use Clique or similar if you really need the feature
 function ns.SetUpClicks(frame)
-	if true then return end
 	if ns.DelayInCombat(frame, ns.SetUpClicks) then return end
 	-- frame:SetAttribute("*type2", 'togglemenu')
 	-- works with either menu or togglemenu. blizz uses menu, so stick to that
