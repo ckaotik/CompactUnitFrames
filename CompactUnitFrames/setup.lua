@@ -216,12 +216,14 @@ function ns.UpdateVisible(frame)
 
 	if not frame:IsEventRegistered("UNIT_FACTION") then
 		frame:RegisterEvent("UNIT_FACTION")
-		frame:RegisterEvent("UNIT_FLAGS")
-		frame:RegisterEvent("PLAYER_FLAGS_CHANGED")
+		-- frame:RegisterEvent("UNIT_FLAGS")
+		-- frame:RegisterEvent("PLAYER_FLAGS_CHANGED")
+		frame:RegisterEvent("PLAYER_CONTROL_LOST")
+		frame:RegisterEvent("PLAYER_CONTROL_GAINED")
 
 		frame:HookScript("OnEvent", function(self, event, unit)
 			-- ns.Print('event', event, unit, self:GetName())
-			if unit == self.unit and (event == "UNIT_FACTION" or event == "UNIT_FLAGS" or event == "PLAYER_FLAGS_CHANGED") then
+			if not unit or unit == self.unit and (event == "UNIT_FACTION" or event == "UNIT_FLAGS" or event == "PLAYER_FLAGS_CHANGED") then
 				-- ns.Print("Updating PVP/Faction of", unit, UnitName(unit), UnitFactionGroup(unit), UnitIsPVP(unit), UnitIsPVPFreeForAll(unit))
 				ns.UpdateHealthColor(self)
 			end
