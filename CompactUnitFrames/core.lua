@@ -85,7 +85,7 @@ local function eventHandler(self, event, arg1)
 			ns.UpdateHealthColor(frame)
 			ns.UpdatePowerColor(frame)
 			ns.UpdateName(frame)
-			ns.UpdateStatus(frame)
+			ns.CUF_SetStatusText(frame)
 		end)
 
 		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")

@@ -133,7 +133,7 @@ function ns.RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)   -- major taint, prevents creation
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
-	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.UpdateStatus)
+	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.CUF_SetStatusText)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
 end
 
@@ -158,6 +158,7 @@ function ns.UpdateVisible(frame)
 		frame.name:SetJustifyH(ns.db.name.justifyH or 'LEFT')
 	end
 
+	ns.CUF_SetStatusColor(frame, ns:GetColorSetting(ns.db.status.color, frame.unit))
 	if ns.db.status.font or ns.db.status.fontSize or ns.db.status.fontStyle then
 		defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
 		frame.statusText:SetFont(ns.db.status.font or defaultFont, ns.db.status.fontSize or defaultSize, ns.db.status.fontStyle or defaultStyle)
@@ -267,16 +268,6 @@ function ns.UpdateName(frame)
 
 	ns.CUF_SetNameText(frame, ns.db.name.size)
 	ns.UpdateNameColor(frame)
-end
-function ns.UpdateStatusColor(frame)
-	local r, g, b = ns:GetColorSetting(ns.db.status.color, frame.unit)
-	ns.CUF_SetStatusColor(frame, r, g, b)
-end
-function ns.UpdateStatus(frame)
-	if not frame or type(frame) ~= "table" then return end
-
-	ns.CUF_SetStatusText(frame)
-	ns.UpdateStatusColor(frame)
 end
 function ns.UpdateCenterStatusIcon(frame)
 	-- fix sticky incoming ressurect icon
