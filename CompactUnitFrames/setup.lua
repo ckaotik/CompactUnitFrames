@@ -271,7 +271,7 @@ function ns.UpdateName(frame)
 end
 function ns.UpdateCenterStatusIcon(frame)
 	-- fix sticky incoming ressurect icon
-	if ns.DelayInCombat(frame, ns.UpdateCenterStatusIcon) then return end
+	if ns.DelayInCombat(frame, ns.UpdateCenterStatusIcon) or not frame.unit then return end
 	if frame.centerStatusIcon:IsShown() and not frame.centerStatusIcon.tooltip then
 		-- currently displaying ressurect icon
 		if not UnitIsDead(frame.unit) then
