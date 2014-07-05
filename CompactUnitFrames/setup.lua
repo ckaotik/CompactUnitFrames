@@ -4,33 +4,46 @@ local _, ns = ...
 -- GLOBALS: UnitBuff, UnitIsPVP, UnitIsConnected, UnitIsFriend, DebuffTypeColor, CompactUnitFrame_UpdateSelectionHighlight, CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrame_UtilSetBuff, CompactUnitFrame_HideAllBuffs, FlowContainer_SetHorizontalSpacing, FlowContainer_SetVerticalSpacing, CompactRaidFrameManager_GetSetting
 -- GLOBALS: hooksecurefunc, pairs, type, floor
 
+-- @see: http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
 function ns.ManagerSetup()
-	-- see: http://wow.go-hero.net/framexml/14545/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
-	-- if InCombatLockdown() then return end
-	-- unlink unit frames from manager
-	-- CompactRaidFrameManager.container:SetParent(UIParent)
+	local manager = CompactRaidFrameManager
+	--[[
+	-- unlink container from manager
+	CompactRaidFrameManager.container:SetParent(UIParent)
 
-	-- ns:Manager_SetLeftBorder()
-	-- ns:Manager_DisableCUF(ns.db.frames.disableCUF)
+	ns:Manager_SetLeftBorder()
+	ns:Manager_DisableCUF(ns.db.frames.disableCUF)
 
-	--[[ ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
+	ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
 	hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.activeAlpha)
 	end)
 	hooksecurefunc("CompactRaidFrameManager_Collapse", function(self)
 		ns:Manager_SetAlpha(ns.db.frames.pullout.passiveAlpha)
 	end)
-	ns:MinifyPullout(ns.db.frames.pullout.minify) --]]
+	ns:MinifyPullout(ns.db.frames.pullout.minify)
+	--]]
 
-	-- restore manager settings if <show solo>
-	hooksecurefunc("CompactRaidFrameManager_UpdateContainerLockVisibility", function(self)
-		if ns.db.frames.showSolo and CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode then
+	-- "show solo" functionality
+	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#86
+	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#510
+	hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
+		print('update shown')
+		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
+		-- show manager & container
+		self:Show()
+		if self.container.enabled then self.container:Show() end
+	end)
+	hooksecurefunc('CompactRaidFrameManager_UpdateContainerLockVisibility', function(self)
+		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
+		-- restore manager settings if <show solo>
+		if CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode then
 			CompactRaidFrameManager_UnlockContainer(self)
 		end
 	end)
-	hooksecurefunc("CompactRaidFrameManager_UpdateOptionsFlowContainer", function(self)
+	hooksecurefunc('CompactRaidFrameManager_UpdateOptionsFlowContainer', function(self)
 		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
-		-- settings: profile selector, filter options, raid markers, leader options, convert to raid, lock/unlock, all assist
+		-- show & update side panel
 		local container = self.displayFrame.optionsFlowContainer
 		FlowContainer_PauseUpdates(container)
 
@@ -39,6 +52,8 @@ function ns.ManagerSetup()
 		FlowContainer_AddObject(container, self.displayFrame.profileSelector)
     	self.displayFrame.profileSelector:Show()
 
+    	-- not shown: filter options, raid markers, leader options, convert to raid
+
     	-- lock / unlock
 		FlowContainer_AddLineBreak(container)
 		FlowContainer_AddSpacer(container, 20)
@@ -46,6 +61,7 @@ function ns.ManagerSetup()
 		FlowContainer_AddObject(container, self.displayFrame.hiddenModeToggle)
 		self.displayFrame.lockedModeToggle:Show()
 		self.displayFrame.hiddenModeToggle:Show()
+		-- not shown: all assist
 
 		FlowContainer_ResumeUpdates(container)
 
@@ -54,68 +70,28 @@ function ns.ManagerSetup()
   		self:SetHeight(usedY + 40)
 	end)
 
-	-- update actual container size so we can anchor differently
-	--[[
-	hooksecurefunc("CompactRaidFrameContainer_UpdateBorder", function(self)
-		local usedX, usedY = FlowContainer_GetUsedBounds(self)
-		self:SetSize(usedX, usedY)
-	end)
-	--]]
-
-	-- show solo functionality
-	hooksecurefunc("CompactRaidFrameManager_UpdateShown", function(self)
-		if ns.db.frames.showSolo then
-			self:Show()
-		end
-	end)
-	hooksecurefunc("CompactRaidFrameManager_UpdateContainerVisibility", function()
-		local container = CompactRaidFrameContainer
-		if ns.db.frames.showSolo and container.enabled then
-			container:Show()
-		end
-	end)
-	CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
-
 	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() ~= DefaultCompactUnitFrameSetupOptions.height)
-	hooksecurefunc("CompactRaidFrameManager_ResizeFrame_UpdateContainerSize", function(manager)
-		if CompactRaidFrameManager_GetSetting("KeepGroupsTogether") == "1" then return end
-
-		local resizerHeight = manager.containerResizeFrame:GetHeight()
+	local RESIZE_VERTICAL_OUTSETS = 7
+	hooksecurefunc('CompactRaidFrameManager_ResizeFrame_UpdateContainerSize', function(self)
+		if CompactRaidFrameManager_GetSetting('KeepGroupsTogether') == '1' then return end
+		local resizerHeight   = self.containerResizeFrame:GetHeight() - RESIZE_VERTICAL_OUTSETS * 2
 		local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
-		local spacing = manager.container.flowVerticalSpacing or 0
-
-		-- add 1px dummy to offset rounding errors
-		local newHeight = (unitFrameHeight + spacing) * floor(resizerHeight / unitFrameHeight) + 1
-		manager.container:SetHeight(newHeight)
+		      unitFrameHeight = math.ceil(unitFrameHeight + (self.container.flowVerticalSpacing or 0))
+		local newHeight = unitFrameHeight * floor(resizerHeight / unitFrameHeight)
+		self.container:SetHeight(newHeight)
 	end)
-	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(CompactRaidFrameManager)
 
-	-- we can help with ConfigMode!
-	CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
-	local containerWasLocked
-	CONFIGMODE_CALLBACKS["Blizzard - CompactRaidFrame"] = function(action)
-		if action == "ON" then
-			containerWasLocked = not CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode
-			if containerWasLocked then
-				CompactRaidFrameManager:Show()
-				CompactRaidFrameContainer:Show()
-				CompactRaidFrameManager_UnlockContainer(CompactRaidFrameManager)
-			end
-		elseif action == "OFF" and containerWasLocked then
-			CompactRaidFrameManager_SetSetting("Locked", 1)
-			CompactRaidFrameManager_LockContainer(CompactRaidFrameManager)
-			CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
-			containerWasLocked = nil
-		end
-	end
+	-- trigger manager updates
+	CompactRaidFrameManager_OnEvent(manager, 'GROUP_ROSTER_UPDATE')
+	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
 end
 
 function ns.ContainerSetup()
 	local frame = CompactRaidFrameContainer
-	-- FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
-	-- FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
-	-- FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
-	-- FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
+	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
+	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
+	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
+	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
 
 	--[[
 	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
@@ -135,11 +111,34 @@ function ns.RegisterHooks()
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.CUF_SetStatusText)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
+
+
+	hooksecurefunc('CompactUnitFrame_SetUpFrame', function(frame, func)
+		print(time(), 'CompactUnitFrame_SetUpFrame on', frame:GetName(), 'with setUpFunc', func)
+	end)
+	hooksecurefunc('DefaultCompactUnitFrameSetup', function(frame)
+		print(time(), 'DefaultCompactUnitFrameSetup on', frame:GetName())
+	end)
+
+	-- add new units macro:
+	-- /stopmacro [@mouseover,noexists]
+	-- /script CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, 'mouseover', 'raid')
+
+	-- local unitFrame = CompactRaidFrameContainer_AddUnitFrame(self, 'mouseover', 'raid') -- raid, pet, flagged, target
+	-- FlowContainer_AddObject(CompactRaidFrameContainer, unitFrame)
+	hooksecurefunc('FlowContainer_AddObject', function(container, frame)
+		if container ~= CompactRaidFrameContainer then return end
+		print('adding', frame:GetName(), 'to', container:GetName())
+		ns.UpdateVisible(frame)
+	end)
 end
 
 local defaultFont, defaultSize, defaultStyle
 function ns.UpdateVisible(frame)
 	if not frame:IsVisible() then return end
+
+	-- fixes fuzzy edges
+	frame.background:SetTexture(0, 0, 0, 1)
 
 	--[[ Health Bar ]]--
 	ns.CUF_SetHealthTexture(frame, ns.db.health.texture)
@@ -183,6 +182,7 @@ function ns.UpdateVisible(frame)
 
 	--[[ Misc Changes ]]--
 	-- frame.roleIcon:SetSize(8, 8)
+	-- frame.roleIcon:SetSize(0.000001, 0.000001)
 	frame.totalAbsorbOverlay:SetTexture(nil)
 	frame.overAbsorbGlow:SetWidth(4)
 	frame.overAbsorbGlow:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMRIGHT", -2, 0)

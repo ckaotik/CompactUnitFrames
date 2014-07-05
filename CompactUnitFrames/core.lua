@@ -1,5 +1,5 @@
 local addonName, ns, _ = ...
-CompactUnitFrames = ns -- external reference
+_G[addonName] = ns -- external reference
 
 -- GLOBALS: CompactUnitFrames, CUF_GlobalDB, RAID_CLASS_COLORS, GameTooltip, DEFAULT_CHAT_FRAME, CompactRaidFrameManager, CompactRaidFrameContainer, CompactUnitFrameProfiles
 -- GLOBALS: UnitIsConnected, UnitPowerType, UnitClass, UnitIsFriend, GetSpellInfo, UnitBuff, UnitDebuff, UnitGroupRolesAssigned, AbbreviateLargeNumbers, InCombatLockdown, GetNumGroupMembers, GetActiveSpecGroup, GetRaidProfileOption, GetRaidProfileName, GetNumRaidProfiles, GetActiveRaidProfile
@@ -70,12 +70,14 @@ local function eventHandler(self, event, arg1)
 	-- local showPets = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, "displayPets")
 
 	if event == "ADDON_LOADED" and arg1 == addonName then
+		eventFrame:UnregisterEvent("ADDON_LOADED")
+
 		if not CUF_GlobalDB then CUF_GlobalDB = {} end
 		ns.db = CUF_GlobalDB
 		ns.SetDefaultSettings(ns.db, ns.defaults)
 
-		ns.ManagerSetup()
 		ns.ContainerSetup()
+		ns.ManagerSetup()
 		ns.RegisterHooks()
 		ns.RunAutoActivation()
 
@@ -92,7 +94,25 @@ local function eventHandler(self, event, arg1)
 		eventFrame:RegisterEvent("GROUP_JOINED")
 		eventFrame:RegisterEvent("UNIT_PET")
 		eventFrame:RegisterEvent("CHAT_MSG_PET_INFO")
-		eventFrame:UnregisterEvent("ADDON_LOADED")
+
+		-- register with ConfigMode
+		local containerWasLocked
+		CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
+		CONFIGMODE_CALLBACKS["Blizzard - CompactRaidFrame"] = function(action)
+			if action == "ON" then
+				containerWasLocked = not CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode
+				if containerWasLocked then
+					CompactRaidFrameManager:Show()
+					CompactRaidFrameContainer:Show()
+					CompactRaidFrameManager_UnlockContainer(CompactRaidFrameManager)
+				end
+			elseif action == "OFF" and containerWasLocked then
+				CompactRaidFrameManager_SetSetting("Locked", 1)
+				CompactRaidFrameManager_LockContainer(CompactRaidFrameManager)
+				CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
+				containerWasLocked = nil
+			end
+		end
 
 	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then
 		ns.RunAutoActivation()
