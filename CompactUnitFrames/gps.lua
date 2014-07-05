@@ -11,8 +11,9 @@ local tinsert, tremove = table.insert, table.remove
 local _FRAMES, OnUpdateFrame = {}, nil
 
 local function GetDistance(unit1, unit2)
-	if not unit1 or not UnitExists(unit1) or not UnitIsPlayer(unit1) or UnitIsUnit(unit1, unit2)
-		or not unit2 or not UnitExists(unit2) or not UnitIsPlayer(unit2) then
+	if not unit1 or not UnitExists(unit1) or not UnitIsPlayer(unit1)
+		or not unit2 or not UnitExists(unit2) or not UnitIsPlayer(unit2)
+		or UnitIsUnit(unit1, unit2) then
 		return nil
 	end
 
