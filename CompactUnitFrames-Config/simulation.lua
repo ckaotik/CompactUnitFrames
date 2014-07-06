@@ -104,11 +104,17 @@ end
 
 -- ===== Create frames on demand! =======================================
 --[[ Create frames (small or normal) via ...
-	CompactUnitFrames:CreateTestFrame("dummy", "player")
-	CompactUnitFrames:CreateTestFrame("dummy_small", "pet")
+	CompactUnitFrames:CreateTestFrame("player")
+	CompactUnitFrames:CreateTestFrame("pet")
 
 	Reset all frames via ...
 	CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
+
+
+	-- add new units macro, use 'pet' instead of 'raid' for small frames
+	-- /stopmacro [@mouseover,noexists]
+	-- /script CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, 'mouseover', 'raid')
+	-- /script CompactRaidFrameContainer_UpdateBorder(CompactRaidFrameContainer)
 ]]
 
 local unsetFunc = function(frame) CompactUnitFrame_SetUnit(frame, nil) end
@@ -121,7 +127,7 @@ function ns:CreateTestFrame(type, unit)
     local frame = CompactRaidFrameReservation_GetFrame(CompactRaidFrameContainer.frameReservations[type], unit);
 
     local info
-    if type == "dummy" then
+    if unit == "player" then
         info = { mapping = unit, setUpFunc = DefaultCompactUnitFrameSetup, updateList = "normal"}
     else
         info = { mapping = unit, setUpFunc = DefaultCompactMiniFrameSetup, updateList = "mini"}

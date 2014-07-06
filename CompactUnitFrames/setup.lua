@@ -5,8 +5,7 @@ local _, ns = ...
 -- GLOBALS: hooksecurefunc, pairs, type, floor
 
 -- @see: http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
-function ns.ManagerSetup()
-	local manager = CompactRaidFrameManager
+function ns.SetupManager(manager)
 	--[[
 	-- unlink container from manager
 	CompactRaidFrameManager.container:SetParent(UIParent)
@@ -28,7 +27,6 @@ function ns.ManagerSetup()
 	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#86
 	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#510
 	hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
-		print('update shown')
 		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
 		-- show manager & container
 		self:Show()
@@ -86,12 +84,22 @@ function ns.ManagerSetup()
 	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
 end
 
-function ns.ContainerSetup()
-	local frame = CompactRaidFrameContainer
-	FlowContainer_SetHorizontalSpacing(frame, ns.db.unitframe.spacingX or 0)
-	FlowContainer_SetVerticalSpacing(frame, ns.db.unitframe.spacingY or 0)
-	FlowContainer_SetMaxPerLine(frame, ns.db.unitframe.numPerLine or nil)
-	FlowContainer_SetOrientation(frame, ns.db.unitframe.orientation or "vertical")
+function ns.SetupContainer(container)
+	FlowContainer_SetHorizontalSpacing(container, ns.db.unitframe.spacingX or 0)
+	FlowContainer_SetVerticalSpacing(container, ns.db.unitframe.spacingY or 0)
+	FlowContainer_SetMaxPerLine(container, ns.db.unitframe.numPerLine or nil)
+	FlowContainer_SetOrientation(container, ns.db.unitframe.orientation or "vertical")
+
+	-- we need to update any already existing unit frames
+	print('update existing frames...')
+	for index, unitFrame in ipairs(container.frameUpdateList['normal']) do
+		ns.SetupCompactUnitFrame(unitFrame, 'normal', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end
+	for index, unitFrame in ipairs(container.frameUpdateList['mini']) do
+		ns.SetupCompactUnitFrame(unitFrame, 'mini', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end
 
 	--[[
 	CompactRaidFrameContainer_SetDisplayPets(CompactRaidFrameContainer, false)
@@ -101,41 +109,42 @@ function ns.ContainerSetup()
 	end) --]]
 end
 
-function ns.RegisterHooks()
-	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
-	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
+function ns.SetupUnitFrameHooks()
+	-- this function gets called once per unit frame
+	hooksecurefunc('CompactUnitFrame_SetUpFrame', function(frame, func)
+		local style = (func == DefaultCompactUnitFrameSetup and 'normal') or (func == DefaultCompactMiniFrameSetup and 'mini')
+		if not style then return end
 
-	hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.UpdateVisible)
+		print(GREEN_FONT_COLOR_CODE, 'setup', frame:GetName(), 'style', style, func)
+		ns.SetupCompactUnitFrame(frame, style, true)
+	end)
+	-- this function gets called multiple times per session, e.g. when settings change
+	hooksecurefunc('CompactRaidFrameContainer_ApplyToFrames', function(container, updateSpecifier, func, ...)
+		local style = (func == DefaultCompactUnitFrameSetup and 'normal') or (func == DefaultCompactMiniFrameSetup and 'mini')
+		if not style then return end
+		for specifier, unitFrames in pairs(container.frameUpdateList) do
+			if updateSpecifier == 'all' or specifier == updateSpecifier then
+				-- these are the frames that were reset to defaults just now
+				for index, unitFrame in ipairs(unitFrames) do
+					ns.SetupCompactUnitFrame(unitFrame, style)
+				end
+			end
+		end
+	end)
+
+	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
+	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.SetupCompactUnitFrame)
+	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
 	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", ns.UpdatePowerColor)   -- major taint, prevents creation
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.CUF_SetStatusText)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
-
-
-	hooksecurefunc('CompactUnitFrame_SetUpFrame', function(frame, func)
-		print(time(), 'CompactUnitFrame_SetUpFrame on', frame:GetName(), 'with setUpFunc', func)
-	end)
-	hooksecurefunc('DefaultCompactUnitFrameSetup', function(frame)
-		print(time(), 'DefaultCompactUnitFrameSetup on', frame:GetName())
-	end)
-
-	-- add new units macro:
-	-- /stopmacro [@mouseover,noexists]
-	-- /script CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, 'mouseover', 'raid')
-
-	-- local unitFrame = CompactRaidFrameContainer_AddUnitFrame(self, 'mouseover', 'raid') -- raid, pet, flagged, target
-	-- FlowContainer_AddObject(CompactRaidFrameContainer, unitFrame)
-	hooksecurefunc('FlowContainer_AddObject', function(container, frame)
-		if container ~= CompactRaidFrameContainer then return end
-		print('adding', frame:GetName(), 'to', container:GetName())
-		ns.UpdateVisible(frame)
-	end)
 end
 
 local defaultFont, defaultSize, defaultStyle
-function ns.UpdateVisible(frame)
-	if not frame:IsVisible() then return end
+function ns.SetupCompactUnitFrame(frame, style, isFirstSetup)
+	if style ~= 'normal' and style ~= 'mini' then return end
 
 	-- fixes fuzzy edges
 	frame.background:SetTexture(0, 0, 0, 1)

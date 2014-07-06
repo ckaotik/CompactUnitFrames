@@ -8,7 +8,7 @@ _G[addonName] = ns -- external reference
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
 function ns.RunAutoActivation()
-	-- ty, Blizzard. The only wrapper I could use taints CUF_HORIZONTAL_GROUPS. Imediately.
+	-- ty, Blizzard. The only wrapper I could use taints CUF_HORIZONTAL_GROUPS. Immediately.
 	if true then return end
 
 	local success, _, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
@@ -76,24 +76,15 @@ local function eventHandler(self, event, arg1)
 		ns.db = CUF_GlobalDB
 		ns.SetDefaultSettings(ns.db, ns.defaults)
 
-		ns.ContainerSetup()
-		ns.ManagerSetup()
-		ns.RegisterHooks()
-		ns.RunAutoActivation()
+		ns.SetupUnitFrameHooks()
+		ns.SetupContainer(CompactRaidFrameContainer)
+		ns.SetupManager(CompactRaidFrameManager)
+		-- ns.RunAutoActivation()
 
-		-- update any existing frames
-		ns.UpdateAll(function(frame)
-			ns.SetUpClicks(frame)
-			ns.UpdateHealthColor(frame)
-			ns.UpdatePowerColor(frame)
-			ns.UpdateName(frame)
-			ns.CUF_SetStatusText(frame)
-		end)
-
-		eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-		eventFrame:RegisterEvent("GROUP_JOINED")
-		eventFrame:RegisterEvent("UNIT_PET")
-		eventFrame:RegisterEvent("CHAT_MSG_PET_INFO")
+		-- eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		-- eventFrame:RegisterEvent("GROUP_JOINED")
+		-- eventFrame:RegisterEvent("UNIT_PET")
+		-- eventFrame:RegisterEvent("CHAT_MSG_PET_INFO")
 
 		-- register with ConfigMode
 		local containerWasLocked
@@ -128,22 +119,22 @@ eventFrame:SetScript("OnEvent", eventHandler)
 ns.eventFrame = eventFrame
 
 function ns.UpdateAll(func)
-	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
+	--[[ for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
 		if unitFrame and unitFrame.IsVisible then
-			ns.UpdateVisible(unitFrame)
+			ns.SetupCompactUnitFrame(unitFrame)
 			if func then func(unitFrame) end
 		end
-	end
+	end --]]
 end
 
 function ns.UpdatePets(unit, func)
-	for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
+	--[[ for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
 		if (unit and unitFrame.unit == unit..'pet') or (not unit and unitFrame.unit:find('pet')) then
 			CompactUnitFrame_UpdateHealth(unitFrame)
 			CompactUnitFrame_UpdateName(unitFrame)
 			if func then func(unitFrame) end
 		end
-	end
+	end --]]
 end
 
 local afterCombat = {}

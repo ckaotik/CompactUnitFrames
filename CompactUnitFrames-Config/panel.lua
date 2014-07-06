@@ -35,8 +35,7 @@ do
 		testFrame.unit, testFrame.displayedUnit = "player", "player"
 		testFrame:SetAttribute("unit", "player")
 
-		CompactUnitFrame_SetUpFrame(testFrame, DefaultCompactUnitFrameSetup);
-		CompactUnitFrame_UpdateAll(testFrame)
+		CompactUnitFrame_SetUpFrame(testFrame, DefaultCompactUnitFrameSetup)
 
 		testFrame.healthBar:SetValue(0.4 * UnitHealthMax(testFrame.displayedUnit))
 		testFrame.powerBar:SetValue (0.55 * UnitPowerMax(testFrame.displayedUnit))
@@ -1232,12 +1231,12 @@ do
 							addPlayer = {
 								type = "execute",
 								name = "Add player preview",
-								func = function() ns:CreateTestFrame("dummy", "player") end,
+								func = function() ns:CreateTestFrame("player") end,
 							},
 							addPet = {
 								type = "execute",
 								name = "Add pet preview",
-								func = function() ns:CreateTestFrame("dummy_small", "pet") end,
+								func = function() ns:CreateTestFrame("pet") end,
 							},
 						},
 					},
