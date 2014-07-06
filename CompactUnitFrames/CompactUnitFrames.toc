@@ -25,7 +25,7 @@
 libs\LibStub.lua
 libs\DRData-1.0\DRData-1.0.xml
 
-core.lua
+CompactUnitFrames.lua
 stylefunctions.lua
 gps.lua
 overlay.lua

@@ -1,5 +1,6 @@
 local addonName, ns = ...
 
+--[[
 local UnitDebuff, UnitBuff
 do
 	local fakeDebuffs = {
@@ -34,7 +35,7 @@ do
 			return _G.UnitBuff(unit, index, ...)
 		end
 	end
-end
+end --]]
 
 function ns:Simulate_Buffs(frame, count)
 	local origUnitBuff = _G.UnitBuff
@@ -117,14 +118,18 @@ end
 	-- /script CompactRaidFrameContainer_UpdateBorder(CompactRaidFrameContainer)
 ]]
 
-local unsetFunc = function(frame) CompactUnitFrame_SetUnit(frame, nil) end
+--[[ local unsetFunc = function(frame) CompactUnitFrame_SetUnit(frame, nil) end
 CompactRaidFrameContainer.frameReservations["dummy"] = CompactRaidFrameReservation_NewManager( unsetFunc )
-CompactRaidFrameContainer.frameReservations["dummy_small"] = CompactRaidFrameReservation_NewManager( unsetFunc )
+CompactRaidFrameContainer.frameReservations["dummy_small"] = CompactRaidFrameReservation_NewManager( unsetFunc ) --]]
 
 -- create new frame
 local unitFramesCreated = 0
 function ns:CreateTestFrame(type, unit)
-    local frame = CompactRaidFrameReservation_GetFrame(CompactRaidFrameContainer.frameReservations[type], unit);
+	if UnitExists('mouseover') then
+		CompactRaidFrameContainer_AddUnitFrame(CompactRaidFrameContainer, 'mouseover', 'raid')
+		CompactRaidFrameContainer_UpdateBorder(CompactRaidFrameContainer)
+	end
+    --[[ local frame = CompactRaidFrameReservation_GetFrame(CompactRaidFrameContainer.frameReservations[type], unit);
 
     local info
     if unit == "player" then
@@ -147,5 +152,5 @@ function ns:CreateTestFrame(type, unit)
 
     -- insert new frame into container
     CompactUnitFrame_SetUnit(frame, unit)
-    FlowContainer_AddObject(CompactRaidFrameContainer, frame)
+    FlowContainer_AddObject(CompactRaidFrameContainer, frame) --]]
 end

@@ -91,6 +91,19 @@ function ns:MinifyPullout(enable)
 	end
 end
 
+function ns.CUF_SetFrameBGTexture(frame, texture)
+	frame.background:SetTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
+end
+
+function ns.CUF_SetFrameBGColor(frame, r, g, b)
+	frame.background:SetVertexColor(r or 1, g or 1, b or 1)
+end
+
+function ns.CUF_SetRoleIconSize(frame, size)
+	if size == 0 then size = hiddenSize end
+	frame.roleIcon:SetSize(size, size)
+end
+
 -- ==== [Health Bar] ========================================
 function ns.CUF_SetHealthBarVertical(frame, enable)
 	local width, height = frame:GetSize()

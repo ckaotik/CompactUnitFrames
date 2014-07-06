@@ -15,8 +15,8 @@
 ## X-LoadOn-Slash: /cuf
 ## X-LoadOn-InterfaceOptions: CompactUnitFrames
 
-## X-Localizations: 
-## X-Credits: 
+## X-Localizations:
+## X-Credits:
 ## X-License: BSD
 
 # libraries
@@ -26,7 +26,7 @@ Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
 
 # own files
-core.lua
+CompactUnitFrames-Config.lua
 simulation.lua
 panel.lua
 CUFProfilesManager.lua

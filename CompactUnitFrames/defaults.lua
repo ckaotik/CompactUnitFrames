@@ -36,6 +36,9 @@ ns.defaults = {
 		spacingX = 0,
 		spacingY = 0,
 
+		bgtexture = 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg',
+		bgcolor = '0:0:0:1',
+		roleIconSize = 12,
 		-- tooltip = true,
 		-- tooltipInCombat = false,
 		noMenuClickInCombat = false,

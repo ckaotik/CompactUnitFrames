@@ -7,9 +7,23 @@ _G[addonName] = ns -- external reference
 -- GLOBALS: CompactUnitFrame_UtilShouldDisplayBuff, CompactUnitFrameProfiles_ApplyCurrentSettings, CompactUnitFrameProfiles_SetLastActivationType, CompactRaidFrameManager_ResizeFrame_UpdateContainerSize, CompactUnitFrameProfiles_GetAutoActivationState, CompactUnitFrameProfiles_GetLastActivationType, CompactUnitFrameProfiles_ProfileMatchesAutoActivation, CompactUnitFrameProfiles_ActivateRaidProfile, CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether
 local strlen, strfind, strmatch, strjoin, strgsub = string.len, string.find, string.match, string.join, string.gsub
 
-function ns.RunAutoActivation()
+--[[
+Global variable INTERFACE_ACTION_BLOCKED_SHOWN tainted by BasicChatMods - Interface\FrameXML\UIParent.lua:994
+    CompactRaidFrame40:SetAttribute()
+    Interface\FrameXML\CompactUnitFrame.lua:129 CompactUnitFrame_SetUnit()
+An action was blocked in combat because of taint from CompactUnitFrames - CompactRaidFrame40:SetAttribute()
+    CompactUnitFrame.lua:129 CompactUnitFrame_SetUnit()
+    Blizzard_CompactRaidFrameContainer.lua:318 CompactRaidFrameContainer_AddUnitFrame()
+    Blizzard_CompactRaidFrameContainer.lua:254 CompactRaidFrameContainer_AddPlayers()
+    Blizzard_CompactRaidFrameContainer.lua:176 CompactRaidFrameContainer_LayoutFrames()
+    Blizzard_CompactRaidFrameContainer.lua:130 CompactRaidFrameContainer_TryUpdate()
+    Blizzard_CompactRaidFrameContainer.lua:57 CompactRaidFrameContainer_OnEvent()
+    CompactRaidFrameContainer:OnEvent()
+--]]
+
+--[[ function ns.RunAutoActivation()
 	-- ty, Blizzard. The only wrapper I could use taints CUF_HORIZONTAL_GROUPS. Immediately.
-	if true then return end
+	-- if true then return end
 
 	local success, _, activationType, enemyType = CompactUnitFrameProfiles_GetAutoActivationState()
 	-- returns: true, 40, "world", "PvE"
@@ -32,21 +46,21 @@ function ns.RunAutoActivation()
 		local profile = GetRaidProfileName(i)
 		if CompactUnitFrameProfiles_ProfileMatchesAutoActivation(profile, numPlayers, spec, enemyType) then
 			-- CompactUnitFrameProfiles_ActivateRaidProfile(profile) -- causes taint as this updates dropdown values
-			--[[ CompactUnitFrameProfiles.selectedProfile = profile
+			CompactUnitFrameProfiles.selectedProfile = profile
 			SetActiveRaidProfile(profile)
 			CompactUnitFrameProfiles_ApplyProfile(profile) -- TAINTS!
 			print('activate', i, profile, issecurevariable("CUF_HORIZONTAL_GROUPS"))
 
-			UIDropDownMenu_SetSelectedValue(CompactUnitFrameProfilesProfileSelector, profile)
-			UIDropDownMenu_SetText(CompactUnitFrameProfilesProfileSelector, profile)
-			UIDropDownMenu_SetSelectedValue(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
-			UIDropDownMenu_SetText(CompactRaidFrameManagerDisplayFrameProfileSelector, profile) --]]
+			-- UIDropDownMenu_SetSelectedValue(CompactUnitFrameProfilesProfileSelector, profile)
+			-- UIDropDownMenu_SetText(CompactUnitFrameProfilesProfileSelector, profile)
+			-- UIDropDownMenu_SetSelectedValue(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
+			-- UIDropDownMenu_SetText(CompactRaidFrameManagerDisplayFrameProfileSelector, profile)
 
 			CompactUnitFrameProfiles_SetLastActivationType(activationType, numPlayers, spec, enemyType)
 			break
 		end
 	end
-end
+end --]]
 
 function ns.SetDefaultSettings(db, defaults)
     for key, value in pairs(defaults) do
@@ -79,12 +93,10 @@ local function eventHandler(self, event, arg1)
 		ns.SetupUnitFrameHooks()
 		ns.SetupContainer(CompactRaidFrameContainer)
 		ns.SetupManager(CompactRaidFrameManager)
-		-- ns.RunAutoActivation()
 
+		-- ns.RunAutoActivation()
 		-- eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 		-- eventFrame:RegisterEvent("GROUP_JOINED")
-		-- eventFrame:RegisterEvent("UNIT_PET")
-		-- eventFrame:RegisterEvent("CHAT_MSG_PET_INFO")
 
 		-- register with ConfigMode
 		local containerWasLocked
@@ -105,10 +117,8 @@ local function eventHandler(self, event, arg1)
 			end
 		end
 
-	elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then
-		ns.RunAutoActivation()
-	elseif event == "UNIT_PET" or event == "CHAT_MSG_PET_INFO" then
-		ns.UpdatePets(arg1)
+	-- elseif event == "GROUP_JOINED" or event == "GROUP_ROSTER_UPDATE" then
+	-- 	ns.RunAutoActivation()
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		ns.RunAfterCombat()
 		eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -118,24 +128,7 @@ eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:SetScript("OnEvent", eventHandler)
 ns.eventFrame = eventFrame
 
-function ns.UpdateAll(func)
-	--[[ for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
-		if unitFrame and unitFrame.IsVisible then
-			ns.SetupCompactUnitFrame(unitFrame)
-			if func then func(unitFrame) end
-		end
-	end --]]
-end
-
-function ns.UpdatePets(unit, func)
-	--[[ for i, unitFrame in ipairs(CompactRaidFrameContainer.flowFrames) do
-		if (unit and unitFrame.unit == unit..'pet') or (not unit and unitFrame.unit:find('pet')) then
-			CompactUnitFrame_UpdateHealth(unitFrame)
-			CompactUnitFrame_UpdateName(unitFrame)
-			if func then func(unitFrame) end
-		end
-	end --]]
-end
+-- TODO: addon:RegisterEvent('GROUP_ROSTER_UPDATE', CompactUnitFrameProfiles_CheckAutoActivation)
 
 local afterCombat = {}
 function ns.RunAfterCombat()
@@ -147,8 +140,7 @@ function ns.RunAfterCombat()
 	end
 
 	if ns.db.frames.taintUpdate then
-		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
-		CompactUnitFrameProfilesGeneralOptionsFrameKeepGroupsTogether:Click()
+		CompactUnitFrameProfiles_ApplyCurrentSettings()
 	end
 end
 function ns.DelayInCombat(frame, func)
