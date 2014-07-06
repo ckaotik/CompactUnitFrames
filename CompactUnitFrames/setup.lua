@@ -24,8 +24,6 @@ function ns.SetupManager(manager)
 	--]]
 
 	-- "show solo" functionality
-	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#86
-	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua#510
 	hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
 		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
 		-- show manager & container
@@ -84,6 +82,7 @@ function ns.SetupManager(manager)
 	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
 end
 
+-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameContainer.lua
 function ns.SetupContainer(container)
 	FlowContainer_SetHorizontalSpacing(container, ns.db.unitframe.spacingX or 0)
 	FlowContainer_SetVerticalSpacing(container, ns.db.unitframe.spacingY or 0)
@@ -91,7 +90,6 @@ function ns.SetupContainer(container)
 	FlowContainer_SetOrientation(container, ns.db.unitframe.orientation or "vertical")
 
 	-- we need to update any already existing unit frames
-	print('update existing frames...')
 	for index, unitFrame in ipairs(container.frameUpdateList['normal']) do
 		ns.SetupCompactUnitFrame(unitFrame, 'normal', true)
 		CompactUnitFrame_UpdateAll(unitFrame)
@@ -114,8 +112,6 @@ function ns.SetupUnitFrameHooks()
 	hooksecurefunc('CompactUnitFrame_SetUpFrame', function(frame, func)
 		local style = (func == DefaultCompactUnitFrameSetup and 'normal') or (func == DefaultCompactMiniFrameSetup and 'mini')
 		if not style then return end
-
-		print(GREEN_FONT_COLOR_CODE, 'setup', frame:GetName(), 'style', style, func)
 		ns.SetupCompactUnitFrame(frame, style, true)
 	end)
 	-- this function gets called multiple times per session, e.g. when settings change
