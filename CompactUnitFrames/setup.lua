@@ -66,6 +66,7 @@ function ns.SetupManager(manager)
   		self:SetHeight(usedY + 40)
 	end)
 	hooksecurefunc('CompactUnitFrameProfiles_ApplyCurrentSettings', function()
+		if not ns.db.frames.showSolo or GetDisplayedAllyFrames() then return end
 		CompactRaidFrameManager_UpdateShown(manager)
 	end)
 
@@ -95,16 +96,6 @@ function ns.SetupContainer(container)
 	hooksecurefunc('CompactRaidFrameContainer_AddGroups', function(self)
 		FlowContainer_SetOrientation(container, ns.db.unitframe.orientation or 'vertical')
 	end) --]]
-
-	-- we need to update any already existing unit frames
-	CompactRaidFrameContainer_ApplyToFrames(container, 'normal', function(unitFrame)
-		ns.SetupCompactUnitFrame(unitFrame, 'normal', true)
-		CompactUnitFrame_UpdateAll(unitFrame)
-	end)
-	CompactRaidFrameContainer_ApplyToFrames(container, 'mini', function(unitFrame)
-		ns.SetupCompactUnitFrame(unitFrame, 'mini', true)
-		CompactUnitFrame_UpdateAll(unitFrame)
-	end)
 end
 
 function ns.SetupUnitFrameHooks()
@@ -137,7 +128,7 @@ function ns.SetupUnitFrameHooks()
 		end
 	end)
 
-	-- find more functions here: http://wow.go-hero.net/framexml/16992/CompactUnitFrame.lua#238
+	-- @see http://www.townlong-yak.com/framexml/18291/CompactUnitFrame.lua#241
 	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", ns.SetupCompactUnitFrame)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", ns.SetUpClicks)
 	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", ns.UpdateHealthColor) -- taint, prevents positioning
@@ -145,6 +136,16 @@ function ns.SetupUnitFrameHooks()
 	hooksecurefunc("CompactUnitFrame_UpdateName", ns.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", ns.CUF_SetStatusText)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", ns.UpdateCenterStatusIcon)
+
+	-- we need to update any already existing unit frames
+	CompactRaidFrameContainer_ApplyToFrames(container, 'normal', function(unitFrame)
+		ns.SetupCompactUnitFrame(unitFrame, 'normal', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end)
+	CompactRaidFrameContainer_ApplyToFrames(container, 'mini', function(unitFrame)
+		ns.SetupCompactUnitFrame(unitFrame, 'mini', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end)
 end
 
 function ns.SetupCompactUnitFrame(frame, style, isFirstSetup)
