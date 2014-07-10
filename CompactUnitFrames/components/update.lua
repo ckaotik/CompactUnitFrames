@@ -4,22 +4,9 @@ local addonName, addon, _ = ...
 -- GLOBALS: UnitIsPVP, UnitIsConnected, CompactUnitFrame_UpdateAll, CompactUnitFrame_UpdateSelectionHighlight, CompactUnitFrame_UtilSetBuff, CompactUnitFrame_UtilSetDebuff, UnitIsEnemy, UnitCanAttack, UnitIsDead, UnitHasIncomingResurrection, CompactRaidFrameContainer_ApplyToFrames
 -- GLOBALS: hooksecurefunc, pairs, type, floor, ipairs, math
 
-function addon.SetupUnitFrameHooks()
-	-- @see http://www.townlong-yak.com/framexml/18291/CompactUnitFrame.lua#241
-	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", addon.UpdateHealthColor)
-	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", addon.UpdatePowerColor)
-	hooksecurefunc("CompactUnitFrame_UpdateName", addon.UpdateName)
-	hooksecurefunc("CompactUnitFrame_UpdateStatusText", addon.CUF_SetStatusText)
-	hooksecurefunc("CompactUnitFrame_UpdateBuffs", addon.UpdateBuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateDebuffs", addon.UpdateDebuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", addon.UpdateDispellableDebuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", addon.UpdateCenterStatusIcon)
-	-- hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", addon.UpdateRoleIcon)
-	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", addon.SetupCompactUnitFrame)
-	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", addon.SetUpClicks)
-end
-
+local hiddenSize = 0.000001
 local debuffTypes = { Magic = true, Curse = true, Disease = true, Poison = true}
+
 function addon.UpdateHealthColor(frame)
 	if not frame or type(frame) ~= "table" then return end
 	if addon.db.indicators.showDispellHealth then
@@ -45,22 +32,53 @@ function addon.UpdatePowerColor(frame)
 	local unit = frame.unit or frame.displayedUnit
 
 	local displayPowerBar = addon:ShouldDisplayPowerBar(frame)
-	addon.CUF_SetPowerBarShown(frame, displayPowerBar)
+	local powerSize = displayPowerBar and addon.db.power.size or hiddenSize
+	local padding = addon.db.unitframe.innerPadding
 
-	local r, g, b = addon:GetColorSetting( addon.db.power.color, frame.unit )
+	-- TODO: re-anchor health bar in Setup
+	frame.powerBar:SetHeight(powerSize)
+	frame.healthBar:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -1*padding, 1*padding + powerSize)
+	-- if frame.powerBar.vertical then frame.powerBar:SetWidth(size)
+	-- addon.CUF_SetSeperatorShown(frame, displayPowerBar and not addon.db.unitframe.hideSeperator)
+
+	local r, g, b = addon:GetColorSetting(addon.db.power.color, frame.unit)
 	if r and (not unit or UnitIsConnected(unit)) then
 		frame.powerBar:SetStatusBarColor(r, g, b)
 	end
 end
-function addon.UpdateNameColor(frame)
-	local r, g, b = addon:GetColorSetting(addon.db.name.color, frame.unit)
-	addon.CUF_SetNameColor(frame, r, g, b)
-end
+
 function addon.UpdateName(frame)
 	if not frame or type(frame) ~= "table" then return end
 
-	addon.CUF_SetNameText(frame, addon.db.name.size)
-	addon.UpdateNameColor(frame)
+	-- FIXME: use GetTextWidth() instead of fixed length
+	local unitName, server = UnitFullName(frame.unit)
+	local nameLength = addon.db.name.size
+	if addon.db.name.format == 'shorten' then
+		unitName = addon:ShortenString(unitName, nameLength or 10)
+	elseif addon.db.name.format == 'cut' then
+		unitName = addon.utf8sub(unitName, 1, nameLength or 10)
+	end
+
+	if addon.db.name.serverFormat == 'full' and server then
+		unitName = unitName .. "-" .. server
+	elseif addon.db.name.serverFormat == 'short' and server then
+		unitName = addon.db.name.serverPrefix .. unitName .. addon.db.name.serverSuffix
+	else -- 'none'
+		-- use only name part
+	end
+	frame.name:SetText(unitName)
+
+	local r, g, b = addon:GetColorSetting(addon.db.name.color, frame.unit)
+	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
+end
+
+function addon.UpdateStatusText(frame)
+	local setting = frame.optionTable.healthText
+	if (setting == 'losthealth' or setting == 'health') and addon.db.status.format == 'shorten'
+		and UnitIsConnected(frame.unit) and not UnitIsDeadOrGhost(frame.displayedUnit) then
+		local value = frame.statusText:GetText()
+		frame.statusText:SetText( addon:ShortenNumber(value) )
+	end
 end
 function addon.UpdateCenterStatusIcon(frame)
 	-- try to fix sticky incoming ressurect icon

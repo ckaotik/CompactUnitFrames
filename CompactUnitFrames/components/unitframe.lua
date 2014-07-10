@@ -4,6 +4,8 @@ local addonName, addon, _ = ...
 -- GLOBALS: CompactUnitFrameProfiles, GetRaidProfileOption, CompactUnitFrame_UtilShouldDisplayDebuff, CompactUnitFrame_UtilShouldDisplayBuff
 -- GLOBALS: pairs, type
 
+local hiddenSize = 0.000001
+
 function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	if not style or (style ~= 'normal' and style ~= 'mini') then return end
 	-- bar orientation
@@ -15,19 +17,22 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	-- borders (horizTopBorder, horizBottomBorder, verLeftBorder, vertRightBorder, horizDivider: texture, height/width, position)
 
 	-- frame size, background (texture, coords)
-	addon.CUF_SetFrameBGTexture(frame, addon.db.unitframe.bgtexture)
-	addon.CUF_SetFrameBGColor(frame, addon:GetColorSetting( addon.db.unitframe.bgcolor, frame.unit ))
+	local r, g, b = addon:GetColorSetting(addon.db.unitframe.bgcolor, frame.unit)
+	frame.background:SetVertexColor(r or 1, g or 1, b or 1)
+	frame.background:SetTexture(addon.db.unitframe.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
 
 	-- healthBar (position, statusbartexture)
-	addon.CUF_SetHealthTexture(frame, addon.db.health.texture)
+	frame.healthBar:SetStatusBarTexture(addon.db.health.texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill', 'BORDER')
 	if isFirstSetup then
-		addon.CUF_SetHealthBGTexture(frame, addon.db.health.bgtexture)
-		addon.CUF_SetHealthBGColor(frame, addon:GetColorSetting( addon.db.health.bgcolor, frame.unit ))
+		local r, g, b = addon:GetColorSetting(addon.db.health.bgcolor, frame.unit)
+		frame.healthBar.background:SetVertexColor(r or 1, g or 1, b or 1)
+		frame.healthBar.background:SetTexture(addon.db.health.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
 	end
 
 	-- name (position, justifyH)
 	frame.name:SetJustifyH(addon.db.name.justifyH or 'LEFT')
 	if isFirstSetup and (addon.db.name.font or addon.db.name.fontSize or addon.db.name.fontStyle) then
+		-- "Fonts\\FRIZQT__.TTF", 10
 		local defaultFont, defaultSize, defaultStyle = frame.name:GetFont()
 		frame.name:SetFont(addon.db.name.font or defaultFont, addon.db.name.fontSize or defaultSize, addon.db.name.fontStyle or defaultStyle)
 	end
@@ -43,19 +48,23 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 
 	if style == 'normal' then
 		-- powerBar (position, statusbartexture, backgroundTex, show/hide)
-		addon.CUF_SetPowerTexture(frame, addon.db.power.texture)
+		frame.powerBar:SetStatusBarTexture(addon.db.power.texture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill', 'BORDER')
 		if isFirstSetup then
-			addon.CUF_SetPowerBGTexture(frame, addon.db.power.bgtexture)
-			addon.CUF_SetPowerBGColor(frame, addon:GetColorSetting(addon.db.power.bgcolor, frame.unit))
+			local r, g, b = addon:GetColorSetting(addon.db.power.bgcolor, frame.unit)
+			frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
+			frame.powerBar.background:SetTexture(addon.db.power.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Background', 'BORDER')
 		end
 
 		-- roleIcon (position, size)
-		addon.CUF_SetRoleIconSize(frame, addon.db.unitframe.roleIconSize)
+		local size = addon.db.unitframe.roleIconSize
+		if size == 0 then size = hiddenSize end
+		frame.roleIcon:SetSize(size, size)
 		-- frame.roleIcon:ClearAllPoints()
 		-- frame.roleIcon:SetPoint("TOPLEFT", frame.healthBar, 3, -2)
 
 		-- statusText (fontSize, position, height)
-		addon.CUF_SetStatusColor(frame, addon:GetColorSetting(addon.db.status.color, frame.unit))
+		local r, g, b = addon:GetColorSetting(addon.db.status.color, frame.unit)
+		frame.statusText:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, 1)
 		if addon.db.status.font or addon.db.status.fontSize or addon.db.status.fontStyle then
 			local defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
 			frame.statusText:SetFont(addon.db.status.font or defaultFont, addon.db.status.fontSize or defaultSize, addon.db.status.fontStyle or defaultStyle)

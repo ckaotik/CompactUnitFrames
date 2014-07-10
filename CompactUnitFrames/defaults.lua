@@ -29,8 +29,8 @@ ns.defaults = {
 		-- maxHeight = false,
 	},
 	unitframe = {
-		width = false,
-		height = false,
+		-- width = false,
+		-- height = false,
 		-- anchor = 'TOPLEFT',
 
 		innerPadding = 1,

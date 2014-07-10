@@ -59,7 +59,18 @@ function addon:OnEnable()
 		end
 	end)
 
-	addon.SetupUnitFrameHooks()
+	-- @see http://www.townlong-yak.com/framexml/18291/CompactUnitFrame.lua#241
+	hooksecurefunc("CompactUnitFrame_UpdateHealthColor", addon.UpdateHealthColor)
+	hooksecurefunc("CompactUnitFrame_UpdatePowerColor", addon.UpdatePowerColor)
+	hooksecurefunc("CompactUnitFrame_UpdateName", addon.UpdateName)
+	hooksecurefunc("CompactUnitFrame_UpdateStatusText", addon.UpdateStatusText)
+	hooksecurefunc("CompactUnitFrame_UpdateBuffs", addon.UpdateBuffs)
+	hooksecurefunc("CompactUnitFrame_UpdateDebuffs", addon.UpdateDebuffs)
+	hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", addon.UpdateDispellableDebuffs)
+	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", addon.UpdateCenterStatusIcon)
+	-- hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", addon.UpdateRoleIcon)
+	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", addon.SetupCompactUnitFrame)
+	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", addon.SetUpClicks)
 
 	-- @see: http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
 	local manager = CompactRaidFrameManager
