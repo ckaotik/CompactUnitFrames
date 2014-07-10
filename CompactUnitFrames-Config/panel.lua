@@ -65,35 +65,47 @@ do
 		name = "CompactUnitFrames Configuration",
 		childGroups = "tab",
 		args = {
-			enable = {
-				type = "toggle",
-				name = "Enable",
-				desc = "Enables / disables the addon",
-
-				get = function(info) return not CompactUnitFrames.db.frames.disableCUF end,
-				set = function(info, enable)
-					CompactUnitFrames:Manager_DisableCUF(not enable)
-					CompactUnitFrames.db.frames.disableCUF = not enable
-				end,
-			},
-			refresh = {
-				type = "execute",
-				name = "Refresh",
-				desc = "Click to update the live CompactUnitFrames",
-				width = "half",
-				func = function() CompactUnitFrameProfiles_ApplyCurrentSettings() end,
-			},
 			general = {
 				type = "group",
+				childGroups = 'tree',
 				name = "General Settings",
 				order = 1,
 				args = {
-					--[[ group1 = {
+					general = {
 						type = "group",
-						name = "Interface Settings",
-						inline = true,
+						name = "General",
 						order = 1,
-						args = { --]]
+						args = {
+							enable = {
+								type = "toggle",
+								name = "Enable",
+								-- desc = "Enables / disables the addon",
+
+								get = function(info) return not CompactUnitFrames.db.frames.disableCUF end,
+								set = function(info, enable)
+									CompactUnitFrames:Manager_DisableCUF(not enable)
+									CompactUnitFrames.db.frames.disableCUF = not enable
+								end,
+							},
+							showSolo = {
+								type = "toggle",
+								name = "Show frames when solo",
+								order = 1,
+								desc = "Check to display the compact unit frames even when not in a group",
+
+								get = function(info) return CompactUnitFrames.db.frames.showSolo end,
+								set = function(info, enable)
+									CompactUnitFrames.db.frames.showSolo = enable
+									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
+								end,
+							},
+							refresh = {
+								type = "execute",
+								name = "Refresh",
+								desc = "Click to update the live CompactUnitFrames",
+								width = "half",
+								func = function() CompactUnitFrameProfiles_ApplyCurrentSettings() end,
+							},
 							pullout = {
 								type = "group",
 								name = "Side Pullout",
@@ -170,27 +182,14 @@ do
 										max = 500,
 									},
 								},
-							-- },
-					--	},
+							},
+						},
 					},
-					group2 = {
+					container = {
 						type = "group",
-						name = "Unit Frame settings",
-						inline = true,
+						name = "Container",
 						order = 2,
 						args = {
-							showSolo = {
-								type = "toggle",
-								name = "Show frames when solo",
-								order = 1,
-								desc = "Check to display the compact unit frames even when not in a group",
-
-								get = function(info) return CompactUnitFrames.db.frames.showSolo end,
-								set = function(info, enable)
-									CompactUnitFrames.db.frames.showSolo = enable
-									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
-								end,
-							},
 							taintFix = {
 								type = "toggle",
 								name = "Automatic updates",
@@ -296,13 +295,12 @@ do
 								end,
 								values = {["horizontal"] = "horizontal", ["vertical"] = "vertical"},
 							},
-							-- [TODO] width = nil, height = nil,
 						},
 					},
 					indicators = {
 						type = "group",
 						name = "Indicators",
-						inline = true,
+						-- inline = true,
 						order = 3,
 						args = {
 							showDispellBorder = {
@@ -317,186 +315,204 @@ do
 									-- ns:UpdateDispellDebuffDisplay(testFrame)
 								end,
 							},
-							hideDispellIcons = {
+							showDispellIcons = {
 								type = "toggle",
-								name = "Hide dispell icons",
-								desc = "Check to hide the icons shown when a debuff is applied.",
+								name = "Show dispell icons",
+								desc = "Check to display a colored icon when a debuff is applied.",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.indicators.hideDispellIcons end,
+								get = function(info) return CompactUnitFrames.db.indicators.showDispellIcons end,
 								set = function(info, hide)
-									CompactUnitFrames.db.indicators.hideDispellIcons = hide
+									CompactUnitFrames.db.indicators.showDispellIcons = hide
+									-- ns:UpdateDispellDebuffDisplay(testFrame)
+								end,
+							},
+							showDispellHealth = {
+								type = "toggle",
+								name = "Show debuff state on health bar",
+								desc = "Check to color the health bar when a debuff is applied.",
+								order = 3,
+
+								get = function(info) return CompactUnitFrames.db.indicators.showDispellHealth end,
+								set = function(info, hide)
+									CompactUnitFrames.db.indicators.showDispellHealth = hide
 									-- ns:UpdateDispellDebuffDisplay(testFrame)
 								end,
 							},
 							-- [TODO] center = { size = 10, posX = nil, posY = nil,
 						},
 					},
-					buffs = {
-						type = "group",
-						name = "Buffs",
-						inline = true,
-						order = 10,
+					auras = {
+						name = 'Auras',
+						type = 'group',
 						args = {
-							hidePermanent = {
-								type = "toggle",
-								name = "Hide permanent buffs",
-								desc = "Check to hide buffs without a duration",
-								order = 1,
-
-								get = function(info) return CompactUnitFrames.db.buffs.hidePermanent end,
-								set = function(info, enable)
-									CompactUnitFrames.db.buffs.hidePermanent = enable
-									-- [TODO] do something
-								end,
-							},
-							showBoss = {
-								type = "toggle",
-								name = "Show boss effects",
-								desc = "Check to always show auras applied by bosses",
-								order = 2,
-
-								get = function(info) return CompactUnitFrames.db.buffs.showBoss end,
-								set = function(info, enable)
-									CompactUnitFrames.db.buffs.showBoss = enable
-									-- [TODO] do something
-								end,
-							},
-							posX = {
-								type = "range",
-								name = "Horizontal position",
-								order = 5,
-
-								get = function(info) return CompactUnitFrames.db.buffs.offsetX end,
-								set = function(info, value)
-									CompactUnitFrames.db.buffs.offsetX = value
-									-- [TODO] do something
-								end,
-								step = 1,
-								min = -100,
-								max = 100,
-							},
-							posY = {
-								type = "range",
-								name = "Vertical position",
-								order = 6,
-
-								get = function(info) return CompactUnitFrames.db.buffs.offsetY end,
-								set = function(info, value)
-									CompactUnitFrames.db.buffs.offsetY = value
-									-- [TODO] do something
-								end,
-								step = 1,
-								min = -100,
-								max = 100,
-							},
-							showList = {
-								type = "input",
-								name = "Always show these",
+							buffs = {
+								type = "group",
+								name = "Buffs",
+								inline = true,
 								order = 10,
+								args = {
+									hidePermanent = {
+										type = "toggle",
+										name = "Hide permanent buffs",
+										desc = "Check to hide buffs without a duration",
+										order = 1,
 
-								get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.show, "\n") end,
-								set = function(info, input)
-									CompactUnitFrames.db.buffs.show = ns:GetTableFromList(input, "\n")
-								end,
-								multiline = true,
-								usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+										get = function(info) return CompactUnitFrames.db.buffs.hidePermanent end,
+										set = function(info, enable)
+											CompactUnitFrames.db.buffs.hidePermanent = enable
+											-- [TODO] do something
+										end,
+									},
+									showBoss = {
+										type = "toggle",
+										name = "Show boss effects",
+										desc = "Check to always show auras applied by bosses",
+										order = 2,
+
+										get = function(info) return CompactUnitFrames.db.buffs.showBoss end,
+										set = function(info, enable)
+											CompactUnitFrames.db.buffs.showBoss = enable
+											-- [TODO] do something
+										end,
+									},
+									posX = {
+										type = "range",
+										name = "Horizontal position",
+										order = 5,
+
+										get = function(info) return CompactUnitFrames.db.buffs.offsetX end,
+										set = function(info, value)
+											CompactUnitFrames.db.buffs.offsetX = value
+											-- [TODO] do something
+										end,
+										step = 1,
+										min = -100,
+										max = 100,
+									},
+									posY = {
+										type = "range",
+										name = "Vertical position",
+										order = 6,
+
+										get = function(info) return CompactUnitFrames.db.buffs.offsetY end,
+										set = function(info, value)
+											CompactUnitFrames.db.buffs.offsetY = value
+											-- [TODO] do something
+										end,
+										step = 1,
+										min = -100,
+										max = 100,
+									},
+									showList = {
+										type = "input",
+										name = "Always show these",
+										order = 10,
+
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.show, "\n") end,
+										set = function(info, input)
+											CompactUnitFrames.db.buffs.show = ns:GetTableFromList(input, "\n")
+										end,
+										multiline = true,
+										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+									},
+									hideList = {
+										type = "input",
+										name = "Never show these",
+										order = 11,
+
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.hide, "\n") end,
+										set = function(info, input)
+											CompactUnitFrames.db.buffs.hide = ns:GetTableFromList(input, "\n")
+										end,
+										multiline = true,
+										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+									},
+								},
 							},
-							hideList = {
-								type = "input",
-								name = "Never show these",
-								order = 11,
+							debuffs = {
+								type = "group",
+								name = "Debuffs",
+								inline = true,
+								order = 20,
+								args = {
+									hidePermanent = {
+										type = "toggle",
+										name = "Hide permanent debuffs",
+										desc = "Check to hide debuffs without a duration",
+										order = 1,
 
-								get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.hide, "\n") end,
-								set = function(info, input)
-									CompactUnitFrames.db.buffs.hide = ns:GetTableFromList(input, "\n")
-								end,
-								multiline = true,
-								usage = "List spell IDs or spell names, each on a new line", -- [TODO]
-							},
-						},
-					},
-					debuffs = {
-						type = "group",
-						name = "Debuffs",
-						inline = true,
-						order = 20,
-						args = {
-							hidePermanent = {
-								type = "toggle",
-								name = "Hide permanent debuffs",
-								desc = "Check to hide debuffs without a duration",
-								order = 1,
+										get = function(info) return CompactUnitFrames.db.debuffs.hidePermanent end,
+										set = function(info, enable)
+											CompactUnitFrames.db.debuffs.hidePermanent = enable
+											-- [TODO] do something
+										end,
+									},
+									showBoss = {
+										type = "toggle",
+										name = "Show boss effects",
+										desc = "Check to always show auras applied by bosses",
+										order = 2,
 
-								get = function(info) return CompactUnitFrames.db.debuffs.hidePermanent end,
-								set = function(info, enable)
-									CompactUnitFrames.db.debuffs.hidePermanent = enable
-									-- [TODO] do something
-								end,
-							},
-							showBoss = {
-								type = "toggle",
-								name = "Show boss effects",
-								desc = "Check to always show auras applied by bosses",
-								order = 2,
+										get = function(info) return CompactUnitFrames.db.debuffs.showBoss end,
+										set = function(info, enable)
+											CompactUnitFrames.db.debuffs.showBoss = enable
+											-- [TODO] do something
+										end,
+									},
+									posX = {
+										type = "range",
+										name = "Horizontal position",
+										order = 5,
 
-								get = function(info) return CompactUnitFrames.db.debuffs.showBoss end,
-								set = function(info, enable)
-									CompactUnitFrames.db.debuffs.showBoss = enable
-									-- [TODO] do something
-								end,
-							},
-							posX = {
-								type = "range",
-								name = "Horizontal position",
-								order = 5,
+										get = function(info) return CompactUnitFrames.db.debuffs.offsetX end,
+										set = function(info, value)
+											CompactUnitFrames.db.debuffs.offsetX = value
+											-- [TODO] do something
+										end,
+										step = 1,
+										min = -100,
+										max = 100,
+									},
+									posY = {
+										type = "range",
+										name = "Vertical position",
+										order = 6,
 
-								get = function(info) return CompactUnitFrames.db.debuffs.offsetX end,
-								set = function(info, value)
-									CompactUnitFrames.db.debuffs.offsetX = value
-									-- [TODO] do something
-								end,
-								step = 1,
-								min = -100,
-								max = 100,
-							},
-							posY = {
-								type = "range",
-								name = "Vertical position",
-								order = 6,
+										get = function(info) return CompactUnitFrames.db.debuffs.offsetY end,
+										set = function(info, value)
+											CompactUnitFrames.db.debuffs.offsetY = value
+											-- [TODO] do something
+										end,
+										step = 1,
+										min = -100,
+										max = 100,
+									},
+									showList = {
+										type = "input",
+										name = "Always show these",
+										order = 10,
 
-								get = function(info) return CompactUnitFrames.db.debuffs.offsetY end,
-								set = function(info, value)
-									CompactUnitFrames.db.debuffs.offsetY = value
-									-- [TODO] do something
-								end,
-								step = 1,
-								min = -100,
-								max = 100,
-							},
-							showList = {
-								type = "input",
-								name = "Always show these",
-								order = 10,
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.show, "\n") end,
+										set = function(info, input)
+											CompactUnitFrames.db.debuffs.show = ns:GetTableFromList(input, "\n")
+										end,
+										multiline = true,
+										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+									},
+									hideList = {
+										type = "input",
+										name = "Never show these",
+										order = 11,
 
-								get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.show, "\n") end,
-								set = function(info, input)
-									CompactUnitFrames.db.debuffs.show = ns:GetTableFromList(input, "\n")
-								end,
-								multiline = true,
-								usage = "List spell IDs or spell names, each on a new line", -- [TODO]
-							},
-							hideList = {
-								type = "input",
-								name = "Never show these",
-								order = 11,
-
-								get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.hide, "\n") end,
-								set = function(info, input)
-									CompactUnitFrames.db.debuffs.hide = ns:GetTableFromList(input, "\n")
-								end,
-								multiline = true,
-								usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.hide, "\n") end,
+										set = function(info, input)
+											CompactUnitFrames.db.debuffs.hide = ns:GetTableFromList(input, "\n")
+										end,
+										multiline = true,
+										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
+									},
+								},
 							},
 						},
 					},
@@ -504,13 +520,14 @@ do
 			},
 			appearance = {
 				type = "group",
+				childGroups = 'tree',
 				name = "Appearance",
 				order = 2,
 				args = {
 					unitframe = {
 						type = "group",
 						name = "Unitframe",
-						inline = true,
+						-- inline = true,
 						order = 0,
 						args = {
 							frameBGColor = {
@@ -573,7 +590,7 @@ do
 					healthBar = {
 						type = "group",
 						name = "Health Bar",
-						inline = true,
+						-- inline = true,
 						order = 1,
 						args = {
 							healthColor = {
@@ -599,6 +616,18 @@ do
 								get = function(info) return CompactUnitFrames.db.health.color == 'class' end,
 								set = function(info, enable)
 									CompactUnitFrames.db.health.color = enable and 'class' or CompactUnitFrames.db.health.color
+									-- CompactUnitFrame_UpdateHealthColor(testFrame)
+								end,
+							},
+							healthRoleClass = {
+								type = "toggle",
+								name = "Role Color",
+								desc = "Check to use role colors for health bars",
+								order = 2,
+
+								get = function(info) return CompactUnitFrames.db.health.color == 'role' end,
+								set = function(info, enable)
+									CompactUnitFrames.db.health.color = enable and 'role' or CompactUnitFrames.db.health.color
 									-- CompactUnitFrame_UpdateHealthColor(testFrame)
 								end,
 							},
@@ -675,7 +704,7 @@ do
 					powerBar = {
 						type = "group",
 						name = "Power Bar",
-						inline = true,
+						-- inline = true,
 						order = 2,
 						args = {
 							powerColor = {
@@ -1000,7 +1029,7 @@ do
 					nameText = {
 						type = "group",
 						name = "Unit Name Text",
-						inline = true,
+						-- inline = true,
 						order = 3,
 						args = {
 							nameFontColor = {
@@ -1162,7 +1191,7 @@ do
 					statusText = {
 						type = "group",
 						name = "Status Text",
-						inline = true,
+						-- inline = true,
 						order = 4,
 						args = {
 							statusFontColor = {
@@ -1412,10 +1441,10 @@ do
 		AddonLoader:RemoveInterfaceOptions(optionsName)
 	end
 
-	AceConfig:RegisterOptionsTable(addonName, optionsTable, {"cuf_ace"})
+	AceConfig:RegisterOptionsTable(addonName, optionsTable)
 	local optionsPanel = AceConfigDialog:AddToBlizOptions(addonName, optionsName)
-	optionsPanel.okay = function() CompactUnitFrames:SaveConfig() end
-	optionsPanel.cancel = function() CompactUnitFrames:ResetConfig() end
+	-- optionsPanel.okay = function() CompactUnitFrames:SaveConfig() end
+	-- optionsPanel.cancel = function() CompactUnitFrames:ResetConfig() end
 
 	-- testFrame:SetParent(optionsPanel)
 	-- testFrame:SetPoint("TOPRIGHT", -14, -14)
