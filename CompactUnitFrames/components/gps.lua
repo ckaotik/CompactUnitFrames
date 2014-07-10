@@ -1,4 +1,4 @@
-local _, ns = ...
+local addonName, addon, _ = ...
 
 -- code from the amazing oUF_GPS plugin by Elv, Omega1970
 -- https://github.com/Blazeflack/ElvUI/tree/master/ElvUI/libs/oUF_Plugins/oUF_GPS
@@ -30,7 +30,7 @@ end
 
 local minThrottle = 0.02
 local numArrows, inRange, unit, angle, GPS, distance
-local Update = function(self, elapsed)
+local function Update(self, elapsed)
 	if self.elapsed and self.elapsed > (self.throttle or minThrottle) then
 		numArrows = 0
 		for _, object in ipairs(_FRAMES) do
@@ -80,7 +80,7 @@ local Update = function(self, elapsed)
 	end
 end
 
-local Disable = function(self)
+local function Disable(self)
 	local GPS = self.GPS
 	if GPS then
 		for k, frame in ipairs(_FRAMES) do
@@ -97,7 +97,7 @@ local Disable = function(self)
 	end
 end
 
-local Enable = function(self)
+local function Enable(self)
 	local GPS = self.GPS
 	if GPS then
 		tinsert(_FRAMES, self)
@@ -113,4 +113,4 @@ local Enable = function(self)
 	end
 end
 
-ns.EnableGPS, ns.DisableGPS = Enable, Disable
+addon.EnableGPS, addon.DisableGPS = Enable, Disable

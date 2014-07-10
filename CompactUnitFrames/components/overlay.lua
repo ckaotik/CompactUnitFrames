@@ -1,4 +1,4 @@
-local addonName, ns, _ = ...
+local addonName, addon, _ = ...
 
 -- GLOBALS: UnitDebuff, GetTime
 -- GLOBALS: tinsert, hooksecurefunc, ipairs, tremove
@@ -86,4 +86,4 @@ local Enable = function(self)
 	end
 end
 
-ns.EnableOverlay, ns.DisableOverlay = Enable, Disable
+addon.EnableOverlay, addon.DisableOverlay = Enable, Disable

@@ -1,95 +1,9 @@
 local addonName, ns = ...
 -- GLOBALS: _G, UIParent, CompactRaidFrameManager, RAID_BORDERS_SHOWN
--- GLOBALS: HidePartyFrame, CompactRaidFrameManager_OnLoad, GetUnitName, UnitIsDeadOrGhost, UnitIsConnected, GetNumGroupMembers, CompactRaidFrameManager_Collapse
+-- GLOBALS: HidePartyFrame, GetUnitName, UnitIsDeadOrGhost, UnitIsConnected, GetNumGroupMembers
 -- GLOBALS: hooksecurefunc, pairs, ipairs, string
 
-local manager = CompactRaidFrameManager
 local hiddenSize = 0.000001
-
-function ns:Manager_DisableCUF(disable)
-	local isHooked = manager:IsEventRegistered("UNIT_FLAGS")
-
-	if disable and isHooked then
-		manager:UnregisterAllEvents()
-		manager:Hide()
-		manager.container:UnregisterAllEvents()
-		manager.container:Hide()
-		-- HidePartyFrame()
-	elseif not disable then
-		if not isHooked then
-			CompactRaidFrameManager_OnLoad(manager)
-		end
-	end
-end
-
-function ns:Manager_SetAlpha(alpha)
-	manager:SetAlpha(alpha or 1)
-end
-
-function ns:Manager_SetLeftBorder()
-	-- recreate left border (commented out by Blizzard)
-	if not _G['CompactRaidFrameManagerBorderLeft'] then
-		local borderLeft = manager:CreateTexture("CompactRaidFrameManagerBorderLeft")
-		borderLeft:SetSize(10, 0)
-		borderLeft:SetPoint("TOPLEFT", _G["CompactRaidFrameManagerBorderTopLeft"], "BOTTOMLEFT", 1, 0)
-		borderLeft:SetPoint("BOTTOMLEFT", _G["CompactRaidFrameManagerBorderBottomLeft"], "TOPLEFT", -1, 0)
-		borderLeft:SetTexture("Interface\\RaidFrame\\RaidPanel-Left")
-		borderLeft:SetVertTile(true)
-	end
-end
-
-function ns:MinifyPullout(enable)
-	local borderParts = { 'BorderTop', 'BorderBottom', --[['BorderLeft', 'BorderRight',]]
-		'BorderTopLeft', 'BorderBottomLeft', --[['BorderTopRight', 'BorderBottomRight' ]]
-	} -- what's commented here will *not* be hidden later
-
-	if enable then
-		local widthSmall, heightSmall, widthDefault = 16, 44, 200
-		local function SetCRFManagerSize(self)
-			if self.collapsed then
-				self:SetWidth(widthSmall)
-				self:SetHeight(heightSmall)
-			else
-				local currentHeight = 84
-				if self.displayFrame.filterOptions:IsShown() then
-					currentHeight = currentHeight + self.displayFrame.filterOptions:GetHeight()
-				end
-				if self.displayFrame.leaderOptions:IsShown() then
-					currentHeight = currentHeight + self.displayFrame.leaderOptions:GetHeight()
-				end
-				self:SetSize(widthDefault, currentHeight)
-			end
-		end
-		-- [TODO]
-		--[[hooksecurefunc("CompactRaidFrameManager_Expand", function(self)
-			self:SetAlpha(1)
-			self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", (ns.db.frames.pullout.posX or 0) -7, ns.db.frames.pullout.posY or -140)
-			for _, region in ipairs( borderParts ) do
-				_G['CompactRaidFrameManager'..region]:Show()
-			end
-			SetCRFManagerSize(self)
-
-			self.toggleButton:GetNormalTexture():SetTexCoord(0.5, 1, 0, 1)
-			self.toggleButton:SetPoint("RIGHT", -9, 0)
-			self.toggleButton:SetSize(16, 64)
-		end)
-		hooksecurefunc("CompactRaidFrameManager_Collapse", function(self)
-			self:SetAlpha(ns.db.frames.pullout.alpha or 1)
-			self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", ns.db.frames.pullout.posX or 0, ns.db.frames.pullout.posY or -140)
-			SetCRFManagerSize(self)
-
-			for _, region in ipairs( borderParts ) do
-				_G['CompactRaidFrameManager'..region]:Hide()
-			end
-
-			self.toggleButton:GetNormalTexture():SetTexCoord(0.1, 0.5, 0.3, 0.7)
-			self.toggleButton:SetPoint("RIGHT", -6, 1)
-			self.toggleButton:SetSize(16, 32)
-		end)--]]
-		-- hooksecurefunc("CompactRaidFrameManager_UpdateLeaderButtonsShown", SetCRFManagerSize)
-		-- CompactRaidFrameManager_Collapse( CompactRaidFrameManager )
-	end
-end
 
 function ns.CUF_SetFrameBGTexture(frame, texture)
 	frame.background:SetTexture(texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
@@ -167,6 +81,7 @@ end
 
 function ns.CUF_SetPowerSize(frame, size)
 	local padding = ns.db.unitframe.innerPadding
+	if size == 0 then size = hiddenSize end
 	--if frame.powerBar.vertical then
 	--	frame.powerBar:SetWidth(size)
 	--else
@@ -305,7 +220,7 @@ function ns.CUF_SetNameText(frame, size) -- FIXME: use GetTextWidth()
 	if ns.db.name.format == 'shorten' then
 		unitName = ns:ShortenString(unitName, size or 10)
 	elseif ns.db.name.format == 'cut' then
-		unitName = ns:utf8sub(unitName, 1, size or 10)
+		unitName = ns.utf8sub(unitName, 1, size or 10)
 	end
 
 	if ns.db.name.serverFormat == 'full' and server then
@@ -364,32 +279,4 @@ end
 
 function ns:Util_UpdateFont(fontInstance, font, fontSize, fontStyle)
 	fontInstance:SetFont(font or "Fonts\\FRIZQT__.TTF", fontSize or 10, fontStyle)
-end
-
--- =================================================================
--- UTF-8 is hard [http://wowprogramming.com/snippets/UTF-8_aware_stringsub_7]
-local function chsize(char)
-	if not char then return 0
-	elseif char > 240 then return 4
-	elseif char > 225 then return 3
-	elseif char > 192 then return 2
-	else return 1
-	end
-end
-
-function ns:utf8sub(str, startChar, numChars)
-	local startIndex = 1
-	while startChar > 1 do
-		local char = string.byte(str, startIndex)
-		startIndex = startIndex + chsize(char)
-		startChar = startChar - 1
-	end
-
-	local currentIndex = startIndex
-	while numChars > 0 and currentIndex <= #str do
-		local char = string.byte(str, currentIndex)
-		currentIndex = currentIndex + chsize(char)
-		numChars = numChars -1
-	end
-	return str:sub(startIndex, currentIndex - 1)
 end

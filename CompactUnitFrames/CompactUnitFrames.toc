@@ -7,9 +7,9 @@
 ## Version: 0.1
 ## Interface: 50400
 ## Notes: Customize Blizzard's compact raid/party frames to your liking
-## Notes-deDE: Passe Blizzards CompactRaidFrames (oder PartyFrames) an, wie du es magst
+## Notes-deDE: Passe Blizzards CompactRaid- und PartyFrames an, wie du es magst
 
-## SavedVariables: CUF_GlobalDB
+## SavedVariables: CUF_GlobalDB, CompactUnitFramesDB
 ## SavedVariablesPerCharacter:
 
 ## LoadManagers: AddonLoader, Addon Control Panel
@@ -22,13 +22,25 @@
 ## X-Credits:
 ## X-License: BSD
 
+#@no-lib-strip@
 libs\LibStub.lua
 libs\DRData-1.0\DRData-1.0.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+#@end-no-lib-strip@
+libs\LibOptionsGenerate-1.0.lua
 
-CompactUnitFrames.lua
-stylefunctions.lua
-gps.lua
-overlay.lua
-setup.lua
-
+locale.lua
+utils.lua
 defaults.lua
+CompactUnitFrames.lua
+
+components\autoactivate.lua
+components\gps.lua
+components\manager.lua
+components\overlay.lua
+components\unitframe.lua
+components\update.lua
+
+stylefunctions.lua
+

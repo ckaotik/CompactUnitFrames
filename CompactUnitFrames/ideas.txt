@@ -27,7 +27,7 @@ Features one could implement:
 - utilize all corners
 - utilize all sides
 
-+ disable right click in fight
++ disable right click in fight (use Clique!)
 
 - replace unit names completely, from database (e.g. alt names, real names)
 - switch between .unit and .displayedUnit names

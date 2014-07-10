@@ -1,8 +1,9 @@
 local addonName, ns = ...
+-- local L = addon.L
 
 --[[ Attribute		Possible Values
 	-----------		----------------
-	colors			class, default, r.r:g.g:b.b
+	colors			default, class, role, r.r:g.g:b.b
 	orientations	true:vertical, false/false:horizontal
 	text formats	shorten, cut
 	font style 		'MONOCHROME', 'OUTLINE', 'THICKOUTLINE'
@@ -131,8 +132,9 @@ ns.defaults = {
 		offsetY = 1,
 	},
 	indicators = {
+		showDispellIcons = true,
 		showDispellBorder = false,
-		hideDispellIcons = false,
+		showDispellHealth = true,
 
 		center = {
 			size = 10,
@@ -145,9 +147,52 @@ ns.defaults = {
 	},
 }
 
-function ns:SaveConfig()
-	CUF_GlobalDB = ns.db
+
+local LibOptionsGenerate = LibStub('LibOptionsGenerate-1.0')
+local addon = ns
+
+addon.acedb = LibStub('AceDB-3.0'):New(addonName..'DB', { profile = addon.defaults }, true)
+LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.acedb, addonName)
+
+--[[
+local AceConfig       = LibStub('AceConfig-3.0')
+local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+local AceDBOptions    = LibStub('AceDBOptions-3.0')
+local LibDualSpec     = LibStub('LibDualSpec-1.0')
+
+local optionsTable
+local function GetOptions()
+	if optionsTable then return optionsTable end
+
+	optionsTable = {
+		name = addonName,
+		type = 'group',
+		-- childGroups = 'tab',
+		args = {
+			global = {
+				name = 'Global Settings',
+				type = 'group',
+				descStyle = addonName..'.acedb.defaults.profile', -- used by LibOptionsGenerate
+				-- inline = true,
+				order = 1,
+				args = {},
+			},
+		},
+	}
+	LibStub('LibOptionsGenerate-1.0'):GenerateOptions(optionsTable)
+
+	local profiles = AceDBOptions:GetOptionsTable(addon.db)
+	-- LibDualSpec:EnhanceOptions(profiles, addon.db)
+	profiles.order = -10
+	profiles.disabled = false
+
+	optionsTable.args.profiles = profiles
+
+	return optionsTable
 end
-function ns:ResetConfig()
-	-- ?
-end
+
+AceConfig:RegisterOptionsTable(addonName, GetOptions)
+
+local mainPanel    = AceConfigDialog:AddToBlizOptions(addonName, addonName, nil, 'global')
+local profilePanel = AceConfigDialog:AddToBlizOptions(addonName, 'Profiles', addonName, 'profiles')
+--]]
