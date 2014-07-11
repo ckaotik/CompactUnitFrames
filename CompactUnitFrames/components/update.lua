@@ -27,19 +27,33 @@ function addon.UpdateHealthColor(frame)
 	end
 	frame.healthBar:SetStatusBarColor(r, g, b)
 end
+
 function addon.UpdatePowerColor(frame)
 	if not frame or type(frame) ~= "table" then return end
 	local unit = frame.unit or frame.displayedUnit
 
 	local displayPowerBar = addon:ShouldDisplayPowerBar(frame)
-	local powerSize = displayPowerBar and addon.db.power.size or hiddenSize
-	local padding = addon.db.unitframe.innerPadding
-
-	-- TODO: re-anchor health bar in Setup
-	frame.powerBar:SetHeight(powerSize)
-	frame.healthBar:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -1*padding, 1*padding + powerSize)
-	-- if frame.powerBar.vertical then frame.powerBar:SetWidth(size)
-	-- addon.CUF_SetSeperatorShown(frame, displayPowerBar and not addon.db.unitframe.hideSeperator)
+	local powerSize = displayPowerBar and addon.db.power.size or 0
+	local displayBorder = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, 'displayBorder')
+	if powerSize > 0 and addon.db.unitframe.showSeparator then
+		if displayBorder then
+			-- blizzard separator is 2px high
+			powerSize = powerSize + 2
+		else
+			-- our separator is 1px high
+			powerSize = powerSize + 1
+		end
+	elseif displayPowerBar == false then
+		-- blizzard would display a bar, we need to hide its separator
+		-- frame.horizDivider:Hide()
+	else
+		-- apply powerSize as-is
+	end
+	-- local padding = addon.db.unitframe.innerPadding
+	frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
+	-- if frame.powerBar.vertical then
+	-- 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1 - powerSize, 1)
+	-- end
 
 	local r, g, b = addon:GetColorSetting(addon.db.power.color, frame.unit)
 	if r and (not unit or UnitIsConnected(unit)) then
@@ -72,14 +86,43 @@ function addon.UpdateName(frame)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
-function addon.UpdateStatusText(frame)
+--[[
+
+				if UnitIsAFK(frame.unit) then
+					frame.afkSince = time()
+					frame.afkTimer = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
+				else
+					frame.afkSince = nil
+					frame.afkTimer = addon:CancelTimer(frame.afkTimer)
+				end
+--]]
+
+function addon.UpdateStatusText(frame, arg1)
+	frame = arg1 or frame -- AceTimer calls with addon as first argument
+
+	if UnitIsAFK(frame.unit) then
+		if not frame.afkSince then
+			frame.afkSince = time()
+			frame.afkTimer = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
+		end
+		-- update afk label
+		local _, _, minutes, seconds = ChatFrame_TimeBreakDown(time() - frame.afkSince)
+		frame.statusText:SetText(string.format(addon.db.status.afkFormat, minutes, seconds))
+		frame.statusText:Show()
+	elseif frame.afkSince then
+		frame.afkSince = nil
+		frame.afkTimer = addon:CancelTimer(frame.afkTimer)
+	end
+
 	local setting = frame.optionTable.healthText
-	if (setting == 'losthealth' or setting == 'health') and addon.db.status.format == 'shorten'
-		and UnitIsConnected(frame.unit) and not UnitIsDeadOrGhost(frame.displayedUnit) then
+	if not UnitIsConnected(frame.unit) or UnitIsDeadOrGhost(frame.displayedUnit) then
+		-- frame.statusText:SetText(nil)
+	elseif (setting == 'losthealth' or setting == 'health') and addon.db.status.format == 'shorten' then
 		local value = frame.statusText:GetText()
 		frame.statusText:SetText( addon:ShortenNumber(value) )
 	end
 end
+
 function addon.UpdateCenterStatusIcon(frame)
 	-- try to fix sticky incoming ressurect icon
 	if not frame.centerStatusIcon:IsShown() or not frame.optionTable.displayIncomingResurrect then return end
@@ -87,6 +130,7 @@ function addon.UpdateCenterStatusIcon(frame)
 		frame.centerStatusIcon:Hide()
 	end
 end
+-- TODO: also update when corresponding raid event is triggered
 
 local isDisplayingBossBuff
 function addon.UpdateBuffs(frame)
@@ -110,6 +154,7 @@ function addon.UpdateBuffs(frame)
 		frame.buffFrames[i]:Hide()
 	end
 end
+
 function addon.UpdateDebuffs(frame)
 	if not frame.optionTable.displayDebuffs then return end
 	local unit = frame.displayedUnit or frame.unit
@@ -130,6 +175,7 @@ function addon.UpdateDebuffs(frame)
 		frame.debuffFrames[i]:Hide()
 	end
 end
+
 function addon.UpdateDispellableDebuffs(frame)
 	if not frame.optionTable.displayDispelDebuffs then return end
 	-- since border/health can only display in one color
@@ -152,6 +198,18 @@ function addon.UpdateDispellableDebuffs(frame)
 			frame.selectionHighlight:SetVertexColor(1, 1, 1)
 			CompactUnitFrame_UpdateSelectionHighlight(frame)
 		end
+	end
+end
+
+function addon.UpdateRoleIcon(frame)
+	local raidID = UnitInRaid(frame.unit)
+	local raidRole = frame.optionTable.displayRaidRoleIcon and raidID and select(10, GetRaidRosterInfo(raidID))
+	local combatRole = UnitGroupRolesAssigned(frame.unit)
+	local inVehicle = UnitInVehicle(frame.unit) and UnitHasVehicleUI(frame.unit)
+	if not inVehicle and not raidRole and combatRole == 'DAMAGER' then
+		-- hide role icon
+		frame.roleIcon:Hide()
+		frame.roleIcon:SetWidth(1)
 	end
 end
 

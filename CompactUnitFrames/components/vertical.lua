@@ -1,12 +1,6 @@
-local addonName, ns = ...
--- GLOBALS: _G, UIParent, CompactRaidFrameManager, RAID_BORDERS_SHOWN
--- GLOBALS: HidePartyFrame, GetUnitName, UnitIsDeadOrGhost, UnitIsConnected, GetNumGroupMembers
--- GLOBALS: hooksecurefunc, pairs, ipairs, string
+local addonName, addon, _ = ...
 
-local hiddenSize = 0.000001
-
--- ==== [Health Bar] ========================================
-function ns.CUF_SetHealthBarVertical(frame, enable)
+function addon.CUF_SetHealthBarVertical(frame, enable)
 	local width, height = frame:GetSize()
 
 	if enable then
@@ -41,14 +35,13 @@ function ns.CUF_SetHealthBarVertical(frame, enable)
 	end
 end
 
--- ==== [Power Bar] ========================================
-function ns.CUF_SetPowerBarVertical(frame, enable, togglePosition)
+function addon.CUF_SetPowerBarVertical(frame, enable, togglePosition)
 	frame.powerBar.vertical = enable
 
 	frame.powerBar:ClearAllPoints()
 	frame.healthBar:ClearAllPoints()
 
-	local padding = ns.db.unitframe.innerPadding -- anchors to <frame> might have some padding
+	local padding = addon.db.unitframe.innerPadding -- anchors to <frame> might have some padding
 	if enable then
 		frame.powerBar:SetOrientation("vertical")
 		frame.powerBar:SetRotatesTexture(true)
@@ -85,40 +78,7 @@ function ns.CUF_SetPowerBarVertical(frame, enable, togglePosition)
 	end
 end
 
-function ns.CUF_SetSeperatorShown(frame, enable)
-	-- FIXME: major taint
-	local seperatorSize = 1
-
-	if not RAID_BORDERS_SHOWN then
-		frame.horizDivider:Hide()
-	elseif enable then
-		frame.horizDivider:Show()
-
-		if frame.powerBar.vertical then
-			frame.powerBar:SetWidth(frame.powerBar:GetWidth() + seperatorSize)
-		else
-			frame.powerBar:SetHeight(frame.powerBar:GetHeight() + seperatorSize)
-		end
-	else
-		frame.horizDivider:Hide()
-
-		if frame.powerBar.vertical then
-			if frame.powerBar:GetWidth() > seperatorSize then
-				frame.powerBar:SetWidth(frame.powerBar:GetWidth() - seperatorSize)
-			else
-				frame.powerBar:SetWidth(hiddenSize)
-			end
-		else
-			if frame.powerBar:GetHeight() > seperatorSize then
-				frame.powerBar:SetHeight(frame.powerBar:GetHeight() - seperatorSize)
-			else
-				frame.powerBar:SetHeight(hiddenSize)
-			end
-		end
-	end
-end
-
-function ns.CUF_SetSeperatorVertical(frame, enable, togglePosition)
+function addon.CUF_SetSeperatorVertical(frame, enable, togglePosition)
 	frame.horizDivider:ClearAllPoints()
 	frame.horizDivider:SetParent(frame.powerBar)
 	frame.horizDivider:SetDrawLayer("BORDER", 5)

@@ -1,4 +1,4 @@
-local addonName, ns = ...
+local addonName, addon, _ = ...
 -- local L = addon.L
 
 --[[ Attribute		Possible Values
@@ -10,7 +10,7 @@ local addonName, ns = ...
 	justifyH		'LEFT', 'CENTER', 'RIGHT'
 	justifyV		'TOP', 'MIDDLE', 'BOTTOM'
 ]]--
-ns.defaults = {
+addon.defaults = {
 	frames = {
 		disableCUF = false,
 		showSolo = false,
@@ -43,7 +43,7 @@ ns.defaults = {
 		-- tooltip = true,
 		-- tooltipInCombat = false,
 		noMenuClickInCombat = false,
-		hidePowerSeperator = false,
+		showSeparator = true,
 
 		enableGPS = true,
 		gpsOnHover = true,
@@ -69,7 +69,7 @@ ns.defaults = {
 		size = 6,
 		types = {
 			showSelf = true,
-			showPets = false,
+			-- showPets = false,
 			showUnknown = true,
 
 			[SPELL_POWER_MANA] = { --[[color = false,]] hide = false },
@@ -107,6 +107,7 @@ ns.defaults = {
 		size = 7,
 		color = false,
 		format = 'shorten',
+		afkFormat = '|TInterface\\FriendsFrame\\StatusIcon-Away:0|t%d:%02d', -- vertical ellipsis: ⋮
 
 		font = false,
 		fontSize = false,
@@ -148,8 +149,15 @@ ns.defaults = {
 }
 
 
-local LibOptionsGenerate = LibStub('LibOptionsGenerate-1.0')
-local addon = ns
+local defaults = {
+	profile = {
+		--[[ buffs = {
+			['*'] = {
+				visible = true,
+			},
+		}, --]]
+	},
+}
 
 addon.acedb = LibStub('AceDB-3.0'):New(addonName..'DB', { profile = addon.defaults }, true)
 LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.acedb, addonName)

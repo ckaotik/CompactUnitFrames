@@ -5,9 +5,16 @@ local addonName, addon, _ = ...
 -- GLOBALS: pairs, type
 
 local hiddenSize = 0.000001
+local healthTex   = 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill'
+local healthBgTex = 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg'
+local powerTex    = 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill'
+local powerBgTex  = 'Interface\\RaidFrame\\Raid-Bar-Resource-Background'
 
 function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	if not style or (style ~= 'normal' and style ~= 'mini') then return end
+	local options = frame.optionTable
+	local displayBorder = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, 'displayBorder')
+
 	-- bar orientation
 	-- addon.CUF_SetHealthBarVertical(frame, addon.db.health.vertical)
 	-- addon.CUF_SetPowerBarVertical(frame, addon.db.power.vertical, addon.db.power.changePosition)
@@ -19,14 +26,14 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	-- frame size, background (texture, coords)
 	local r, g, b = addon:GetColorSetting(addon.db.unitframe.bgcolor, frame.unit)
 	frame.background:SetVertexColor(r or 1, g or 1, b or 1)
-	frame.background:SetTexture(addon.db.unitframe.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
+	frame.background:SetTexture(addon.db.unitframe.bgtexture or healthBgTex)
 
 	-- healthBar (position, statusbartexture)
-	frame.healthBar:SetStatusBarTexture(addon.db.health.texture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill', 'BORDER')
+	frame.healthBar:SetStatusBarTexture(addon.db.health.texture or healthTex, 'BORDER')
 	if isFirstSetup then
 		local r, g, b = addon:GetColorSetting(addon.db.health.bgcolor, frame.unit)
 		frame.healthBar.background:SetVertexColor(r or 1, g or 1, b or 1)
-		frame.healthBar.background:SetTexture(addon.db.health.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg')
+		frame.healthBar.background:SetTexture(addon.db.health.bgtexture or healthBgTex)
 	end
 
 	-- name (position, justifyH)
@@ -48,11 +55,24 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 
 	if style == 'normal' then
 		-- powerBar (position, statusbartexture, backgroundTex, show/hide)
-		frame.powerBar:SetStatusBarTexture(addon.db.power.texture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill', 'BORDER')
+		frame.powerBar:SetStatusBarTexture(addon.db.power.texture or powerTex, 'BORDER')
+		frame.powerBar.background:SetTexture(addon.db.power.bgtexture or powerBgTex, 'BORDER')
 		if isFirstSetup then
 			local r, g, b = addon:GetColorSetting(addon.db.power.bgcolor, frame.unit)
 			frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
-			frame.powerBar.background:SetTexture(addon.db.power.bgtexture or 'Interface\\RaidFrame\\Raid-Bar-Resource-Background', 'BORDER')
+		end
+
+		if not InCombatLockdown() then
+			-- local inset = addon.db.unitframe.innerPadding
+			frame.powerBar:SetPoint('BOTTOMRIGHT', -1, 1)
+			if not displayBorder and addon.db.unitframe.showSeparator then
+				-- show 1px separator
+				frame.powerBar:SetPoint('TOPLEFT', frame.healthBar, 'BOTTOMLEFT', 0, -1)
+			end
+
+			-- anchor separator to power bar
+			frame.horizDivider:SetPoint('TOPLEFT', frame.powerBar, 'TOPLEFT', 0, 1)
+			frame.horizDivider:SetPoint('TOPRIGHT', frame.powerBar, 'TOPRIGHT', 0, 1)
 		end
 
 		-- roleIcon (position, size)
@@ -82,32 +102,41 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 
 		-- readyCheckIcon (position, size)
 		-- centerStatusIcon (position, size (2*buffSize))
+	end
 
-		if isFirstSetup and addon.db.unitframe.enableOverlay then -- and not frame.Overlay then
-			local overlay = CreateFrame("Button", "$parentCUFOverlay", frame, "CompactAuraTemplate")
-			      overlay:SetPoint('CENTER', addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0)
-			      overlay:SetSize(20, 20)
-			      overlay:EnableMouse(false)
-			      overlay:EnableMouseWheel(false)
-			      overlay:Hide()
-			frame.Overlay = overlay
-			addon.EnableOverlay(frame)
-		end
+	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableOverlay then -- and not frame.Overlay then
+		local overlay = CreateFrame("Button", "$parentCUFOverlay", frame, "CompactAuraTemplate")
+		      overlay:SetPoint('CENTER', addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0)
+		      overlay:SetSize(20, 20)
+		      overlay:EnableMouse(false)
+		      overlay:EnableMouseWheel(false)
+		      overlay:Hide()
+		frame.Overlay = overlay
+		addon.EnableOverlay(frame)
+	end
 
-		if isFirstSetup and addon.db.unitframe.enableGPS then -- and not frame.GPS then
-			local gps = CreateFrame("Frame", nil, frame.healthBar)
-			      gps:SetPoint('CENTER')
-			      gps:SetSize(40, 40)
-			      gps:Hide()
-			local tex = gps:CreateTexture("OVERLAY")
-			      tex:SetTexture("Interface\\Minimap\\Minimap-QuestArrow") -- DeadArrow
-			      tex:SetAllPoints()
-			gps.outOfRange = addon.db.unitframe.gpsOutOfRange
-			gps.onMouseOver = addon.db.unitframe.gpsOnHover
-			frame.GPS = gps
-			frame.GPS.Texture = tex -- .Text is also possible
-			addon.EnableGPS(frame)
-		end
+	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableGPS then -- and not frame.GPS then
+		local gps = CreateFrame("Frame", nil, frame.healthBar)
+		      gps:SetPoint('CENTER')
+		      gps:SetSize(40, 40)
+		      gps:Hide()
+		local tex = gps:CreateTexture("OVERLAY")
+		      tex:SetTexture("Interface\\Minimap\\Minimap-QuestArrow") -- DeadArrow
+		      tex:SetAllPoints()
+		gps.outOfRange = addon.db.unitframe.gpsOutOfRange
+		gps.onMouseOver = addon.db.unitframe.gpsOnHover
+		frame.GPS = gps
+		frame.GPS.Texture = tex -- .Text is also possible
+		addon.EnableGPS(frame)
+	end
+
+	if isFirstSetup and style == 'normal' then
+		local afkEvent = UnitIsUnit(frame.unit, 'player') and 'PLAYER_FLAGS_CHANGED' or 'UNIT_FLAGS'
+		frame:RegisterEvent(afkEvent)
+		frame:HookScript('OnEvent', function(self, event)
+			-- update status text for afk timer
+			if event == afkEvent then addon.UpdateStatusText(frame) end
+		end)
 	end
 
 	if isFirstSetup and not frame:IsEventRegistered("UNIT_FACTION") then
@@ -130,11 +159,11 @@ end
 
 function addon:ShouldDisplayPowerBar(frame)
 	local displayBlizzard = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, 'displayPowerBar')
-	if not displayBlizzard then	return end
+	if not displayBlizzard then	return nil end
 	local unit = frame.displayedUnit or frame.unit
-	if not unit or not UnitIsConnected(unit) or not UnitIsConnected(unit) then return end
+	if not unit or not UnitIsConnected(unit) or not UnitIsConnected(unit) then return false end
 
-	if addon.db.power.types.showSelf and unit == 'player' then
+	if addon.db.power.types.showSelf and UnitIsUnit(unit, 'player') then
 		return true
 	elseif unit:find('pet') then
 		return addon.db.power.types.showPets

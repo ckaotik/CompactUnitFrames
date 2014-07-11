@@ -213,16 +213,16 @@ do
 								end,
 								get = function(info) return CompactUnitFrames.db.unitframe.noMenuClickInCombat end,
 							},
-							noSeperator = {
+							seperator = {
 								type = "toggle",
-								name = "Hide power seperator",
-								desc = "Check to hide the power seperator when using borders",
+								name = "Show power separator",
+								desc = "Check to display the power seperator. When activated and not using borders, a separator of innerPadding will be shown instad.",
 								order = 3,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.hideSeperator end,
-								set = function(info, hide)
+								get = function(info) return CompactUnitFrames.db.unitframe.showSeparator end,
+								set = function(info, value)
 									-- CompactUnitFrames.CUF_SetSeperatorShown(testFrame, not hide)
-									CompactUnitFrames.db.unitframe.hideSeperator = hide
+									CompactUnitFrames.db.unitframe.showSeparator = value
 								end,
 							},
 							spacingX = {
@@ -829,7 +829,7 @@ do
 									-- CompactUnitFrames.CUF_SetPowerSize(testFrame, size)
 								end,
 								step = 1,
-								min = 1,
+								min = 0,
 								max = 100, -- [TODO] limit to frame height
 							},
 							powerBarDisplay = {

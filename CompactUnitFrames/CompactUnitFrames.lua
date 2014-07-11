@@ -1,10 +1,12 @@
 local addonName, addon, _ = ...
    _G[addonName] = addon -- external reference
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceTimer-3.0')
 
 -- GLOBALS: _G, CUF_GlobalDB, CONFIGMODE_CALLBACKS, CompactRaidFrameManager, CompactRaidFrameContainer, DefaultCompactUnitFrameSetup, DefaultCompactMiniFrameSetup, CompactRaidFrameContainer_ApplyToFrames, CompactUnitFrame_UpdateAll
 -- GLOBALS: CompactRaidFrameManagerDisplayFrameLockedModeToggle, CompactRaidFrameManager_UnlockContainer, CompactRaidFrameManager_LockContainer, CompactRaidFrameManager_SetSetting, CompactRaidFrameManager_UpdateShown
 -- GLOBALS: select, type, pairs, ipairs, math.floor, tonumber, tostringall, hooksecurefunc, loadstring
+
+-- CompactUnitFrameProfiles_ApplyCurrentSettings()
 
 local function ApplyDefaultSettings(db, defaults)
     for key, value in pairs(defaults) do
@@ -65,11 +67,10 @@ function addon:OnEnable()
 	hooksecurefunc("CompactUnitFrame_UpdateName", addon.UpdateName)
 	hooksecurefunc("CompactUnitFrame_UpdateStatusText", addon.UpdateStatusText)
 	hooksecurefunc("CompactUnitFrame_UpdateBuffs", addon.UpdateBuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateDebuffs", addon.UpdateDebuffs)
-	hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", addon.UpdateDispellableDebuffs)
+	-- hooksecurefunc("CompactUnitFrame_UpdateDebuffs", addon.UpdateDebuffs)
+	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", addon.UpdateDispellableDebuffs)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", addon.UpdateCenterStatusIcon)
 	-- hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", addon.UpdateRoleIcon)
-	-- hooksecurefunc("CompactUnitFrame_UpdateVisible", addon.SetupCompactUnitFrame)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", addon.SetUpClicks)
 
 	-- @see: http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
