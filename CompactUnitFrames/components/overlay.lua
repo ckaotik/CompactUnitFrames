@@ -3,7 +3,6 @@ local addonName, addon, _ = ...
 -- GLOBALS: UnitDebuff, GetTime
 -- GLOBALS: tinsert, hooksecurefunc, ipairs, tremove
 
--- DBM:GetModByName(name)
 local DRData = LibStub('DRData-1.0')
 local hideDRType = {
 	["ctrlroot"] = true,
@@ -40,16 +39,6 @@ local function UpdateOverlay(self)
 	else
 		self.Overlay:Hide()
 	end
-
-	--[[
-	-- CompactUnitFrame_UpdateCenterStatusIcon(frame)
-	if false and not self.centerStatusIcon:IsShown() then
-		self.centerStatusIcon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez")
-		self.centerStatusIcon.texture:SetTexCoord(0, 1, 0, 1)
-		self.centerStatusIcon.border:Hide()
-		self.centerStatusIcon.tooltip = nil
-	end
-	--]]
 end
 
 local isHooked = nil

@@ -73,12 +73,14 @@ function addon.UpdateName(frame)
 		unitName = addon.utf8sub(unitName, 1, nameLength or 10)
 	end
 
-	if addon.db.name.serverFormat == 'full' and server then
-		unitName = unitName .. "-" .. server
-	elseif addon.db.name.serverFormat == 'short' and server then
-		unitName = addon.db.name.serverPrefix .. unitName .. addon.db.name.serverSuffix
-	else -- 'none'
-		-- use only name part
+	if server ~= addon.playerRealm then
+		if addon.db.name.serverFormat == 'full' then
+			unitName = unitName .. "-" .. server
+		elseif addon.db.name.serverFormat == 'short' then
+			unitName = addon.db.name.serverPrefix .. unitName .. addon.db.name.serverSuffix
+		else -- 'none'
+			-- use only name part
+		end
 	end
 	frame.name:SetText(unitName)
 
@@ -86,32 +88,22 @@ function addon.UpdateName(frame)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
---[[
-
-				if UnitIsAFK(frame.unit) then
-					frame.afkSince = time()
-					frame.afkTimer = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
-				else
-					frame.afkSince = nil
-					frame.afkTimer = addon:CancelTimer(frame.afkTimer)
-				end
---]]
-
+local afkTimes, afkTimers = {}, {}
 function addon.UpdateStatusText(frame, arg1)
 	frame = arg1 or frame -- AceTimer calls with addon as first argument
 
 	if UnitIsAFK(frame.unit) then
-		if not frame.afkSince then
-			frame.afkSince = time()
-			frame.afkTimer = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
+		if not afkTimes[frame] then
+			afkTimes[frame]  = time()
+			afkTimers[frame] = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
 		end
 		-- update afk label
-		local _, _, minutes, seconds = ChatFrame_TimeBreakDown(time() - frame.afkSince)
+		local _, _, minutes, seconds = ChatFrame_TimeBreakDown(time() - afkTimes[frame])
 		frame.statusText:SetText(string.format(addon.db.status.afkFormat, minutes, seconds))
 		frame.statusText:Show()
-	elseif frame.afkSince then
-		frame.afkSince = nil
-		frame.afkTimer = addon:CancelTimer(frame.afkTimer)
+	elseif afkTimes[frame] then
+		afkTimes[frame]  = nil
+		afkTimers[frame] = addon:CancelTimer(afkTimers[frame])
 	end
 
 	local setting = frame.optionTable.healthText

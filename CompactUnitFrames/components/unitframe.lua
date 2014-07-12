@@ -104,13 +104,15 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		-- centerStatusIcon (position, size (2*buffSize))
 	end
 
-	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableOverlay then -- and not frame.Overlay then
+	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableOverlay then
+		-- TODO: is it okay to parent to frame?
 		local overlay = CreateFrame("Button", "$parentCUFOverlay", frame, "CompactAuraTemplate")
 		      overlay:SetPoint('CENTER', addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0)
 		      overlay:SetSize(20, 20)
 		      overlay:EnableMouse(false)
 		      overlay:EnableMouseWheel(false)
 		      overlay:Hide()
+		-- TODO: is it okay to set this element?
 		frame.Overlay = overlay
 		addon.EnableOverlay(frame)
 	end

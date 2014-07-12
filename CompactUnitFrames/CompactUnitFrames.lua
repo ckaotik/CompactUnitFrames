@@ -32,6 +32,8 @@ function addon:OnInitialize()
 end
 
 function addon:OnEnable()
+	addon.playerName, addon.playerRealm = UnitFullName('player')
+
 	-- this function gets called once per unit frame
 	hooksecurefunc('CompactUnitFrame_SetUpFrame', function(frame, func)
 		local style = (func == DefaultCompactUnitFrameSetup and 'normal') or (func == DefaultCompactMiniFrameSetup and 'mini')
