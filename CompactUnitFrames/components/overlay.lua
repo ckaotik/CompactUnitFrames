@@ -1,6 +1,8 @@
 local addonName, addon, _ = ...
+local plugin = {}
+addon.Overlay = plugin
 
--- GLOBALS: UnitDebuff, GetTime
+-- GLOBALS: CreateFrame, UnitDebuff, GetTime
 -- GLOBALS: tinsert, hooksecurefunc, ipairs, tremove
 
 local DRData = LibStub('DRData-1.0')
@@ -12,67 +14,77 @@ local hideDRType = {
 	["knockback"] = true,
 }
 
-local isDisabled = nil
-local _FRAMES = {}
+-- thanks, Torhal! http://www.wowinterface.com/forums/showpost.php?p=166983&postcount=14
+local AcquireFrame, ReleaseFrame, GetFrameOverlay, GetNumCreatedFrames
+do
+	local frame_cache, frame_assignments, createdFrames = {}, {}, 0
+	function GetFrameOverlay(unitframe)
+		return frame_assignments[unitframe]
+	end
+	function AcquireFrame(unitframe)
+		local overlay = tremove(frame_cache)
+		if not overlay then
+			overlay = CreateFrame('Button', nil, UIParent, 'CompactAuraTemplate')
+			overlay:EnableMouse(false)
+			overlay:EnableMouseWheel(false)
+			overlay:Hide()
+			createdFrames = createdFrames + 1
+		end
+		-- overlay:SetParent(unitframe)
+		frame_assignments[unitframe] = overlay
+		return overlay
+	end
+	function ReleaseFrame(unitframe)
+		local overlay = GetFrameOverlay(unitframe)
+		if not overlay then return end
+		overlay:Hide()
+		overlay:SetParent(nil)
+		overlay:ClearAllPoints()
+		tinsert(frame_cache, overlay)
+		frame_assignments[unitframe] = nil
+	end
+	function GetNumCreatedFrames() return createdFrames end
+end
 
-local function UpdateOverlay(self)
-	if not self.Overlay then return end
-	local display, drType = nil, nil
-	local icon, count, dispelType, expires, caster, spellID, canApplyAura, isBoss
+function plugin.Enable(unitframe)
+	if GetNumCreatedFrames() == 0 then
+		-- first time using the plugin
+		hooksecurefunc('CompactUnitFrame_UpdateDebuffs', plugin.Update)
+		hooksecurefunc(CompactRaidFrameContainer, 'unitFrameUnusedFunc', plugin.Disable)
+		-- hooksecurefunc(unitframe, 'unusedFunc', plugin.Disable)
+	end
+	local overlay = GetFrameOverlay(unitframe) or AcquireFrame(unitframe)
+	return overlay
+end
+
+function plugin.Disable(unitframe)
+	ReleaseFrame(unitframe)
+end
+
+function plugin.Update(unitframe)
+	local overlay = GetFrameOverlay(unitframe)
+	local unit = unitframe.displayedUnit or unitframe.unit
+	if not overlay or not unit then return end
+
+	local displayIcon, icon, count, caster, expires
 	for i = 1, 40 do
-		_, _, icon, count, dispelType, _, expires, caster, _, _, spellID, canApplyAura, isBoss = UnitDebuff(self.displayedUnit or self.unit, i)
-		drType = DRData:GetSpellCategory(spellID)
+		local dispelType, spellID, canApplyAura, isBoss, _
+		_, _, icon, count, dispelType, _, expires, caster, _, _, spellID, canApplyAura, isBoss = UnitDebuff(unit, i)
+		local drType = DRData:GetSpellCategory(spellID)
 		if drType and not hideDRType[drType] then
-			display = true
+			displayIcon = true
 			break
 		end
 	end
 
-	if display then
-		self.Overlay.icon:SetTexture(icon)
-		self.Overlay.icon:SetDesaturated( caster == "player" )
-		self.Overlay.count:SetText(count == 1 and '' or count)
+	if displayIcon then
 		local now = GetTime()
-		self.Overlay.cooldown:SetCooldown(now, expires - now)
-
-		self.Overlay:Show()
+		overlay.icon:SetTexture(icon)
+		overlay.icon:SetDesaturated(caster == 'player')
+		overlay.count:SetText(count == 1 and '' or count)
+		overlay.cooldown:SetCooldown(now, expires - now)
+		overlay:Show()
 	else
-		self.Overlay:Hide()
+		overlay:Hide()
 	end
 end
-
-local isHooked = nil
-local Disable = function(self)
-	local overlay = self.Overlay
-	if overlay then
-		for k, frame in ipairs(_FRAMES) do
-			if frame == self then
-				tremove(_FRAMES, k)
-				overlay:Hide()
-				break
-			end
-		end
-
-		if #_FRAMES == 0 and isHooked then
-			isDisabled = true
-		end
-	end
-end
-
-local Enable = function(self)
-	local overlay = self.Overlay
-	if overlay then
-		tinsert(_FRAMES, self)
-		isDisabled = nil
-
-		if not isHooked then
-			hooksecurefunc("CompactUnitFrame_UpdateDebuffs", UpdateOverlay)
-			isHooked = true
-		end
-		-- hooksecurefunc(self, "unusedFunc", Disable)
-
-		return true
-	end
-end
-
-addon.EnableOverlay, addon.DisableOverlay = Enable, Disable

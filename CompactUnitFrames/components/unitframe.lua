@@ -87,7 +87,11 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		frame.statusText:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, 1)
 		if addon.db.status.font or addon.db.status.fontSize or addon.db.status.fontStyle then
 			local defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
-			frame.statusText:SetFont(addon.db.status.font or defaultFont, addon.db.status.fontSize or defaultSize, addon.db.status.fontStyle or defaultStyle)
+			frame.statusText:SetFont(
+				addon.db.status.font or defaultFont,
+				addon.db.status.fontSize or defaultSize,
+				addon.db.status.fontStyle or defaultStyle
+			)
 		end
 
 		-- CompactUnitFrame_SetMaxBuffs, CompactUnitFrame_SetMaxDebuffs, CompactUnitFrame_SetMaxDispelDebuffs(frame, 3)
@@ -105,35 +109,34 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	end
 
 	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableOverlay then
-		-- TODO: is it okay to parent to frame?
-		local overlay = CreateFrame("Button", "$parentCUFOverlay", frame, "CompactAuraTemplate")
-		      overlay:SetPoint('CENTER', addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0)
+		local xOffset, yOffset = addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0
+		local overlay = addon.Overlay.Enable(frame)
 		      overlay:SetSize(20, 20)
-		      overlay:EnableMouse(false)
-		      overlay:EnableMouseWheel(false)
-		      overlay:Hide()
-		-- TODO: is it okay to set this element?
-		frame.Overlay = overlay
-		addon.EnableOverlay(frame)
+		      overlay:SetPoint('CENTER', frame, 'CENTER', xOffset, yOffset)
 	end
 
 	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableGPS then -- and not frame.GPS then
-		local gps = CreateFrame("Frame", nil, frame.healthBar)
+		local gps = addon.GPS.Enable(frame)
+		      gps:SetSize(40, 40)
+		      gps:SetPoint('CENTER', frame.healthBar, 'CENTER')
+		      gps:Hide()
+		gps.outOfRange = addon.db.unitframe.gpsOutOfRange
+		gps.onMouseOver = addon.db.unitframe.gpsOnHover
+		--[[ local gps = CreateFrame("Frame", nil, frame.healthBar)
 		      gps:SetPoint('CENTER')
 		      gps:SetSize(40, 40)
-		      gps:Hide()
+		      gps:Hide() --]]
 		local tex = gps:CreateTexture("OVERLAY")
 		      tex:SetTexture("Interface\\Minimap\\Minimap-QuestArrow") -- DeadArrow
 		      tex:SetAllPoints()
-		gps.outOfRange = addon.db.unitframe.gpsOutOfRange
-		gps.onMouseOver = addon.db.unitframe.gpsOnHover
-		frame.GPS = gps
+		gps.Texture = tex
+		--[[frame.GPS = gps
 		frame.GPS.Texture = tex -- .Text is also possible
-		addon.EnableGPS(frame)
+		addon.EnableGPS(frame)--]]
 	end
 
 	if isFirstSetup and style == 'normal' then
-		local afkEvent = UnitIsUnit(frame.unit, 'player') and 'PLAYER_FLAGS_CHANGED' or 'UNIT_FLAGS'
+		local afkEvent = (frame.unit and UnitIsUnit(frame.unit, 'player')) and 'PLAYER_FLAGS_CHANGED' or 'UNIT_FLAGS'
 		frame:RegisterEvent(afkEvent)
 		frame:HookScript('OnEvent', function(self, event)
 			-- update status text for afk timer
