@@ -39,7 +39,7 @@ function addon:SetupManager(manager)
 	--]]
 
 	-- "show solo" functionality
-	hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
+	--[[hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
 		if not addon.db.frames.showSolo or GetDisplayedAllyFrames() then return end
 		-- show manager & container
 		self:Show()
@@ -83,7 +83,7 @@ function addon:SetupManager(manager)
 		if CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode then
 			CompactRaidFrameManager_UnlockContainer(self)
 		end
-	end)
+	end) --]]
 
 	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() >= DefaultCompactUnitFrameSetupOptions.height)
 	local RESIZE_VERTICAL_OUTSETS = 7
