@@ -92,7 +92,8 @@ local afkTimes, afkTimers = {}, {}
 function addon.UpdateStatusText(frame, arg1)
 	frame = arg1 or frame -- AceTimer calls with addon as first argument
 
-	if UnitIsAFK(frame.unit) then
+	local unit = frame.displayedUnit or frame.unit
+	if unit and UnitIsAFK(unit) then
 		if not afkTimes[frame] then
 			afkTimes[frame]  = time()
 			afkTimers[frame] = addon:ScheduleRepeatingTimer('UpdateStatusText', 1, frame)
@@ -107,7 +108,7 @@ function addon.UpdateStatusText(frame, arg1)
 	end
 
 	local setting = frame.optionTable.healthText
-	if not UnitIsConnected(frame.unit) or UnitIsDeadOrGhost(frame.displayedUnit) then
+	if frame.unit and (not UnitIsConnected(frame.unit) or UnitIsDeadOrGhost(unit)) then
 		-- frame.statusText:SetText(nil)
 	elseif (setting == 'losthealth' or setting == 'health') and addon.db.status.format == 'shorten' then
 		local value = frame.statusText:GetText()
@@ -205,11 +206,13 @@ function addon.UpdateRoleIcon(frame)
 	end
 end
 
---[[function addon.SetUpClicks(frame)
-	-- FIXME: causes taint too easily, use Clique or similar if you really need the feature
+function addon.SetUpClicks(frame)
 	if addon.DelayInCombat(frame, addon.SetUpClicks) then return end
-	-- frame:SetAttribute("*type2", 'togglemenu')
+	frame:SetAttribute('*type1', 'target')
+	frame:SetAttribute('*type2', 'togglemenu')
+	frame:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
+	-- FIXME: causes taint too easily, use Clique or similar if you really need the feature
 	-- works with either menu or togglemenu. blizz uses menu, so stick to that
-	local combatMenu = addon.db.unitframe.noMenuClickInCombat and "" or "menu"
-	RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
-end --]]
+	-- local combatMenu = addon.db.unitframe.noMenuClickInCombat and "" or "menu"
+	-- RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
+end

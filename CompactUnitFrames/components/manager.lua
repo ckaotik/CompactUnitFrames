@@ -39,7 +39,7 @@ function addon:SetupManager(manager)
 	--]]
 
 	-- "show solo" functionality
-	--[[hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
+	hooksecurefunc('CompactRaidFrameManager_UpdateShown', function(self)
 		if not addon.db.frames.showSolo or GetDisplayedAllyFrames() then return end
 		-- show manager & container
 		self:Show()
@@ -83,22 +83,24 @@ function addon:SetupManager(manager)
 		if CompactRaidFrameManagerDisplayFrameLockedModeToggle.lockMode then
 			CompactRaidFrameManager_UnlockContainer(self)
 		end
-	end) --]]
+	end)
 
 	-- fix container snapping to weird sizes (hint: actual CRF1:GetHeight() >= DefaultCompactUnitFrameSetupOptions.height)
 	local RESIZE_VERTICAL_OUTSETS = 7
-	hooksecurefunc('CompactRaidFrameManager_ResizeFrame_UpdateContainerSize', function(self)
-		if CompactRaidFrameManager_GetSetting('KeepGroupsTogether') == '1' then return end
+	local function FixHeight(self)
+		if CompactRaidFrameManager_GetSetting('KeepGroupsTogether') == '1' or InCombatLockdown() then return end
 		local resizerHeight   = self.containerResizeFrame:GetHeight() - RESIZE_VERTICAL_OUTSETS * 2
 		local unitFrameHeight = DefaultCompactUnitFrameSetupOptions.height
 		      unitFrameHeight = ceil(unitFrameHeight + (self.container.flowVerticalSpacing or 0))
 		local newHeight = unitFrameHeight * floor(resizerHeight / unitFrameHeight) + 1
 		self.container:SetHeight(newHeight)
-	end)
+	end
+	hooksecurefunc('CompactRaidFrameManager_ResizeFrame_UpdateContainerSize', FixHeight)
 
 	-- trigger manager updates
-	CompactRaidFrameManager_OnEvent(manager, 'GROUP_ROSTER_UPDATE')
-	CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
+	FixHeight(CompactRaidFrameManager)
+	-- CompactRaidFrameManager_OnEvent(manager, 'GROUP_ROSTER_UPDATE')
+	-- CompactRaidFrameManager_ResizeFrame_UpdateContainerSize(manager)
 end
 
 function addon:Manager_SetAlpha(alpha)

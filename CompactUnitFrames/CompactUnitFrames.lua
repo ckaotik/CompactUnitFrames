@@ -29,6 +29,9 @@ function addon:OnInitialize()
 	if not CUF_GlobalDB then CUF_GlobalDB = {} end
 	self.db = CUF_GlobalDB
 	ApplyDefaultSettings(self.db, self.defaults)
+
+	-- /sigh
+	-- _G.CompactUnitFrame_SetUpClicks = function(...) end
 end
 
 function addon:OnEnable()
@@ -93,6 +96,8 @@ function addon:OnEnable()
 	end) --]]
 
 	-- addon:SetupAutoActivate()
+	-- self:RegisterEvent('GROUP_ROSTER_UPDATE', CompactUnitFrameProfiles_CheckAutoActivation)
+	-- self:RegisterEvent('GROUP_JOINED', CompactUnitFrameProfiles_CheckAutoActivation)
 
 	-- we need to update any already existing unit frames
 	CompactRaidFrameContainer_ApplyToFrames(container, 'normal', function(unitFrame)
