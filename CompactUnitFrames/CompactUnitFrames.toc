@@ -28,7 +28,7 @@ libs\DRData-1.0\DRData-1.0.xml
 libs\AceAddon-3.0\AceAddon-3.0.xml
 libs\AceConfig-3.0\AceConfig-3.0.xml
 #@end-no-lib-strip@
-# libs\LibOptionsGenerate-1.0.lua
+libs\LibOptionsGenerate-1.0.lua
 
 locale.lua
 utils.lua
