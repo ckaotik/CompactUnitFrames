@@ -75,7 +75,7 @@ function addon:OnEnable()
 	-- hooksecurefunc("CompactUnitFrame_UpdateDebuffs", addon.UpdateDebuffs)
 	-- hooksecurefunc("CompactUnitFrame_UpdateDispellableDebuffs", addon.UpdateDispellableDebuffs)
 	hooksecurefunc("CompactUnitFrame_UpdateCenterStatusIcon", addon.UpdateCenterStatusIcon)
-	-- hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", addon.UpdateRoleIcon)
+	hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", addon.UpdateRoleIcon)
 	-- hooksecurefunc("CompactUnitFrame_SetUpClicks", addon.SetUpClicks)
 
 	-- @see: http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameManager.lua
