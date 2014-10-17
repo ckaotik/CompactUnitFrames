@@ -25,6 +25,7 @@ local function eventHandler(self, event, arg1, arg2)
 		end
 
 		ns.initialized = true
+		ns:CreateConfigPanel()
 		self:UnregisterEvent("ADDON_LOADED")
 	end
 end

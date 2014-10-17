@@ -163,44 +163,14 @@ addon.acedb = LibStub('AceDB-3.0'):New(addonName..'DB', { profile = addon.defaul
 LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.acedb, addonName)
 
 --[[
-local AceConfig       = LibStub('AceConfig-3.0')
-local AceConfigDialog = LibStub('AceConfigDialog-3.0')
-local AceDBOptions    = LibStub('AceDBOptions-3.0')
-local LibDualSpec     = LibStub('LibDualSpec-1.0')
-
-local optionsTable
-local function GetOptions()
-	if optionsTable then return optionsTable end
-
-	optionsTable = {
-		name = addonName,
-		type = 'group',
-		-- childGroups = 'tab',
-		args = {
-			global = {
-				name = 'Global Settings',
-				type = 'group',
-				descStyle = addonName..'.acedb.defaults.profile', -- used by LibOptionsGenerate
-				-- inline = true,
-				order = 1,
-				args = {},
-			},
-		},
-	}
-	LibStub('LibOptionsGenerate-1.0'):GenerateOptions(optionsTable)
-
-	local profiles = AceDBOptions:GetOptionsTable(addon.db)
-	-- LibDualSpec:EnhanceOptions(profiles, addon.db)
-	profiles.order = -10
-	profiles.disabled = false
-
-	optionsTable.args.profiles = profiles
-
-	return optionsTable
-end
-
-AceConfig:RegisterOptionsTable(addonName, GetOptions)
-
-local mainPanel    = AceConfigDialog:AddToBlizOptions(addonName, addonName, nil, 'global')
-local profilePanel = AceConfigDialog:AddToBlizOptions(addonName, 'Profiles', addonName, 'profiles')
+-- local LibDualSpec     = LibStub('LibDualSpec-1.0')
+-- LibDualSpec:EnhanceOptions(profiles, addon.db)
+LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, {
+	type = 'group',
+	args = {
+		main = LibStub('LibOptionsGenerate-1.0'):GetOptionsTable(addonName..'.defaults'),
+		-- profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db),
+	},
+})
+LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addonName, addonName..'2', nil, 'main')
 --]]

@@ -5,11 +5,10 @@ local addonName, ns = ...
 -- GLOBALS: CompactUnitFrameProfiles_ApplyCurrentSettings, CompactRaidFrameManager_UpdateShown, FlowContainer_SetHorizontalSpacing, FlowContainer_SetVerticalSpacing, FlowContainer_SetMaxPerLine, FlowContainer_SetOrientation
 -- GLOBALS: strsplit, pairs
 
-do
-	local SharedMedia = LibStub("LibSharedMedia-3.0")
-	local AceConfig = LibStub("AceConfig-3.0")
-	local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+function ns:CreateConfigPanel()
+	print('CreateConfigPanel')
 
+	local SharedMedia = LibStub("LibSharedMedia-3.0")
 	function ns:LSM_GetMediaKey(mediaType, value)
 		local keyList = SharedMedia:List(mediaType)
 		for _, key in pairs(keyList) do
@@ -1441,8 +1440,8 @@ do
 		AddonLoader:RemoveInterfaceOptions(optionsName)
 	end
 
-	AceConfig:RegisterOptionsTable(addonName, optionsTable)
-	local optionsPanel = AceConfigDialog:AddToBlizOptions(addonName, optionsName)
+	LibStub("AceConfig-3.0"):RegisterOptionsTable(optionsName, optionsTable)
+	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(optionsName, optionsName)
 	-- optionsPanel.okay = function() CompactUnitFrames:SaveConfig() end
 	-- optionsPanel.cancel = function() CompactUnitFrames:ResetConfig() end
 
