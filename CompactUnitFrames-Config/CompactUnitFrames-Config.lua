@@ -6,25 +6,11 @@ function ns.Print(message, ...)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff"..(ns.color)..(ns.name).."|r "..message
 		..' '..string.join(", ", tostringall(...) ))
 end
-function ns.Debug(...)
-	if CUFC_GlobalDB.debug then
-		ns.Print("!", (string.join(", ", tostringall(...))))
-	end
-end
 
 -- CompactRaidFrameContainer_AddUnitFrame / CompactRaidFrameContainer_GetUnitFrame(CompactRaidFrameContainer, "player", "raid")
 local eventFrame = CreateFrame("Frame", "CompactUnitFrames_EventHandler", UIParent)
 local function eventHandler(self, event, arg1, arg2)
 	if event == "ADDON_LOADED" and arg1 == ns.name then
-		if not CUFC_GlobalDB then
-			ns.Print("Reset database", ns.debug, ns.profiles)
-			CUFC_GlobalDB = {
-				debug = nil,
-				profiles = {},
-			}
-		end
-
-		ns.initialized = true
 		ns:CreateConfigPanel()
 		self:UnregisterEvent("ADDON_LOADED")
 	end

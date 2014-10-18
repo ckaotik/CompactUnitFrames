@@ -8,7 +8,7 @@
 ## Notes: Customize Blizzard's compact raid/party frames to your liking!
 ## Notes-deDE: Passe Blizzards kompakte Party-/Raidframes an, wie du es magst!
 
-## SavedVariables: CUFC_GlobalDB
+# SavedVariables: CUFC_GlobalDB
 ## SavedVariablesPerCharacter:
 
 ## LoadManagers: AddonLoader, Addon Control Panel
