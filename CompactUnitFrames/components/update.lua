@@ -43,14 +43,15 @@ function addon.UpdatePowerColor(frame)
 			-- our separator is 1px high
 			powerSize = powerSize + 1
 		end
-	elseif displayPowerBar == false then
+	elseif displayBorder and displayPowerBar == false then
 		-- blizzard would display a bar, we need to hide its separator
-		-- frame.horizDivider:Hide()
+		frame.horizDivider:Hide()
 	else
 		-- apply powerSize as-is
 	end
 	-- local padding = addon.db.unitframe.innerPadding
 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
+	frame.powerBar:SetShown(displayPowerBar)
 	-- if frame.powerBar.vertical then
 	-- 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1 - powerSize, 1)
 	-- end

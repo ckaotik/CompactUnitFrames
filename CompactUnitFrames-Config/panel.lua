@@ -6,8 +6,6 @@ local addonName, ns = ...
 -- GLOBALS: strsplit, pairs
 
 function ns:CreateConfigPanel()
-	print('CreateConfigPanel')
-
 	local SharedMedia = LibStub("LibSharedMedia-3.0")
 	function ns:LSM_GetMediaKey(mediaType, value)
 		local keyList = SharedMedia:List(mediaType)
@@ -103,7 +101,10 @@ function ns:CreateConfigPanel()
 								name = "Refresh",
 								desc = "Click to update the live CompactUnitFrames",
 								width = "half",
-								func = function() CompactUnitFrameProfiles_ApplyCurrentSettings() end,
+								func = function()
+									CompactUnitFrameProfiles_ApplyCurrentSettings()
+									CompactUnitFrames:Update()
+								end,
 							},
 							pullout = {
 								type = "group",

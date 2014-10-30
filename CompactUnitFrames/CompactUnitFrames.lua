@@ -85,7 +85,7 @@ function addon:OnEnable()
 	-- manager.container:SetParent(UIParent)
 
 	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameContainer.lua
-	local container = CompactRaidFrameContainer
+	-- local container = CompactRaidFrameContainer
 	-- these all cause taint ...
 	--[[ FlowContainer_SetHorizontalSpacing(container, addon.db.unitframe.spacingX or 0)
 	FlowContainer_SetVerticalSpacing(container, addon.db.unitframe.spacingY or 0)
@@ -100,14 +100,7 @@ function addon:OnEnable()
 	-- self:RegisterEvent('GROUP_JOINED', CompactUnitFrameProfiles_CheckAutoActivation)
 
 	-- we need to update any already existing unit frames
-	CompactRaidFrameContainer_ApplyToFrames(container, 'normal', function(unitFrame)
-		addon.SetupCompactUnitFrame(unitFrame, 'normal', true)
-		CompactUnitFrame_UpdateAll(unitFrame)
-	end)
-	CompactRaidFrameContainer_ApplyToFrames(container, 'mini', function(unitFrame)
-		addon.SetupCompactUnitFrame(unitFrame, 'mini', true)
-		CompactUnitFrame_UpdateAll(unitFrame)
-	end)
+	self:Update()
 
 	-- register with ConfigMode
 	local containerWasLocked
@@ -127,6 +120,18 @@ function addon:OnEnable()
 			containerWasLocked = nil
 		end
 	end
+end
+
+function addon:Update()
+	local container = _G.CompactRaidFrameContainer
+	CompactRaidFrameContainer_ApplyToFrames(container, 'normal', function(unitFrame)
+		addon.SetupCompactUnitFrame(unitFrame, 'normal', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end)
+	CompactRaidFrameContainer_ApplyToFrames(container, 'mini', function(unitFrame)
+		addon.SetupCompactUnitFrame(unitFrame, 'mini', true)
+		CompactUnitFrame_UpdateAll(unitFrame)
+	end)
 end
 
 function addon:OnDisable()

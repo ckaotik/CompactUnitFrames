@@ -62,8 +62,9 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 			frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 		end
 
-		if not InCombatLockdown() then
+		if true then -- not InCombatLockdown() then
 			-- local inset = addon.db.unitframe.innerPadding
+			frame.powerBar:SetHeight(addon.db.power.size)
 			frame.powerBar:SetPoint('BOTTOMRIGHT', -1, 1)
 			if not displayBorder and addon.db.unitframe.showSeparator then
 				-- show 1px separator
