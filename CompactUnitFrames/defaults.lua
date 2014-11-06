@@ -158,19 +158,3 @@ local defaults = {
 		}, --]]
 	},
 }
-
-addon.acedb = LibStub('AceDB-3.0'):New(addonName..'DB', { profile = addon.defaults }, true)
-LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.acedb, addonName)
-
---[[
--- local LibDualSpec     = LibStub('LibDualSpec-1.0')
--- LibDualSpec:EnhanceOptions(profiles, addon.db)
-LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, {
-	type = 'group',
-	args = {
-		main = LibStub('LibOptionsGenerate-1.0'):GetOptionsTable(addonName..'.defaults'),
-		-- profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db),
-	},
-})
-LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addonName, addonName..'2', nil, 'main')
---]]

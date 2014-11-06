@@ -4,9 +4,6 @@ local addonName, addon, _ = ...
 -- GLOBALS: UnitIsPVP, UnitIsConnected, CompactUnitFrame_UpdateAll, CompactUnitFrame_UpdateSelectionHighlight, CompactUnitFrame_UtilSetBuff, CompactUnitFrame_UtilSetDebuff, UnitIsEnemy, UnitCanAttack, UnitIsDead, UnitHasIncomingResurrection, CompactRaidFrameContainer_ApplyToFrames
 -- GLOBALS: hooksecurefunc, pairs, type, floor, ipairs, math
 
-local hiddenSize = 0.000001
-local debuffTypes = { Magic = true, Curse = true, Disease = true, Poison = true}
-
 function addon.UpdateHealthColor(frame)
 	if not frame or type(frame) ~= "table" then return end
 	if addon.db.indicators.showDispellHealth then
@@ -51,7 +48,7 @@ function addon.UpdatePowerColor(frame)
 	end
 	-- local padding = addon.db.unitframe.innerPadding
 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
-	frame.powerBar:SetShown(displayPowerBar)
+	frame.powerBar:SetShown(displayPowerBar and true or false)
 	-- if frame.powerBar.vertical then
 	-- 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1 - powerSize, 1)
 	-- end
