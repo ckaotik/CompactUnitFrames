@@ -71,7 +71,7 @@ function addon.UpdateName(frame)
 		unitName = addon.utf8sub(unitName, 1, nameLength or 10)
 	end
 
-	if server ~= addon.playerRealm then
+	if server and server ~= addon.playerRealm then
 		if addon.db.name.serverFormat == 'full' then
 			unitName = unitName .. "-" .. server
 		elseif addon.db.name.serverFormat == 'short' then
