@@ -78,7 +78,7 @@ local roleColors = {
 	HEALER  = { 26/255, 73/255, 53/255},
 }
 function addon:GetColorSetting(data, unit)
-	local r, g, b
+	local r, g, b, a
 	if not data or data == '' or data == 'default' then
 		return nil
 	elseif data == 'role' and unit then
@@ -87,10 +87,10 @@ function addon:GetColorSetting(data, unit)
 	elseif data == 'class' and unit then
 		r, g, b = addon:GetClassColor(unit)
 	else
-		_, _, r, g, b = strfind(data, "(.-):(.-):(.+)")
-		r, g, b = tonumber(r or ''), tonumber(g or ''), tonumber(b or '')
+		r, g, b, a = strsplit(':', data)
+		r, g, b, a = tonumber(r or ''), tonumber(g or ''), tonumber(b or ''), tonumber(a or '')
 	end
-	return r, g, b
+	return r, g, b, a or 1
 end
 
 -- provides class or reaction color for a given unit
