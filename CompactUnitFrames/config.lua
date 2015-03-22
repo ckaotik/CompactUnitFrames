@@ -38,6 +38,28 @@ local panel = CreateFrame('Frame')
 InterfaceOptions_AddCategory(panel)
 
 -- use slash command to toggle config
-local slashName = addonName:upper()
-_G['SLASH_'..slashName..'1'] = '/'..addonName
-_G.SlashCmdList[slashName] = function(args) OpenConfiguration(panel, args) end
+_G['SLASH_'..addonName] = '/'..addonName
+_G.SlashCmdList[addonName] = function(args) OpenConfiguration(panel, args) end
+
+-- --------------------------------------------------------
+
+addon:LoadWith('Blizzard_CUFProfiles', function(...)
+	hooksecurefunc('CompactUnitFrameProfiles_UpdateCurrentPanel', function(self)
+		local panelName = 'CompactUnitFrameProfilesGeneralOptionsFrame'
+		if CompactUnitFrames.db.profile.health.color then
+			local classColors = _G[panelName .. 'UseClassColors']
+			      classColors:Disable()
+			-- classColors.tiptext = "Overridden by CompactUnitFrames addon settings"
+			-- classColors:HookScript("OnEnter", ns.ShowTooltip)
+			-- classColors:HookScript("OnLeave", ns.HideTooltip)
+		end
+
+		local slider = _G[panelName .. 'HeightSlider']
+		local min, max = slider:GetMinMaxValues()
+		slider:SetMinMaxValues(math.min(0, min), math.max(max, 200)) -- default: 36, 72
+
+		local slider = _G[panelName .. 'WidthSlider']
+		local min, max = slider:GetMinMaxValues()
+		slider:SetMinMaxValues(math.min(0, min), math.max(max, 200)) -- default: 72, 144
+	end)
+end)
