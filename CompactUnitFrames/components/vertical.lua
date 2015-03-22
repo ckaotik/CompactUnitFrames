@@ -41,7 +41,7 @@ function addon.CUF_SetPowerBarVertical(frame, enable, togglePosition)
 	frame.powerBar:ClearAllPoints()
 	frame.healthBar:ClearAllPoints()
 
-	local padding = addon.db.unitframe.innerPadding -- anchors to <frame> might have some padding
+	local padding = addon.db.profile.unitframe.innerPadding -- anchors to <frame> might have some padding
 	if enable then
 		frame.powerBar:SetOrientation("vertical")
 		frame.powerBar:SetRotatesTexture(true)

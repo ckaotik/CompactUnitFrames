@@ -95,7 +95,7 @@ function ns:UpdateDispellDebuffDisplay(frame)
 		end
 	end
 
-	if nextIndex == 1 or not CompactUnitFrames.db.indicators.showDispellBorder then
+	if nextIndex == 1 or not CompactUnitFrames.db.profile.indicators.showDispellBorder then
 		frame.selectionHighlight:Hide()
 		frame.selectionHighlight:SetVertexColor(1, 1, 1)
 		CompactUnitFrame_UpdateSelectionHighlight(frame)

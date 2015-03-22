@@ -78,10 +78,10 @@ function ns:CreateConfigPanel()
 								name = "Enable",
 								-- desc = "Enables / disables the addon",
 
-								get = function(info) return not CompactUnitFrames.db.frames.disableCUF end,
+								get = function(info) return not CompactUnitFrames.db.profile.frames.disableCUF end,
 								set = function(info, enable)
 									CompactUnitFrames:Manager_DisableCUF(not enable)
-									CompactUnitFrames.db.frames.disableCUF = not enable
+									CompactUnitFrames.db.profile.frames.disableCUF = not enable
 								end,
 							},
 							showSolo = {
@@ -90,9 +90,9 @@ function ns:CreateConfigPanel()
 								order = 1,
 								desc = "Check to display the compact unit frames even when not in a group",
 
-								get = function(info) return CompactUnitFrames.db.frames.showSolo end,
+								get = function(info) return CompactUnitFrames.db.profile.frames.showSolo end,
 								set = function(info, enable)
-									CompactUnitFrames.db.frames.showSolo = enable
+									CompactUnitFrames.db.profile.frames.showSolo = enable
 									CompactRaidFrameManager_UpdateShown(CompactRaidFrameManager)
 								end,
 							},
@@ -118,10 +118,10 @@ function ns:CreateConfigPanel()
 										desc = "Check to minify the side panel/pullout",
 										order = 1,
 
-										get = function(info) return CompactUnitFrames.db.frames.pullout.minify end,
+										get = function(info) return CompactUnitFrames.db.profile.frames.pullout.minify end,
 										set = function(info, enable)
 											CompactUnitFrames:MinifyPullout(enable)
-											CompactUnitFrames.db.frames.pullout.minify = enable
+											CompactUnitFrames.db.profile.frames.pullout.minify = enable
 										end,
 									},
 									alpha = {
@@ -129,11 +129,11 @@ function ns:CreateConfigPanel()
 										name = "Opacity (active)",
 										order = 2,
 
-										get = function(info) return CompactUnitFrames.db.frames.pullout.activeAlpha * 100 end,
+										get = function(info) return CompactUnitFrames.db.profile.frames.pullout.activeAlpha * 100 end,
 										set = function(info, alpha)
 											alpha = alpha / 100
 											CompactUnitFrames:MinifyPullout(alpha)
-											CompactUnitFrames.db.frames.pullout.activeAlpha = alpha
+											CompactUnitFrames.db.profile.frames.pullout.activeAlpha = alpha
 										end,
 										step = 1,
 										min = 0,
@@ -144,11 +144,11 @@ function ns:CreateConfigPanel()
 										name = "Opacity (passive)",
 										order = 3,
 
-										get = function(info) return CompactUnitFrames.db.frames.pullout.passiveAlpha * 100 end,
+										get = function(info) return CompactUnitFrames.db.profile.frames.pullout.passiveAlpha * 100 end,
 										set = function(info, alpha)
 											alpha = alpha / 100
 											CompactUnitFrames:MinifyPullout(alpha)
-											CompactUnitFrames.db.frames.pullout.passiveAlpha = alpha
+											CompactUnitFrames.db.profile.frames.pullout.passiveAlpha = alpha
 										end,
 										step = 1,
 										min = 0,
@@ -159,10 +159,10 @@ function ns:CreateConfigPanel()
 										name = "Horizontal Position",
 										order = 4,
 
-										get = function(info) return CompactUnitFrames.db.frames.pullout.posX end,
+										get = function(info) return CompactUnitFrames.db.profile.frames.pullout.posX end,
 										set = function(info, position)
 											CompactUnitFrames:MinifyPullout(position)
-											CompactUnitFrames.db.frames.pullout.posX = position
+											CompactUnitFrames.db.profile.frames.pullout.posX = position
 										end,
 										min = -500,
 										max = 500,
@@ -172,10 +172,10 @@ function ns:CreateConfigPanel()
 										name = "Vertical Position",
 										order = 5,
 
-										get = function(info) return CompactUnitFrames.db.frames.pullout.posY end,
+										get = function(info) return CompactUnitFrames.db.profile.frames.pullout.posY end,
 										set = function(info, position)
 											CompactUnitFrames:MinifyPullout(position)
-											CompactUnitFrames.db.frames.pullout.posY = position
+											CompactUnitFrames.db.profile.frames.pullout.posY = position
 										end,
 										step = 1,
 										min = -500,
@@ -196,9 +196,9 @@ function ns:CreateConfigPanel()
 								order = 1,
 								desc = "Check to update unit frames after combat to prevent tainted frames to get stuck",
 
-								get = function(info) return CompactUnitFrames.db.frames.taintUpdate end,
+								get = function(info) return CompactUnitFrames.db.profile.frames.taintUpdate end,
 								set = function(info, enable)
-									CompactUnitFrames.db.frames.taintUpdate = enable
+									CompactUnitFrames.db.profile.frames.taintUpdate = enable
 								end,
 							},
 							noMenu = {
@@ -208,10 +208,10 @@ function ns:CreateConfigPanel()
 								order = 2,
 
 								set = function(info, val)
-									CompactUnitFrames.db.unitframe.noMenuClickInCombat = val
+									CompactUnitFrames.db.profile.unitframe.noMenuClickInCombat = val
 									-- TODO: CompactUnitFrames.SetUpClicks(frame)
 								end,
-								get = function(info) return CompactUnitFrames.db.unitframe.noMenuClickInCombat end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.noMenuClickInCombat end,
 							},
 							seperator = {
 								type = "toggle",
@@ -219,10 +219,10 @@ function ns:CreateConfigPanel()
 								desc = "Check to display the power seperator. When activated and not using borders, a separator of innerPadding will be shown instad.",
 								order = 3,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.showSeparator end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.showSeparator end,
 								set = function(info, value)
 									-- CompactUnitFrames.CUF_SetSeperatorShown(testFrame, not hide)
-									CompactUnitFrames.db.unitframe.showSeparator = value
+									CompactUnitFrames.db.profile.unitframe.showSeparator = value
 								end,
 							},
 							spacingX = {
@@ -230,10 +230,10 @@ function ns:CreateConfigPanel()
 								name = "Horizontal Spacing",
 								order = 6,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.spacingX or 0 end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.spacingX or 0 end,
 								set = function(info, value)
 									FlowContainer_SetHorizontalSpacing(CompactRaidFrameContainer, value)
-									CompactUnitFrames.db.unitframe.spacingX = value
+									CompactUnitFrames.db.profile.unitframe.spacingX = value
 								end,
 								step = 1,
 								min = -10,
@@ -244,10 +244,10 @@ function ns:CreateConfigPanel()
 								name = "Vertical Spacing",
 								order = 7,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.spacingY or 0 end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.spacingY or 0 end,
 								set = function(info, value)
 									FlowContainer_SetVerticalSpacing(CompactRaidFrameContainer, value)
-									CompactUnitFrames.db.unitframe.spacingY = value
+									CompactUnitFrames.db.profile.unitframe.spacingY = value
 								end,
 								step = 1,
 								min = -10,
@@ -258,10 +258,10 @@ function ns:CreateConfigPanel()
 								name = "Inner padding",
 								order = 8,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.innerPadding or 0 end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.innerPadding or 0 end,
 								set = function(info, value)
-									CompactUnitFrames.db.unitframe.innerPadding = value
-									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, CompactUnitFrames.db.power.changePosition)
+									CompactUnitFrames.db.profile.unitframe.innerPadding = value
+									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.profile.power.vertical, CompactUnitFrames.db.profile.power.changePosition)
 								end,
 								step = 1,
 								min = 0,
@@ -273,11 +273,11 @@ function ns:CreateConfigPanel()
 								desc = "Set after how many unit frames a line/row break happens. If the container has no more room before this number is reached, a break will happen anyway.",
 								order = 9,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.numPerLine end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.numPerLine end,
 								set = function(info, value)
 									if value == 0 then value = nil end
 									FlowContainer_SetMaxPerLine(CompactRaidFrameContainer, value)
-									CompactUnitFrames.db.unitframe.numPerLine = value
+									CompactUnitFrames.db.profile.unitframe.numPerLine = value
 								end,
 								step = 1,
 								min = 0,
@@ -288,10 +288,10 @@ function ns:CreateConfigPanel()
 								name = "Orientation",
 								order = 10,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.orientation end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.orientation end,
 								set = function(info, value)
 									FlowContainer_SetOrientation(CompactRaidFrameContainer, value)
-									CompactUnitFrames.db.unitframe.orientation = value
+									CompactUnitFrames.db.profile.unitframe.orientation = value
 								end,
 								values = {["horizontal"] = "horizontal", ["vertical"] = "vertical"},
 							},
@@ -309,9 +309,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to display a colored border when a debuff is applied.",
 								order = 1,
 
-								get = function(info) return CompactUnitFrames.db.indicators.showDispellBorder end,
+								get = function(info) return CompactUnitFrames.db.profile.indicators.showDispellBorder end,
 								set = function(info, enable)
-									CompactUnitFrames.db.indicators.showDispellBorder = enable
+									CompactUnitFrames.db.profile.indicators.showDispellBorder = enable
 									-- ns:UpdateDispellDebuffDisplay(testFrame)
 								end,
 							},
@@ -321,9 +321,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to display a colored icon when a debuff is applied.",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.indicators.showDispellIcons end,
+								get = function(info) return CompactUnitFrames.db.profile.indicators.showDispellIcons end,
 								set = function(info, hide)
-									CompactUnitFrames.db.indicators.showDispellIcons = hide
+									CompactUnitFrames.db.profile.indicators.showDispellIcons = hide
 									-- ns:UpdateDispellDebuffDisplay(testFrame)
 								end,
 							},
@@ -333,9 +333,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to color the health bar when a debuff is applied.",
 								order = 3,
 
-								get = function(info) return CompactUnitFrames.db.indicators.showDispellHealth end,
+								get = function(info) return CompactUnitFrames.db.profile.indicators.showDispellHealth end,
 								set = function(info, hide)
-									CompactUnitFrames.db.indicators.showDispellHealth = hide
+									CompactUnitFrames.db.profile.indicators.showDispellHealth = hide
 									-- ns:UpdateDispellDebuffDisplay(testFrame)
 								end,
 							},
@@ -358,9 +358,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to hide buffs without a duration",
 										order = 1,
 
-										get = function(info) return CompactUnitFrames.db.buffs.hidePermanent end,
+										get = function(info) return CompactUnitFrames.db.profile.buffs.hidePermanent end,
 										set = function(info, enable)
-											CompactUnitFrames.db.buffs.hidePermanent = enable
+											CompactUnitFrames.db.profile.buffs.hidePermanent = enable
 											-- [TODO] do something
 										end,
 									},
@@ -370,9 +370,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to always show auras applied by bosses",
 										order = 2,
 
-										get = function(info) return CompactUnitFrames.db.buffs.showBoss end,
+										get = function(info) return CompactUnitFrames.db.profile.buffs.showBoss end,
 										set = function(info, enable)
-											CompactUnitFrames.db.buffs.showBoss = enable
+											CompactUnitFrames.db.profile.buffs.showBoss = enable
 											-- [TODO] do something
 										end,
 									},
@@ -381,9 +381,9 @@ function ns:CreateConfigPanel()
 										name = "Horizontal position",
 										order = 5,
 
-										get = function(info) return CompactUnitFrames.db.buffs.offsetX end,
+										get = function(info) return CompactUnitFrames.db.profile.buffs.offsetX end,
 										set = function(info, value)
-											CompactUnitFrames.db.buffs.offsetX = value
+											CompactUnitFrames.db.profile.buffs.offsetX = value
 											-- [TODO] do something
 										end,
 										step = 1,
@@ -395,9 +395,9 @@ function ns:CreateConfigPanel()
 										name = "Vertical position",
 										order = 6,
 
-										get = function(info) return CompactUnitFrames.db.buffs.offsetY end,
+										get = function(info) return CompactUnitFrames.db.profile.buffs.offsetY end,
 										set = function(info, value)
-											CompactUnitFrames.db.buffs.offsetY = value
+											CompactUnitFrames.db.profile.buffs.offsetY = value
 											-- [TODO] do something
 										end,
 										step = 1,
@@ -409,9 +409,9 @@ function ns:CreateConfigPanel()
 										name = "Always show these",
 										order = 10,
 
-										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.show, "\n") end,
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.profile.buffs.show, "\n") end,
 										set = function(info, input)
-											CompactUnitFrames.db.buffs.show = ns:GetTableFromList(input, "\n")
+											CompactUnitFrames.db.profile.buffs.show = ns:GetTableFromList(input, "\n")
 										end,
 										multiline = true,
 										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
@@ -421,9 +421,9 @@ function ns:CreateConfigPanel()
 										name = "Never show these",
 										order = 11,
 
-										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.buffs.hide, "\n") end,
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.profile.buffs.hide, "\n") end,
 										set = function(info, input)
-											CompactUnitFrames.db.buffs.hide = ns:GetTableFromList(input, "\n")
+											CompactUnitFrames.db.profile.buffs.hide = ns:GetTableFromList(input, "\n")
 										end,
 										multiline = true,
 										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
@@ -442,9 +442,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to hide debuffs without a duration",
 										order = 1,
 
-										get = function(info) return CompactUnitFrames.db.debuffs.hidePermanent end,
+										get = function(info) return CompactUnitFrames.db.profile.debuffs.hidePermanent end,
 										set = function(info, enable)
-											CompactUnitFrames.db.debuffs.hidePermanent = enable
+											CompactUnitFrames.db.profile.debuffs.hidePermanent = enable
 											-- [TODO] do something
 										end,
 									},
@@ -454,9 +454,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to always show auras applied by bosses",
 										order = 2,
 
-										get = function(info) return CompactUnitFrames.db.debuffs.showBoss end,
+										get = function(info) return CompactUnitFrames.db.profile.debuffs.showBoss end,
 										set = function(info, enable)
-											CompactUnitFrames.db.debuffs.showBoss = enable
+											CompactUnitFrames.db.profile.debuffs.showBoss = enable
 											-- [TODO] do something
 										end,
 									},
@@ -465,9 +465,9 @@ function ns:CreateConfigPanel()
 										name = "Horizontal position",
 										order = 5,
 
-										get = function(info) return CompactUnitFrames.db.debuffs.offsetX end,
+										get = function(info) return CompactUnitFrames.db.profile.debuffs.offsetX end,
 										set = function(info, value)
-											CompactUnitFrames.db.debuffs.offsetX = value
+											CompactUnitFrames.db.profile.debuffs.offsetX = value
 											-- [TODO] do something
 										end,
 										step = 1,
@@ -479,9 +479,9 @@ function ns:CreateConfigPanel()
 										name = "Vertical position",
 										order = 6,
 
-										get = function(info) return CompactUnitFrames.db.debuffs.offsetY end,
+										get = function(info) return CompactUnitFrames.db.profile.debuffs.offsetY end,
 										set = function(info, value)
-											CompactUnitFrames.db.debuffs.offsetY = value
+											CompactUnitFrames.db.profile.debuffs.offsetY = value
 											-- [TODO] do something
 										end,
 										step = 1,
@@ -493,9 +493,9 @@ function ns:CreateConfigPanel()
 										name = "Always show these",
 										order = 10,
 
-										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.show, "\n") end,
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.profile.debuffs.show, "\n") end,
 										set = function(info, input)
-											CompactUnitFrames.db.debuffs.show = ns:GetTableFromList(input, "\n")
+											CompactUnitFrames.db.profile.debuffs.show = ns:GetTableFromList(input, "\n")
 										end,
 										multiline = true,
 										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
@@ -505,9 +505,9 @@ function ns:CreateConfigPanel()
 										name = "Never show these",
 										order = 11,
 
-										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.debuffs.hide, "\n") end,
+										get = function(info) return ns:GetListFromTable(CompactUnitFrames.db.profile.debuffs.hide, "\n") end,
 										set = function(info, input)
-											CompactUnitFrames.db.debuffs.hide = ns:GetTableFromList(input, "\n")
+											CompactUnitFrames.db.profile.debuffs.hide = ns:GetTableFromList(input, "\n")
 										end,
 										multiline = true,
 										usage = "List spell IDs or spell names, each on a new line", -- [TODO]
@@ -537,10 +537,10 @@ function ns:CreateConfigPanel()
 								order = 4,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.unitframe.bgcolor, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.unitframe.bgcolor, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.unitframe.bgcolor = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.unitframe.bgcolor = r..":"..g..":"..b
 									-- CompactUnitFrames.CUF_SetFrameBGColor(testFrame, r, g, b)
 								end,
 							},
@@ -550,10 +550,10 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for the unit frame background",
 								order = 5,
 
-								get = function(info) return CompactUnitFrames.db.unitframe.bgcolor == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.unitframe.bgcolor == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.unitframe.bgcolor = enable and 'class' or CompactUnitFrames.db.unitframe.bgcolor
-									-- CompactUnitFrames.CUF_SetFrameBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.unitframe.bgcolor, 'player'))
+									CompactUnitFrames.db.profile.unitframe.bgcolor = enable and 'class' or CompactUnitFrames.db.profile.unitframe.bgcolor
+									-- CompactUnitFrames.CUF_SetFrameBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.unitframe.bgcolor, 'player'))
 								end,
 							},
 							frameBGTexture = {
@@ -564,11 +564,11 @@ function ns:CreateConfigPanel()
 								order = 6,
 
 								values = SharedMedia:HashTable("statusbar"),
-								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.unitframe.bgtexture) end,
+								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.profile.unitframe.bgtexture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
 									-- CompactUnitFrames.CUF_SetFrameBGTexture(testFrame, texture)
-									CompactUnitFrames.db.unitframe.bgtexture = texture
+									CompactUnitFrames.db.profile.unitframe.bgtexture = texture
 								end,
 							},
 							roleIconSize = {
@@ -579,10 +579,10 @@ function ns:CreateConfigPanel()
 								max = 20,
 								step = 1,
 
-								get = function() return CompactUnitFrames.db.unitframe.roleIconSize end,
+								get = function() return CompactUnitFrames.db.profile.unitframe.roleIconSize end,
 								set = function(self, value)
 									-- CompactUnitFrames.CUF_SetRoleIconSize(testFrame, value)
-									CompactUnitFrames.db.unitframe.roleIconSize = value
+									CompactUnitFrames.db.profile.unitframe.roleIconSize = value
 								end,
 							},
 						},
@@ -600,10 +600,10 @@ function ns:CreateConfigPanel()
 								order = 1,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.health.color, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.health.color, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.health.color = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.health.color = r..":"..g..":"..b
 									-- CompactUnitFrame_UpdateHealthColor(testFrame)
 								end,
 							},
@@ -613,9 +613,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for health bars",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.health.color == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.health.color == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.health.color = enable and 'class' or CompactUnitFrames.db.health.color
+									CompactUnitFrames.db.profile.health.color = enable and 'class' or CompactUnitFrames.db.profile.health.color
 									-- CompactUnitFrame_UpdateHealthColor(testFrame)
 								end,
 							},
@@ -625,9 +625,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to use role colors for health bars",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.health.color == 'role' end,
+								get = function(info) return CompactUnitFrames.db.profile.health.color == 'role' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.health.color = enable and 'role' or CompactUnitFrames.db.health.color
+									CompactUnitFrames.db.profile.health.color = enable and 'role' or CompactUnitFrames.db.profile.health.color
 									-- CompactUnitFrame_UpdateHealthColor(testFrame)
 								end,
 							},
@@ -639,11 +639,11 @@ function ns:CreateConfigPanel()
 								order = 3,
 
 								values = SharedMedia:HashTable("statusbar"),
-								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.health.texture) end,
+								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.profile.health.texture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
 									-- CompactUnitFrames.CUF_SetHealthTexture(testFrame, texture)
-									CompactUnitFrames.db.health.texture = texture
+									CompactUnitFrames.db.profile.health.texture = texture
 								end,
 							},
 							healthBGColor = {
@@ -653,10 +653,10 @@ function ns:CreateConfigPanel()
 								order = 4,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.health.bgcolor, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.health.bgcolor, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.health.bgcolor = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.health.bgcolor = r..":"..g..":"..b
 									-- CompactUnitFrames.CUF_SetHealthBGColor(testFrame, r, g, b)
 								end,
 							},
@@ -666,10 +666,10 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for health bar backgrounds",
 								order = 5,
 
-								get = function(info) return CompactUnitFrames.db.health.bgcolor == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.health.bgcolor == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.health.bgcolor = enable and 'class' or CompactUnitFrames.db.health.bgcolor
-									-- CompactUnitFrames.CUF_SetHealthBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.health.bgcolor, 'player'))
+									CompactUnitFrames.db.profile.health.bgcolor = enable and 'class' or CompactUnitFrames.db.profile.health.bgcolor
+									-- CompactUnitFrames.CUF_SetHealthBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.health.bgcolor, 'player'))
 								end,
 							},
 							healthBGTexture = {
@@ -680,11 +680,11 @@ function ns:CreateConfigPanel()
 								order = 6,
 
 								values = SharedMedia:HashTable("statusbar"),
-								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.health.bgtexture) end,
+								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.profile.health.bgtexture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
 									-- CompactUnitFrames.CUF_SetHealthBGTexture(testFrame, texture)
-									CompactUnitFrames.db.health.bgtexture = texture
+									CompactUnitFrames.db.profile.health.bgtexture = texture
 								end,
 							},
 							healthVertical = {
@@ -693,10 +693,10 @@ function ns:CreateConfigPanel()
 								desc = "Check to display the health bar vertically",
 								order = 7,
 
-								get = function(info) return CompactUnitFrames.db.health.vertical end,
+								get = function(info) return CompactUnitFrames.db.profile.health.vertical end,
 								set = function(info, enable)
 									-- CompactUnitFrames.CUF_SetHealthBarVertical(testFrame, enable)
-									CompactUnitFrames.db.health.vertical = enable
+									CompactUnitFrames.db.profile.health.vertical = enable
 								end,
 							},
 						},
@@ -714,10 +714,10 @@ function ns:CreateConfigPanel()
 								order = 1,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.power.color, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.power.color, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.power.color = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.power.color = r..":"..g..":"..b
 									-- CompactUnitFrame_UpdatePowerColor(testFrame)
 								end,
 							},
@@ -727,9 +727,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for power bars",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.power.color == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.power.color == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.power.color = enable and 'class' or CompactUnitFrames.db.power.color
+									CompactUnitFrames.db.profile.power.color = enable and 'class' or CompactUnitFrames.db.profile.power.color
 									-- CompactUnitFrame_UpdatePowerColor(testFrame)
 								end,
 							},
@@ -741,10 +741,10 @@ function ns:CreateConfigPanel()
 
 								dialogControl = "LSM30_Statusbar",
 								values = SharedMedia:HashTable("statusbar"),
-								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.power.texture) end,
+								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.profile.power.texture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
-									CompactUnitFrames.db.power.texture = texture
+									CompactUnitFrames.db.profile.power.texture = texture
 									-- CompactUnitFrames.CUF_SetPowerTexture(testFrame, texture)
 								end,
 							},
@@ -755,10 +755,10 @@ function ns:CreateConfigPanel()
 								order = 4,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.power.bgcolor, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.power.bgcolor, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.power.bgcolor = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.power.bgcolor = r..":"..g..":"..b
 									-- CompactUnitFrames.CUF_SetPowerBGColor(testFrame, r, g, b)
 								end,
 							},
@@ -768,10 +768,10 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for power bar backgrounds",
 								order = 5,
 
-								get = function(info) return CompactUnitFrames.db.power.bgcolor == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.power.bgcolor == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.power.bgcolor = enable and 'class' or CompactUnitFrames.db.power.bgcolor
-									-- CompactUnitFrames.CUF_SetPowerBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.power.bgcolor, 'player'))
+									CompactUnitFrames.db.profile.power.bgcolor = enable and 'class' or CompactUnitFrames.db.profile.power.bgcolor
+									-- CompactUnitFrames.CUF_SetPowerBGColor(testFrame, CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.power.bgcolor, 'player'))
 								end,
 							},
 							powerBGTexture = {
@@ -782,11 +782,11 @@ function ns:CreateConfigPanel()
 
 								dialogControl = "LSM30_Statusbar",
 								values = SharedMedia:HashTable("statusbar"),
-								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.power.bgtexture) end,
+								get = function() return ns:LSM_GetMediaKey("statusbar", CompactUnitFrames.db.profile.power.bgtexture) end,
 								set = function(self, texture)
 									texture = SharedMedia:Fetch("statusbar", texture)
 									-- CompactUnitFrames.CUF_SetPowerBGTexture(testFrame, texture)
-									CompactUnitFrames.db.power.bgtexture = texture
+									CompactUnitFrames.db.profile.power.bgtexture = texture
 								end,
 							},
 							powerVertical = {
@@ -795,12 +795,12 @@ function ns:CreateConfigPanel()
 								desc = "Check to display the power bar vertically",
 								order = 7,
 
-								get = function(info) return CompactUnitFrames.db.power.vertical end,
+								get = function(info) return CompactUnitFrames.db.profile.power.vertical end,
 								set = function(info, enable)
-									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
-									-- CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, enable, CompactUnitFrames.db.power.changePosition)
+									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, enable, CompactUnitFrames.db.profile.power.changePosition)
+									-- CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, enable, CompactUnitFrames.db.profile.power.changePosition)
 									-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
-									CompactUnitFrames.db.power.vertical = enable
+									CompactUnitFrames.db.profile.power.vertical = enable
 								end,
 							},
 							togglePosition = {
@@ -810,12 +810,12 @@ function ns:CreateConfigPanel()
 								order = 8,
 
 								set = function(info, togglePosition)
-									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
-									-- CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, CompactUnitFrames.db.power.vertical, togglePosition)
+									-- CompactUnitFrames.CUF_SetPowerBarVertical(testFrame, CompactUnitFrames.db.profile.power.vertical, togglePosition)
+									-- CompactUnitFrames.CUF_SetSeperatorVertical(testFrame, CompactUnitFrames.db.profile.power.vertical, togglePosition)
 									-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
-									CompactUnitFrames.db.power.changePosition = togglePosition
+									CompactUnitFrames.db.profile.power.changePosition = togglePosition
 								end,
-								get = function(info) return CompactUnitFrames.db.power.changePosition end,
+								get = function(info) return CompactUnitFrames.db.profile.power.changePosition end,
 							},
 							powerSize = {
 								type = "range",
@@ -823,9 +823,9 @@ function ns:CreateConfigPanel()
 								desc = "Select the size of the power bar",
 								order = 9,
 
-								get = function(info) return CompactUnitFrames.db.power.size end,
+								get = function(info) return CompactUnitFrames.db.profile.power.size end,
 								set = function(info, size)
-									CompactUnitFrames.db.power.size = size
+									CompactUnitFrames.db.profile.power.size = size
 									-- CompactUnitFrames.CUF_SetPowerSize(testFrame, size)
 								end,
 								step = 1,
@@ -844,9 +844,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to always display your own power bar, not depending on other settings",
 										order = 1,
 
-										get = function(info) return CompactUnitFrames.db.power.types.showSelf end,
+										get = function(info) return CompactUnitFrames.db.profile.power.types.showSelf end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types.showSelf = enable
+											CompactUnitFrames.db.profile.power.types.showSelf = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -856,9 +856,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to always display pets' power bars, not depending on other settings",
 										order = 2,
 
-										get = function(info) return CompactUnitFrames.db.power.types.showPets end,
+										get = function(info) return CompactUnitFrames.db.profile.power.types.showPets end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types.showPets = enable
+											CompactUnitFrames.db.profile.power.types.showPets = enable
 										end,
 									},
 								}
@@ -875,9 +875,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for types not listed here",
 										order = 3,
 
-										get = function(info) return CompactUnitFrames.db.power.types.showUnknown end,
+										get = function(info) return CompactUnitFrames.db.profile.power.types.showUnknown end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types.showUnknown = enable
+											CompactUnitFrames.db.profile.power.types.showUnknown = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -888,9 +888,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for mana users",
 										order = 4,
 
-										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_MANA].hide end,
+										get = function(info) return not CompactUnitFrames.db.profile.power.types[SPELL_POWER_MANA].hide end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types[SPELL_POWER_MANA].hide = not enable
+											CompactUnitFrames.db.profile.power.types[SPELL_POWER_MANA].hide = not enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -900,9 +900,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for rage users",
 										order = 5,
 
-										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_RAGE].hide end,
+										get = function(info) return not CompactUnitFrames.db.profile.power.types[SPELL_POWER_RAGE].hide end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types[SPELL_POWER_RAGE].hide = not enable
+											CompactUnitFrames.db.profile.power.types[SPELL_POWER_RAGE].hide = not enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -912,9 +912,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for focus users",
 										order = 6,
 
-										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_FOCUS].hide end,
+										get = function(info) return not CompactUnitFrames.db.profile.power.types[SPELL_POWER_FOCUS].hide end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types[SPELL_POWER_FOCUS].hide = not enable
+											CompactUnitFrames.db.profile.power.types[SPELL_POWER_FOCUS].hide = not enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -924,9 +924,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for energy users",
 										order = 7,
 
-										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_ENERGY].hide end,
+										get = function(info) return not CompactUnitFrames.db.profile.power.types[SPELL_POWER_ENERGY].hide end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types[SPELL_POWER_ENERGY].hide = not enable
+											CompactUnitFrames.db.profile.power.types[SPELL_POWER_ENERGY].hide = not enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -936,9 +936,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for runic power users",
 										order = 8,
 
-										get = function(info) return not CompactUnitFrames.db.power.types[SPELL_POWER_RUNIC_POWER].hide end,
+										get = function(info) return not CompactUnitFrames.db.profile.power.types[SPELL_POWER_RUNIC_POWER].hide end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.types[SPELL_POWER_RUNIC_POWER].hide = not enable
+											CompactUnitFrames.db.profile.power.types[SPELL_POWER_RUNIC_POWER].hide = not enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -980,9 +980,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for units without chosen roles.",
 										order = 10,
 
-										get = function(info) return CompactUnitFrames.db.power.roles["NONE"] end,
+										get = function(info) return CompactUnitFrames.db.profile.power.roles["NONE"] end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.roles["NONE"] = enable
+											CompactUnitFrames.db.profile.power.roles["NONE"] = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -992,9 +992,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for damage dealers.",
 										order = 2,
 
-										get = function(info) return CompactUnitFrames.db.power.roles["DAMAGER"] end,
+										get = function(info) return CompactUnitFrames.db.profile.power.roles["DAMAGER"] end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.roles["DAMAGER"] = enable
+											CompactUnitFrames.db.profile.power.roles["DAMAGER"] = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -1004,9 +1004,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for tanks.",
 										order = 3,
 
-										get = function(info) return CompactUnitFrames.db.power.roles["TANK"] end,
+										get = function(info) return CompactUnitFrames.db.profile.power.roles["TANK"] end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.roles["TANK"] = enable
+											CompactUnitFrames.db.profile.power.roles["TANK"] = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -1016,9 +1016,9 @@ function ns:CreateConfigPanel()
 										desc = "Check to allow power bars for healers.",
 										order = 4,
 
-										get = function(info) return CompactUnitFrames.db.power.roles["HEALER"] end,
+										get = function(info) return CompactUnitFrames.db.profile.power.roles["HEALER"] end,
 										set = function(info, enable)
-											CompactUnitFrames.db.power.roles["HEALER"] = enable
+											CompactUnitFrames.db.profile.power.roles["HEALER"] = enable
 											-- CompactUnitFrames.CUF_SetPowerBarShown(testFrame, CompactUnitFrames:ShouldDisplayPowerBar(testFrame))
 										end,
 									},
@@ -1039,10 +1039,10 @@ function ns:CreateConfigPanel()
 								order = 1,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.name.color, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.name.color, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.name.color = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.name.color = r..":"..g..":"..b
 									-- CompactUnitFrames:UpdateNameColor(testFrame)
 								end,
 							},
@@ -1052,9 +1052,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for names",
 								order = 2,
 
-								get = function(info) return CompactUnitFrames.db.name.color == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.name.color == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.name.color = enable and 'class' or CompactUnitFrames.db.name.color
+									CompactUnitFrames.db.profile.name.color = enable and 'class' or CompactUnitFrames.db.profile.name.color
 									-- CompactUnitFrames:UpdateNameColor(testFrame)
 								end,
 							},
@@ -1065,10 +1065,10 @@ function ns:CreateConfigPanel()
 								order = 3,
 
 								values = {["LEFT"] = "LEFT", ["CENTER"] = "CENTER", ["RIGHT"] = "RIGHT"},
-								get = function() return CompactUnitFrames.db.name.justifyH end,
+								get = function() return CompactUnitFrames.db.profile.name.justifyH end,
 								set = function(self, justify)
 									-- CompactUnitFrames.CUF_SetNameJustifyH(testFrame, justify)
-									CompactUnitFrames.db.name.justifyH = justify
+									CompactUnitFrames.db.profile.name.justifyH = justify
 								end,
 							},
 							nameFontSize = {
@@ -1077,10 +1077,10 @@ function ns:CreateConfigPanel()
 								desc = "Select the font size of the unit name",
 								order = 4,
 
-								get = function(info) return CompactUnitFrames.db.name.fontSize or 10 end,
+								get = function(info) return CompactUnitFrames.db.profile.name.fontSize or 10 end,
 								set = function(info, size)
 									-- CompactUnitFrames.CUF_SetNameFontSize(testFrame, size)
-									CompactUnitFrames.db.name.fontSize = size
+									CompactUnitFrames.db.profile.name.fontSize = size
 								end,
 								step = 1,
 								min = 5,
@@ -1094,11 +1094,11 @@ function ns:CreateConfigPanel()
 								order = 5,
 
 								values = SharedMedia:HashTable("font"),
-								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.name.font) end,
+								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.profile.name.font) end,
 								set = function(info, font)
 									font = SharedMedia:Fetch("font", font)
 									-- CompactUnitFrames.CUF_SetNameFont(testFrame, font)
-									CompactUnitFrames.db.name.font = font
+									CompactUnitFrames.db.profile.name.font = font
 								end,
 							},
 							nameFontStyle = {
@@ -1108,10 +1108,10 @@ function ns:CreateConfigPanel()
 								order = 6,
 
 								values = {["NONE"] = "NONE", ["OUTLINE"] = "OUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE", ["MONOCHROME"] = "MONOCHROME"},
-								get = function() return CompactUnitFrames.db.name.fontStyle or "NONE" end,
+								get = function() return CompactUnitFrames.db.profile.name.fontStyle or "NONE" end,
 								set = function(self, outline)
 									-- CompactUnitFrames.CUF_SetNameFontStyle(testFrame, outline)
-									CompactUnitFrames.db.name.fontStyle = outline
+									CompactUnitFrames.db.profile.name.fontStyle = outline
 								end,
 							},
 							nameSize = {
@@ -1120,10 +1120,10 @@ function ns:CreateConfigPanel()
 								desc = "Select the number of characters for the unit name",
 								order = 7,
 
-								get = function(info) return CompactUnitFrames.db.name.size or 10 end,
+								get = function(info) return CompactUnitFrames.db.profile.name.size or 10 end,
 								set = function(info, size)
 									-- CompactUnitFrames.CUF_SetNameText(testFrame, size)
-									CompactUnitFrames.db.name.size = size
+									CompactUnitFrames.db.profile.name.size = size
 								end,
 								step = 1,
 								min = 0,
@@ -1136,10 +1136,10 @@ function ns:CreateConfigPanel()
 								order = 8,
 
 								values = {["shorten"] = "Abbreviate", ["cut"] = "Cut", ["ellipsis"] = "Ellipsis"},
-								get = function(info) return CompactUnitFrames.db.name.format or "ellipsis" end,
+								get = function(info) return CompactUnitFrames.db.profile.name.format or "ellipsis" end,
 								set = function(info, shorten)
-									CompactUnitFrames.db.name.format = shorten
-									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.db.profile.name.format = shorten
+									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.profile.name.size)
 								end,
 							},
 							serverHeading = {
@@ -1154,10 +1154,10 @@ function ns:CreateConfigPanel()
 								order = 10,
 
 								values = {["full"] = "Player - Realm", ["short"] = "<P>Player<S>", ["none"] = "Player"},
-								get = function(info) return CompactUnitFrames.db.name.serverFormat or "full" end,
+								get = function(info) return CompactUnitFrames.db.profile.name.serverFormat or "full" end,
 								set = function(info, format)
-									CompactUnitFrames.db.name.serverFormat = format
-									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.db.profile.name.serverFormat = format
+									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.profile.name.size)
 								end,
 							},
 							serverPrefix = {
@@ -1167,10 +1167,10 @@ function ns:CreateConfigPanel()
 								order = 11,
 								width = "half",
 
-								get = function(info) return CompactUnitFrames.db.name.serverPrefix or "full" end,
+								get = function(info) return CompactUnitFrames.db.profile.name.serverPrefix or "full" end,
 								set = function(info, format)
-									CompactUnitFrames.db.name.serverPrefix = format
-									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.db.profile.name.serverPrefix = format
+									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.profile.name.size)
 								end,
 							},
 							serverSuffix = {
@@ -1180,10 +1180,10 @@ function ns:CreateConfigPanel()
 								order = 12,
 								width = "half",
 
-								get = function(info) return CompactUnitFrames.db.name.serverSuffix or "full" end,
+								get = function(info) return CompactUnitFrames.db.profile.name.serverSuffix or "full" end,
 								set = function(info, format)
-									CompactUnitFrames.db.name.serverSuffix = format
-									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.name.size)
+									CompactUnitFrames.db.profile.name.serverSuffix = format
+									-- CompactUnitFrames.CUF_SetNameText(testFrame, CompactUnitFrames.db.profile.name.size)
 								end,
 							},
 						},
@@ -1201,10 +1201,10 @@ function ns:CreateConfigPanel()
 								order = 14,
 
 								get = function(info)
-									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.status.color, 'player')
+									return CompactUnitFrames:GetColorSetting(CompactUnitFrames.db.profile.status.color, 'player')
 								end,
 								set = function(info, r, g, b)
-									CompactUnitFrames.db.status.color = r..":"..g..":"..b
+									CompactUnitFrames.db.profile.status.color = r..":"..g..":"..b
 									-- CompactUnitFrames:UpdateStatusColor(testFrame)
 								end,
 							},
@@ -1214,9 +1214,9 @@ function ns:CreateConfigPanel()
 								desc = "Check to use class colors for names",
 								order = 15,
 
-								get = function(info) return CompactUnitFrames.db.status.color == 'class' end,
+								get = function(info) return CompactUnitFrames.db.profile.status.color == 'class' end,
 								set = function(info, enable)
-									CompactUnitFrames.db.status.color = enable and 'class' or CompactUnitFrames.db.status.color
+									CompactUnitFrames.db.profile.status.color = enable and 'class' or CompactUnitFrames.db.profile.status.color
 									-- CompactUnitFrames:UpdateStatusColor(testFrame)
 								end,
 							},
@@ -1227,10 +1227,10 @@ function ns:CreateConfigPanel()
 								order = 16,
 
 								values = {["LEFT"] = "LEFT", ["CENTER"] = "CENTER", ["RIGHT"] = "RIGHT"},
-								get = function() return CompactUnitFrames.db.status.justifyH end,
+								get = function() return CompactUnitFrames.db.profile.status.justifyH end,
 								set = function(self, justify)
 									-- CompactUnitFrames.CUF_SetStatusJustifyH(testFrame, justify)
-									CompactUnitFrames.db.status.justifyH = justify
+									CompactUnitFrames.db.profile.status.justifyH = justify
 								end,
 							},
 							statusFontSize = {
@@ -1239,10 +1239,10 @@ function ns:CreateConfigPanel()
 								desc = "Select the font size of the status text",
 								order = 17,
 
-								get = function(info) return CompactUnitFrames.db.status.fontSize or 10 end,
+								get = function(info) return CompactUnitFrames.db.profile.status.fontSize or 10 end,
 								set = function(info, size)
 									-- CompactUnitFrames.CUF_SetStatusFontSize(testFrame, size)
-									CompactUnitFrames.db.status.fontSize = size
+									CompactUnitFrames.db.profile.status.fontSize = size
 								end,
 								step = 1,
 								min = 4,
@@ -1256,11 +1256,11 @@ function ns:CreateConfigPanel()
 								order = 18,
 
 								values = SharedMedia:HashTable("font"),
-								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.status.font) end,
+								get = function(info) return ns:LSM_GetMediaKey("font", CompactUnitFrames.db.profile.status.font) end,
 								set = function(info, font)
 									font = SharedMedia:Fetch("font", font)
 									-- CompactUnitFrames.CUF_SetStatusFont(testFrame, font)
-									CompactUnitFrames.db.status.font = font
+									CompactUnitFrames.db.profile.status.font = font
 								end,
 							},
 							statusFontStyle = {
@@ -1270,10 +1270,10 @@ function ns:CreateConfigPanel()
 								order = 19,
 
 								values = {["NONE"] = "NONE", ["OUTLINE"] = "OUTLINE", ["THICKOUTLINE"] = "THICKOUTLINE", ["MONOCHROME"] = "MONOCHROME"},
-								get = function() return CompactUnitFrames.db.status.fontStyle or "NONE" end,
+								get = function() return CompactUnitFrames.db.profile.status.fontStyle or "NONE" end,
 								set = function(self, outline)
 									-- CompactUnitFrames.CUF_SetStatusFontStyle(testFrame, outline)
-									CompactUnitFrames.db.status.fontStyle = outline
+									CompactUnitFrames.db.profile.status.fontStyle = outline
 								end,
 							},
 							statusSize = {
@@ -1282,10 +1282,10 @@ function ns:CreateConfigPanel()
 								desc = "Select the number of characters for the status text",
 								order = 20,
 
-								get = function(info) return CompactUnitFrames.db.status.size or 10 end,
+								get = function(info) return CompactUnitFrames.db.profile.status.size or 10 end,
 								set = function(info, size)
 									-- CompactUnitFrames.CUF_SetStatusText(testFrame, size)
-									CompactUnitFrames.db.status.size = size
+									CompactUnitFrames.db.profile.status.size = size
 								end,
 								step = 1,
 								min = 0,
@@ -1298,10 +1298,10 @@ function ns:CreateConfigPanel()
 								order = 21,
 
 								values = {["shorten"] = "Abbreviate", ["cut"] = "Cut", ["ellipsis"] = "Ellipsis"},
-								get = function(info) return CompactUnitFrames.db.status.format or "ellipsis" end,
+								get = function(info) return CompactUnitFrames.db.profile.status.format or "ellipsis" end,
 								set = function(info, shorten)
-									CompactUnitFrames.db.status.format = shorten
-									-- CompactUnitFrames.CUF_SetStatusText(testFrame, CompactUnitFrames.db.status.size)
+									CompactUnitFrames.db.profile.status.format = shorten
+									-- CompactUnitFrames.CUF_SetStatusText(testFrame, CompactUnitFrames.db.profile.status.size)
 								end,
 							},
 						},

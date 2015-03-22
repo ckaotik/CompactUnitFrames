@@ -6,7 +6,7 @@ local addonName, addon, _ = ...
 
 function addon.UpdateHealthColor(frame)
 	if not frame or type(frame) ~= "table" then return end
-	if addon.db.indicators.showDispellHealth then
+	if addon.db.profile.indicators.showDispellHealth then
 		if frame.hasDispelMagic or frame.hasDispelCurse or frame.hasDispelDisease or frame.hasDispelPoison then
 			return
 		end
@@ -14,13 +14,13 @@ function addon.UpdateHealthColor(frame)
 
 	local r, g, b
 	if not frame.unit then
-		r, g, b = addon:GetColorSetting(addon.db.health.bgcolor, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health.bgcolor, frame.unit)
 	elseif UnitCanAttack("player", frame.unit) or UnitIsEnemy("player", frame.unit) then
-		r, g, b = addon:GetColorSetting(addon.db.health.isEnemyColor, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health.isEnemyColor, frame.unit)
 	elseif not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
-		r, g, b = addon:GetColorSetting(addon.db.health.flagsAsPvPColor, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health.flagsAsPvPColor, frame.unit)
 	else
-		r, g, b = addon:GetColorSetting(addon.db.health.color, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health.color, frame.unit)
 	end
 	frame.healthBar:SetStatusBarColor(r, g, b)
 end
@@ -30,9 +30,9 @@ function addon.UpdatePowerColor(frame)
 	local unit = frame.unit or frame.displayedUnit
 
 	local displayPowerBar = addon:ShouldDisplayPowerBar(frame)
-	local powerSize = displayPowerBar and addon.db.power.size or 0
+	local powerSize = displayPowerBar and addon.db.profile.power.size or 0
 	local displayBorder = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, 'displayBorder')
-	if powerSize > 0 and addon.db.unitframe.showSeparator then
+	if powerSize > 0 and addon.db.profile.unitframe.showSeparator then
 		if displayBorder then
 			-- blizzard separator is 2px high
 			powerSize = powerSize + 2
@@ -46,14 +46,14 @@ function addon.UpdatePowerColor(frame)
 	else
 		-- apply powerSize as-is
 	end
-	-- local padding = addon.db.unitframe.innerPadding
+	-- local padding = addon.db.profile.unitframe.innerPadding
 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
 	frame.powerBar:SetShown(displayPowerBar and true or false)
 	-- if frame.powerBar.vertical then
 	-- 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1 - powerSize, 1)
 	-- end
 
-	local r, g, b = addon:GetColorSetting(addon.db.power.color, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.power.color, frame.unit)
 	if r and (not unit or UnitIsConnected(unit)) then
 		frame.powerBar:SetStatusBarColor(r, g, b)
 	end
@@ -64,25 +64,25 @@ function addon.UpdateName(frame)
 
 	-- FIXME: use GetTextWidth() instead of fixed length
 	local unitName, server = UnitFullName(frame.unit)
-	local nameLength = addon.db.name.size
-	if addon.db.name.format == 'shorten' then
+	local nameLength = addon.db.profile.name.size
+	if addon.db.profile.name.format == 'shorten' then
 		unitName = addon:ShortenString(unitName, nameLength or 10)
-	elseif addon.db.name.format == 'cut' then
+	elseif addon.db.profile.name.format == 'cut' then
 		unitName = addon.utf8sub(unitName, 1, nameLength or 10)
 	end
 
-	if server and server ~= addon.playerRealm then
-		if addon.db.name.serverFormat == 'full' then
+	if server and server ~= '' and server ~= addon.playerRealm then
+		if addon.db.profile.name.serverFormat == 'full' then
 			unitName = unitName .. "-" .. server
-		elseif addon.db.name.serverFormat == 'short' then
-			unitName = addon.db.name.serverPrefix .. unitName .. addon.db.name.serverSuffix
+		elseif addon.db.profile.name.serverFormat == 'short' then
+			unitName = addon.db.profile.name.serverPrefix .. unitName .. addon.db.profile.name.serverSuffix
 		else -- 'none'
 			-- use only name part
 		end
 	end
 	frame.name:SetText(unitName)
 
-	local r, g, b = addon:GetColorSetting(addon.db.name.color, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.name.color, frame.unit)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
@@ -98,7 +98,7 @@ function addon.UpdateStatusText(frame, arg1)
 		end
 		-- update afk label
 		local _, _, minutes, seconds = ChatFrame_TimeBreakDown(time() - afkTimes[frame])
-		frame.statusText:SetText(string.format(addon.db.status.afkFormat, minutes, seconds))
+		frame.statusText:SetText(string.format(addon.db.profile.status.afkFormat, minutes, seconds))
 		frame.statusText:Show()
 	elseif afkTimes[frame] then
 		afkTimes[frame]  = nil
@@ -108,7 +108,7 @@ function addon.UpdateStatusText(frame, arg1)
 	local setting = frame.optionTable.healthText
 	if frame.unit and (not UnitIsConnected(frame.unit) or UnitIsDeadOrGhost(unit)) then
 		-- frame.statusText:SetText(nil)
-	elseif (setting == 'losthealth' or setting == 'health') and addon.db.status.format == 'shorten' then
+	elseif (setting == 'losthealth' or setting == 'health') and addon.db.profile.status.format == 'shorten' then
 		local value = frame.statusText:GetText()
 		frame.statusText:SetText( addon:ShortenNumber(value) )
 	end
@@ -172,7 +172,7 @@ function addon.UpdateDispellableDebuffs(frame)
 	-- since border/health can only display in one color
 	local dispelType = (frame.hasDispelMagic and 'Magic') or (frame.hasDispelCurse and 'Curse') or (frame.hasDispelDisease and 'Disease') or (frame.hasDispelPoison and 'Poison')
 
-	if addon.db.indicators.showDispellHealth then
+	if addon.db.profile.indicators.showDispellHealth then
 		if dispelType then
 			local color = DebuffTypeColor[dispelType] or DebuffTypeColor["none"]
 			frame.healthBar:SetStatusBarColor(color.r, color.g, color.b)
@@ -180,7 +180,7 @@ function addon.UpdateDispellableDebuffs(frame)
 			addon.UpdateHealthColor(frame)
 		end
 	end
-	if addon.db.indicators.showDispellBorder then
+	if addon.db.profile.indicators.showDispellBorder then
 		if dispelType then
 			local color = DebuffTypeColor[dispelType or 'none']
 			frame.selectionHighlight:SetVertexColor(color.r, color.g, color.b)
@@ -211,6 +211,6 @@ function addon.SetUpClicks(frame)
 	frame:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
 	-- FIXME: causes taint too easily, use Clique or similar if you really need the feature
 	-- works with either menu or togglemenu. blizz uses menu, so stick to that
-	-- local combatMenu = addon.db.unitframe.noMenuClickInCombat and "" or "menu"
+	-- local combatMenu = addon.db.profile.unitframe.noMenuClickInCombat and "" or "menu"
 	-- RegisterAttributeDriver(frame, "*type2", "[nocombat] menu; "..combatMenu)
 end

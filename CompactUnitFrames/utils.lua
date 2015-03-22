@@ -13,7 +13,7 @@ function addon.Print(message, ...)
 		..' '..strjoin(", ", tostringall(...) ))
 end
 function addon.Debug(...)
-	if addon.db.debug then
+	if addon.db.profile.debug then
 		addon.Print("!", (strjoin(", ", tostringall(...))))
 	end
 end
@@ -52,7 +52,7 @@ function addon.RunAfterCombat()
 		end
 		wipe(tasks)
 	end
-	if addon.db.frames.taintUpdate then
+	if addon.db.profile.frames.taintUpdate then
 		CompactUnitFrameProfiles_ApplyCurrentSettings()
 	end
 	addon:UnregisterEvent('PLAYER_REGEN_ENABLED')

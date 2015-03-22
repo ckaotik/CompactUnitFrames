@@ -16,32 +16,32 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	local displayBorder = GetRaidProfileOption(CompactUnitFrameProfiles.selectedProfile, 'displayBorder')
 
 	-- bar orientation
-	-- addon.CUF_SetHealthBarVertical(frame, addon.db.health.vertical)
-	-- addon.CUF_SetPowerBarVertical(frame, addon.db.power.vertical, addon.db.power.changePosition)
-	-- addon.CUF_SetSeperatorVertical(frame, addon.db.power.vertical, addon.db.power.changePosition)
+	-- addon.CUF_SetHealthBarVertical(frame, addon.db.profile.health.vertical)
+	-- addon.CUF_SetPowerBarVertical(frame, addon.db.profile.power.vertical, addon.db.profile.power.changePosition)
+	-- addon.CUF_SetSeperatorVertical(frame, addon.db.profile.power.vertical, addon.db.profile.power.changePosition)
 
 	-- selectionHighlight + aggroHighlight (texture, coords, position)
 	-- borders (horizTopBorder, horizBottomBorder, verLeftBorder, vertRightBorder, horizDivider: texture, height/width, position)
 
 	-- frame size, background (texture, coords)
-	local r, g, b = addon:GetColorSetting(addon.db.unitframe.bgcolor, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.unitframe.bgcolor, frame.unit)
 	frame.background:SetVertexColor(r or 1, g or 1, b or 1)
-	frame.background:SetTexture(addon.db.unitframe.bgtexture or healthBgTex)
+	frame.background:SetTexture(addon.db.profile.unitframe.bgtexture or healthBgTex)
 
 	-- healthBar (position, statusbartexture)
-	frame.healthBar:SetStatusBarTexture(addon.db.health.texture or healthTex, 'BORDER')
+	frame.healthBar:SetStatusBarTexture(addon.db.profile.health.texture or healthTex, 'BORDER')
 	if isFirstSetup then
-		local r, g, b = addon:GetColorSetting(addon.db.health.bgcolor, frame.unit)
+		local r, g, b = addon:GetColorSetting(addon.db.profile.health.bgcolor, frame.unit)
 		frame.healthBar.background:SetVertexColor(r or 1, g or 1, b or 1)
-		frame.healthBar.background:SetTexture(addon.db.health.bgtexture or healthBgTex)
+		frame.healthBar.background:SetTexture(addon.db.profile.health.bgtexture or healthBgTex)
 	end
 
 	-- name (position, justifyH)
-	frame.name:SetJustifyH(addon.db.name.justifyH or 'LEFT')
-	if isFirstSetup and (addon.db.name.font or addon.db.name.fontSize or addon.db.name.fontStyle) then
+	frame.name:SetJustifyH(addon.db.profile.name.justifyH or 'LEFT')
+	if isFirstSetup and (addon.db.profile.name.font or addon.db.profile.name.fontSize or addon.db.profile.name.fontStyle) then
 		-- "Fonts\\FRIZQT__.TTF", 10
 		local defaultFont, defaultSize, defaultStyle = frame.name:GetFont()
-		frame.name:SetFont(addon.db.name.font or defaultFont, addon.db.name.fontSize or defaultSize, addon.db.name.fontStyle or defaultStyle)
+		frame.name:SetFont(addon.db.profile.name.font or defaultFont, addon.db.profile.name.fontSize or defaultSize, addon.db.profile.name.fontStyle or defaultStyle)
 	end
 
 	-- overAbsorbGlow (texture, blendMode, position, width)
@@ -55,18 +55,18 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 
 	if style == 'normal' then
 		-- powerBar (position, statusbartexture, backgroundTex, show/hide)
-		frame.powerBar:SetStatusBarTexture(addon.db.power.texture or powerTex, 'BORDER')
-		frame.powerBar.background:SetTexture(addon.db.power.bgtexture or powerBgTex, 'BORDER')
+		frame.powerBar:SetStatusBarTexture(addon.db.profile.power.texture or powerTex, 'BORDER')
+		frame.powerBar.background:SetTexture(addon.db.profile.power.bgtexture or powerBgTex, 'BORDER')
 		if isFirstSetup then
-			local r, g, b = addon:GetColorSetting(addon.db.power.bgcolor, frame.unit)
+			local r, g, b = addon:GetColorSetting(addon.db.profile.power.bgcolor, frame.unit)
 			frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 		end
 
 		if true then -- not InCombatLockdown() then
-			-- local inset = addon.db.unitframe.innerPadding
-			frame.powerBar:SetHeight(addon.db.power.size)
+			-- local inset = addon.db.profile.unitframe.innerPadding
+			frame.powerBar:SetHeight(addon.db.profile.power.size)
 			frame.powerBar:SetPoint('BOTTOMRIGHT', -1, 1)
-			if not displayBorder and addon.db.unitframe.showSeparator then
+			if not displayBorder and addon.db.profile.unitframe.showSeparator then
 				-- show 1px separator
 				frame.powerBar:SetPoint('TOPLEFT', frame.healthBar, 'BOTTOMLEFT', 0, -1)
 			end
@@ -77,21 +77,21 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		end
 
 		-- roleIcon (position, size)
-		local size = addon.db.unitframe.roleIconSize
+		local size = addon.db.profile.unitframe.roleIconSize
 		if size == 0 then size = hiddenSize end
 		frame.roleIcon:SetSize(size, size)
 		-- frame.roleIcon:ClearAllPoints()
 		-- frame.roleIcon:SetPoint("TOPLEFT", frame.healthBar, 3, -2)
 
 		-- statusText (fontSize, position, height)
-		local r, g, b = addon:GetColorSetting(addon.db.status.color, frame.unit)
+		local r, g, b = addon:GetColorSetting(addon.db.profile.status.color, frame.unit)
 		frame.statusText:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, 1)
-		if addon.db.status.font or addon.db.status.fontSize or addon.db.status.fontStyle then
+		if addon.db.profile.status.font or addon.db.profile.status.fontSize or addon.db.profile.status.fontStyle then
 			local defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
 			frame.statusText:SetFont(
-				addon.db.status.font or defaultFont,
-				addon.db.status.fontSize or defaultSize,
-				addon.db.status.fontStyle or defaultStyle
+				addon.db.profile.status.font or defaultFont,
+				addon.db.profile.status.fontSize or defaultSize,
+				addon.db.profile.status.fontStyle or defaultStyle
 			)
 		end
 
@@ -100,29 +100,29 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		-- debuffFrames (position, size copied from buffFrames)
 		-- dispelDebuffFrames (position, size)
 		-- frame.buffFrames[1]:ClearAllPoints()
-		-- frame.buffFrames[1]:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", -1*(addon.db.buffs.posX or 3), (addon.db.buffs.posY or 0))
+		-- frame.buffFrames[1]:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", -1*(addon.db.profile.buffs.posX or 3), (addon.db.profile.buffs.posY or 0))
 		-- frame.debuffFrames[1]:ClearAllPoints()
-		-- frame.debuffFrames[1]:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMLEFT", addon.db.debuffs.posX or 3, addon.db.debuffs.posY or 0)
+		-- frame.debuffFrames[1]:SetPoint("BOTTOMLEFT", frame.healthBar, "BOTTOMLEFT", addon.db.profile.debuffs.posX or 3, addon.db.profile.debuffs.posY or 0)
 		-- frame.dispelDebuffFrames[1]:SetPoint("TOPRIGHT", frame.healthBar, -3, -2)
 
 		-- readyCheckIcon (position, size)
 		-- centerStatusIcon (position, size (2*buffSize))
 	end
 
-	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableOverlay then
-		local xOffset, yOffset = addon.db.indicators.center.posX or 0, addon.db.indicators.center.posY or 0
+	if isFirstSetup and style == 'normal' and addon.db.profile.unitframe.enableOverlay then
+		local xOffset, yOffset = addon.db.profile.indicators.center.posX or 0, addon.db.profile.indicators.center.posY or 0
 		local overlay = addon.Overlay.Enable(frame)
 		      overlay:SetSize(20, 20)
 		      overlay:SetPoint('CENTER', frame, 'CENTER', xOffset, yOffset)
 	end
 
-	if isFirstSetup and style == 'normal' and addon.db.unitframe.enableGPS then -- and not frame.GPS then
+	if isFirstSetup and style == 'normal' and addon.db.profile.unitframe.enableGPS then -- and not frame.GPS then
 		local gps = addon.GPS.Enable(frame)
 		      gps:SetSize(40, 40)
 		      gps:SetPoint('CENTER', frame.healthBar, 'CENTER')
 		      gps:Hide()
-		gps.outOfRange = addon.db.unitframe.gpsOutOfRange
-		gps.onMouseOver = addon.db.unitframe.gpsOnHover
+		gps.outOfRange = addon.db.profile.unitframe.gpsOutOfRange
+		gps.onMouseOver = addon.db.profile.unitframe.gpsOnHover
 		--[[ local gps = CreateFrame("Frame", nil, frame.healthBar)
 		      gps:SetPoint('CENTER')
 		      gps:SetSize(40, 40)
@@ -169,27 +169,26 @@ function addon:ShouldDisplayPowerBar(frame)
 	local unit = frame.displayedUnit or frame.unit
 	if not unit or not UnitIsConnected(unit) or not UnitIsConnected(unit) then return false end
 
-	if addon.db.power.types.showSelf and UnitIsUnit(unit, 'player') then
+	if addon.db.profile.power.showSelf and UnitIsUnit(unit, 'player') then
 		return true
 	elseif unit:find('pet') then
-		return addon.db.power.types.showPets
+		return addon.db.profile.power.showPets
 	end
 
 	local powerType = UnitPowerType(unit)
-	local showType = addon.db.power.types.showUnknown
-	local settingsType = addon.db.power.types[powerType]
-	if settingsType then
-		showType = not settingsType.hide
+	local showType = addon.db.profile.power.types[powerType]
+	if showType == nil then
+		showType = addon.db.profile.power.showUnknown
 	end
 
 	local unitRole = UnitGroupRolesAssigned(unit)
-	local showRole = addon.db.power.roles[unitRole]
+	local showRole = addon.db.profile.power.roles[unitRole]
 
 	return showType and showRole
 end
 
 function addon:ShouldDisplayAura(unit, index, filter, isDebuff)
-	local dataTable = isDebuff and addon.db.debuffs or addon.db.buffs
+	local dataTable = isDebuff and addon.db.profile.debuffs or addon.db.profile.buffs
 	local auraName, _, _, _, debuffType, auraDuration, _, caster, canStealOrPurge, _, spellID, canApply, auraIsBoss = (isDebuff and UnitDebuff or UnitBuff)(unit, index, filter)
 	if not auraName then return nil end
 

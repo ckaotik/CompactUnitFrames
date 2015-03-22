@@ -8,27 +8,8 @@ LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceTimer-3.0
 
 -- CompactUnitFrameProfiles_ApplyCurrentSettings()
 
-local function ApplyDefaultSettings(db, defaults)
-    for key, value in pairs(defaults) do
-        if db[key] == nil then
-            if type(value) == 'table' then
-                db[key] = {}
-                ApplyDefaultSettings(db[key], value)
-            else
-                db[key] = value
-            end
-        else
-            if type(value) == 'table' then
-                ApplyDefaultSettings(db[key], value)
-            end
-        end
-    end
-end
-
 function addon:OnInitialize()
-	if not CUF_GlobalDB then CUF_GlobalDB = {} end
-	self.db = CUF_GlobalDB
-	ApplyDefaultSettings(self.db, self.defaults)
+	self.db = LibStub('AceDB-3.0'):New(addonName..'DB', addon.defaults, true)
 
 	-- /sigh
 	-- _G.CompactUnitFrame_SetUpClicks = function(...) end
@@ -87,12 +68,12 @@ function addon:OnEnable()
 	-- @see http://www.townlong-yak.com/framexml/18291/Blizzard_CompactRaidFrames/Blizzard_CompactRaidFrameContainer.lua
 	-- local container = CompactRaidFrameContainer
 	-- these all cause taint ...
-	--[[ FlowContainer_SetHorizontalSpacing(container, addon.db.unitframe.spacingX or 0)
-	FlowContainer_SetVerticalSpacing(container, addon.db.unitframe.spacingY or 0)
-	FlowContainer_SetMaxPerLine(container, addon.db.unitframe.numPerLine or nil)
-	FlowContainer_SetOrientation(container, addon.db.unitframe.orientation or 'vertical')
+	--[[ FlowContainer_SetHorizontalSpacing(container, addon.db.profile.unitframe.spacingX or 0)
+	FlowContainer_SetVerticalSpacing(container, addon.db.profile.unitframe.spacingY or 0)
+	FlowContainer_SetMaxPerLine(container, addon.db.profile.unitframe.numPerLine or nil)
+	FlowContainer_SetOrientation(container, addon.db.profile.unitframe.orientation or 'vertical')
 	hooksecurefunc('CompactRaidFrameContainer_AddGroups', function(self)
-		FlowContainer_SetOrientation(container, addon.db.unitframe.orientation or 'vertical')
+		FlowContainer_SetOrientation(container, addon.db.profile.unitframe.orientation or 'vertical')
 	end) --]]
 
 	-- addon:SetupAutoActivate()
