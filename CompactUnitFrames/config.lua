@@ -1,5 +1,28 @@
-if true then return end -- CUF does not yet use AceDB
 local addonName, addon, _ = ...
+
+local function GetRoleLabel(key, label)
+	if key == 'NONE' then
+		return key, _G['NO_ROLE']
+	else
+		local icon = _G['INLINE_'..key..'_ICON'] or '|TInterface\\Icons\\Inv_misc_questionmark:16:16|t'
+		return key, icon .. ' ' .. _G[key]
+	end
+end
+
+local powerTypes = {
+	[SPELL_POWER_MANA] = _G.MANA,
+	[SPELL_POWER_RAGE] = _G.RAGE,
+	[SPELL_POWER_FOCUS] = _G.FOCUS,
+	[SPELL_POWER_ENERGY] = _G.ENERGY,
+	[SPELL_POWER_RUNES] = _G.RUNES,
+	[SPELL_POWER_RUNIC_POWER] = _G.RUNIC_POWER,
+	[SPELL_POWER_SOUL_SHARDS] = _G.SOUL_SHARDS,
+	[SPELL_POWER_ECLIPSE] = _G.ECLIPSE,
+	[SPELL_POWER_HOLY_POWER] = _G.HOLY_POWER,
+}
+local function GetTypeLabel(key, value)
+	return key, powerTypes[key] or key
+end
 
 local function OpenConfiguration(self, args)
 	-- remove placeholder configuration panel
@@ -12,11 +35,41 @@ local function OpenConfiguration(self, args)
 	self:SetScript('OnShow', nil)
 	self:Hide()
 
+	local types = {
+		format = {
+			cut = 'Cut',
+			shorten = 'Shorten',
+		},
+		serverFormat = {
+			full = 'Full: Player - Realm',
+			short = 'Short: Player (*)',
+		},
+		texture = 'statusbar',
+		color = 'text', -- default, class, role, custom + r.r:g.g:b.b
+		hide = 'values',
+		show = 'values',
+		roles = 'multiselect',
+		types = 'multiselect',
+	}
+	types.bgtexture = types.texture
+	types.bgcolor = types.color
+
+	local L = {
+		rolesValues = GetRoleLabel,
+		typesValues = GetTypeLabel,
+		textureName = 'Statusbar Texture',
+		bgtextureName = 'Background Texture',
+		verticalName = 'Position: Vertical',
+		verticalDesc = 'Display Bottom > Top instead of Left > Right',
+		changePositionName = 'Position: Alternate',
+		changePositionDesc = 'Display Top > Bottom (vertical) or Right > Left (horizontal)',
+	}
+
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.db, addonName)
 	LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, {
 		type = 'group',
 		args = {
-			general  = LibStub('LibOptionsGenerate-1.0'):GetOptionsTable(addon.db),
+			general  = LibStub('LibOptionsGenerate-1.0'):GetOptionsTable(addon.db, types, L),
 			profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(addon.db)
 		},
 	})
