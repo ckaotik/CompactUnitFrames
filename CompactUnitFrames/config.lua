@@ -10,6 +10,7 @@ local function GetRoleLabel(key, label)
 end
 
 local powerTypes = {
+	[-1] = _G.UNKNOWN,
 	[SPELL_POWER_MANA] = _G.MANA,
 	[SPELL_POWER_RAGE] = _G.RAGE,
 	[SPELL_POWER_FOCUS] = _G.FOCUS,
@@ -21,7 +22,13 @@ local powerTypes = {
 	[SPELL_POWER_HOLY_POWER] = _G.HOLY_POWER,
 }
 local function GetTypeLabel(key, value)
-	return key, powerTypes[key] or key
+	local color = _G.HIGHLIGHT_FONT_COLOR -- addon.db.profile.power.colors[key]
+	if PowerBarColor[key] then
+		color = PowerBarColor[key].r and PowerBarColor[key] or select(2, next(PowerBarColor[key]))
+		if not color.r then color = _G.HIGHLIGHT_FONT_COLOR end
+	end
+	local label = ('\124cFF%02x%02x%02x%s\124r'):format(color.r * 255, color.g * 255, color.b * 255, powerTypes[key] or key)
+	return key, label
 end
 
 local function OpenConfiguration(self, args)
@@ -37,21 +44,28 @@ local function OpenConfiguration(self, args)
 
 	local types = {
 		format = {
-			cut = 'Cut',
+			cut     = 'Cut',
 			shorten = 'Shorten',
 		},
 		serverFormat = {
-			full = 'Full: Player - Realm',
-			short = 'Short: Player (*)',
+			full    = 'Full: Player - Realm',
+			short   = 'Short: Player (*)',
+			none    = 'None: Player',
+		},
+		colorType = {
+			default = 'Default',
+			class   = 'Class',
+			role    = 'Role',
+			custom  = 'Custom',
 		},
 		texture = 'statusbar',
-		color = 'text', -- default, class, role, custom + r.r:g.g:b.b
 		hide = 'values',
 		show = 'values',
 		roles = 'multiselect',
 		types = 'multiselect',
 	}
 	types.bgtexture = types.texture
+	types.bgcolorType = types.colorType
 	types.bgcolor = types.color
 
 	local L = {
@@ -63,6 +77,15 @@ local function OpenConfiguration(self, args)
 		verticalDesc = 'Display Bottom > Top instead of Left > Right',
 		changePositionName = 'Position: Alternate',
 		changePositionDesc = 'Display Top > Bottom (vertical) or Right > Left (horizontal)',
+		colorName = 'Color',
+		colorTypeName = 'Color',
+		bgcolorName = 'Background color',
+		bgcolorTypeName = 'Background color',
+		nameName = _G.CALENDAR_EVENT_NAME,
+		framesName = _G.GENERAL,
+		unitframeName = _G.UNITFRAME_LABEL,
+		healthName = _G.HEALTH,
+		powerName = 'Power',
 	}
 
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(addon.db, addonName)
@@ -91,7 +114,8 @@ local panel = CreateFrame('Frame')
 InterfaceOptions_AddCategory(panel)
 
 -- use slash command to toggle config
-_G['SLASH_'..addonName] = '/'..addonName
+_G['SLASH_'..addonName..'1'] = '/'..addonName
+_G['SLASH_'..addonName..'2'] = '/cuf'
 _G.SlashCmdList[addonName] = function(args) OpenConfiguration(panel, args) end
 
 -- --------------------------------------------------------

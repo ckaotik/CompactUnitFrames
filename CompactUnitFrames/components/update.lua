@@ -14,13 +14,13 @@ function addon.UpdateHealthColor(frame)
 
 	local r, g, b
 	if not frame.unit then
-		r, g, b = addon:GetColorSetting(addon.db.profile.health.bgcolor, frame.unit)
-	elseif UnitCanAttack("player", frame.unit) or UnitIsEnemy("player", frame.unit) then
-		r, g, b = addon:GetColorSetting(addon.db.profile.health.isEnemyColor, frame.unit)
-	elseif not UnitIsPVP("player") and UnitIsPVP(frame.unit) then
-		r, g, b = addon:GetColorSetting(addon.db.profile.health.flagsAsPvPColor, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health, 'bgcolor', frame.unit)
+	elseif UnitCanAttack('player', frame.unit) or UnitIsEnemy('player', frame.unit) then
+		r, g, b = addon:GetColorSetting(addon.db.profile.health, 'isEnemyColor', frame.unit)
+	elseif not UnitIsPVP('player') and UnitIsPVP(frame.unit) then
+		r, g, b = addon:GetColorSetting(addon.db.profile.health, 'flagsAsPvPColor', frame.unit)
 	else
-		r, g, b = addon:GetColorSetting(addon.db.profile.health.color, frame.unit)
+		r, g, b = addon:GetColorSetting(addon.db.profile.health, 'color', frame.unit)
 	end
 	frame.healthBar:SetStatusBarColor(r, g, b)
 end
@@ -53,7 +53,7 @@ function addon.UpdatePowerColor(frame)
 	-- 	frame.healthBar:SetPoint('BOTTOMRIGHT', -1 - powerSize, 1)
 	-- end
 
-	local r, g, b = addon:GetColorSetting(addon.db.profile.power.color, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.power, 'color', frame.unit)
 	if r and (not unit or UnitIsConnected(unit)) then
 		frame.powerBar:SetStatusBarColor(r, g, b)
 	end
@@ -82,13 +82,14 @@ function addon.UpdateName(frame)
 	end
 	frame.name:SetText(unitName)
 
-	local r, g, b = addon:GetColorSetting(addon.db.profile.name.color, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.name, 'color', frame.unit)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
 end
 
 local afkTimes, afkTimers = {}, {}
 function addon.UpdateStatusText(frame, arg1)
 	frame = arg1 or frame -- AceTimer calls with addon as first argument
+	if not addon.db.profile.unitframe.enableAFKTimers then return end
 
 	local unit = frame.displayedUnit or frame.unit
 	if unit and UnitIsAFK(unit) then

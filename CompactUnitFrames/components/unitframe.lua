@@ -24,14 +24,14 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	-- borders (horizTopBorder, horizBottomBorder, verLeftBorder, vertRightBorder, horizDivider: texture, height/width, position)
 
 	-- frame size, background (texture, coords)
-	local r, g, b = addon:GetColorSetting(addon.db.profile.unitframe.bgcolor, frame.unit)
+	local r, g, b = addon:GetColorSetting(addon.db.profile.unitframe, 'bgcolor', frame.unit)
 	frame.background:SetVertexColor(r or 1, g or 1, b or 1)
 	frame.background:SetTexture(addon.db.profile.unitframe.bgtexture or healthBgTex)
 
 	-- healthBar (position, statusbartexture)
 	frame.healthBar:SetStatusBarTexture(addon.db.profile.health.texture or healthTex, 'BORDER')
 	if isFirstSetup then
-		local r, g, b = addon:GetColorSetting(addon.db.profile.health.bgcolor, frame.unit)
+		local r, g, b = addon:GetColorSetting(addon.db.profile.health, 'bgcolor', frame.unit)
 		frame.healthBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 		frame.healthBar.background:SetTexture(addon.db.profile.health.bgtexture or healthBgTex)
 	end
@@ -58,7 +58,7 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		frame.powerBar:SetStatusBarTexture(addon.db.profile.power.texture or powerTex, 'BORDER')
 		frame.powerBar.background:SetTexture(addon.db.profile.power.bgtexture or powerBgTex, 'BORDER')
 		if isFirstSetup then
-			local r, g, b = addon:GetColorSetting(addon.db.profile.power.bgcolor, frame.unit)
+			local r, g, b = addon:GetColorSetting(addon.db.profile.power, 'bgcolor', frame.unit)
 			frame.powerBar.background:SetVertexColor(r or 1, g or 1, b or 1)
 		end
 
@@ -84,7 +84,7 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		-- frame.roleIcon:SetPoint("TOPLEFT", frame.healthBar, 3, -2)
 
 		-- statusText (fontSize, position, height)
-		local r, g, b = addon:GetColorSetting(addon.db.profile.status.color, frame.unit)
+		local r, g, b = addon:GetColorSetting(addon.db.profile.status, 'color', frame.unit)
 		frame.statusText:SetVertexColor(r or 0.5, g or 0.5, b or 0.5, 1)
 		if addon.db.profile.status.font or addon.db.profile.status.fontSize or addon.db.profile.status.fontStyle then
 			local defaultFont, defaultSize, defaultStyle = frame.statusText:GetFont()
@@ -136,7 +136,7 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 		addon.EnableGPS(frame)--]]
 	end
 
-	if isFirstSetup and style == 'normal' then
+	if isFirstSetup and style == 'normal' and addon.db.profile.unitframe.enableAFKTimers then
 		local afkEvent = (frame.unit and UnitIsUnit(frame.unit, 'player')) and 'PLAYER_FLAGS_CHANGED' or 'UNIT_FLAGS'
 		frame:RegisterEvent(afkEvent)
 		frame:HookScript('OnEvent', function(self, event)
@@ -178,7 +178,7 @@ function addon:ShouldDisplayPowerBar(frame)
 	local powerType = UnitPowerType(unit)
 	local showType = addon.db.profile.power.types[powerType]
 	if showType == nil then
-		showType = addon.db.profile.power.showUnknown
+		showType = addon.db.profile.power.types[-1]
 	end
 
 	local unitRole = UnitGroupRolesAssigned(unit)

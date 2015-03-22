@@ -77,20 +77,21 @@ local roleColors = {
 	DAMAGER = {123/255, 10/255, 16/255},
 	HEALER  = { 26/255, 73/255, 53/255},
 }
-function addon:GetColorSetting(data, unit)
+function addon:GetColorSetting(scope, option, unit)
 	local r, g, b, a
-	if not data or data == '' or data == 'default' then
+	local colorType, color = scope[option..'Type'], scope[option]
+
+	if not colorType or colorType == '' or colorType == 'default' then
 		return nil
-	elseif data == 'role' and unit then
+	elseif colorType == 'custom' then
+		r, g, b, a = unpack(color)
+	elseif colorType == 'role' and unit then
 		local role = UnitGroupRolesAssigned(unit) -- select(10, GetRaidRosterInfo(UnitInRaid(unit)))
-		return roleColors[role]
-	elseif data == 'class' and unit then
+		r, g, b, a = unpack(roleColors[role])
+	elseif colorType == 'class' and unit then
 		r, g, b = addon:GetClassColor(unit)
-	else
-		r, g, b, a = strsplit(':', data)
-		r, g, b, a = tonumber(r or ''), tonumber(g or ''), tonumber(b or ''), tonumber(a or '')
 	end
-	return r, g, b, a or 1
+	return r, g, b, a
 end
 
 -- provides class or reaction color for a given unit

@@ -1,16 +1,6 @@
 local addonName, addon, _ = ...
 -- local L = addon.L
 
---[[ Attribute		Possible Values
-	-----------		----------------
-	colors			default, class, role, r.r:g.g:b.b
-	orientations	true:vertical, false/false:horizontal
-	text formats	shorten, cut
-	font style 		'MONOCHROME', 'OUTLINE', 'THICKOUTLINE'
-	justifyH		'LEFT', 'CENTER', 'RIGHT'
-	justifyV		'TOP', 'MIDDLE', 'BOTTOM'
-]]--
-
 local statusFont, statusSize = GameFontNormal:GetFont()
 local nameFont, nameSize = GameFontHighlightSmall:GetFont()
 
@@ -43,39 +33,51 @@ addon.defaults = {
 			spacingY = 0,
 
 			bgtexture = 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg',
-			bgcolor = '0:0:0:1',
+			bgcolor = {0, 0, 0, 1},
+			bgcolorType = 'custom',
 			roleIconSize = 12,
 			-- tooltip = true,
 			-- tooltipInCombat = false,
 			noMenuClickInCombat = false,
 			showSeparator = true,
 
+			enableAFKTimers = true,
 			enableGPS = true,
 			gpsOnHover = true,
 			gpsOutOfRange = true,
-			enableOverlay = true,
+			enableOverlay = true, -- CC icon etc.
 		},
 		health = {
 			vertical = false,
 			texture = 'Interface\\RaidFrame\\Raid-Bar-Hp-Fill',
 			bgtexture = 'Interface\\RaidFrame\\Raid-Bar-Hp-Bg',
-			color = '0.16:0.19:0.23',
-			bgcolor = '0.74:0.75:0.77',
-			flagsAsPvPColor = '0:0.6:0.1',
-			isEnemyColor = '0.8:0.3:0.22', -- was '0.64:0.07:0.07'
+			color = {.16, .19, .23},
+			colorType = 'custom',
+			bgcolor = {.74, .75, .77},
+			bgcolorType = 'custom',
+			flagsAsPvPColor = {0, .6, .1},
+			isEnemyColor = {.8, .3, .22}, -- was {.64, .07, .07}
 		},
 		power = {
 			vertical = false,
 			changePosition = false,	-- [vertical] true:left, false:right; [horizontal] true:top, false:bottom
 			texture = 'Interface\\RaidFrame\\Raid-Bar-Resource-Fill',
 			bgtexture = 'Interface\\RaidFrame\\Raid-Bar-Resource-Background',
-			color = 'default',
-			bgcolor = '0:0:0',
+			color = {1, 1, 1, 1},
+			colorType = 'default',
+			bgcolor = {0, 0, 0},
+			bgcolorType = 'custom',
 			size = 6,
 			showSelf = true,
 			-- showPets = false,
-			showUnknown = true,
+			roles = {
+				["NONE"] = true,
+				["DAMAGER"] = true,
+				["HEALER"] = true,
+				["TANK"] = true,
+			},
 			types = {
+				[-1] = true,
 				[SPELL_POWER_MANA] = true,
 				[SPELL_POWER_RAGE] = false,
 				[SPELL_POWER_FOCUS] = false,
@@ -86,18 +88,13 @@ addon.defaults = {
 				[SPELL_POWER_ECLIPSE] = true,
 				[SPELL_POWER_HOLY_POWER] = true,
 			},
-			roles = {
-				["NONE"] = true,
-				["DAMAGER"] = true,
-				["HEALER"] = true,
-				["TANK"] = true,
-			}
 		},
 		name = {
 			size = 10,
-			color = 'class', -- [TODO] what about pets?
+			color = {1, 1, 1, 1},
+			colorType = 'class', -- [TODO] what about pets?
 			format = 'cut',
-			serverFormat = 'short', -- [TODO] new! 'full':"player - realm", 'short':"player (*)", 'none':"player"
+			serverFormat = 'short',
 			serverPrefix = '',
 			serverSuffix = '*',	-- only applies when serverFormat is set to 'short'
 
@@ -108,7 +105,8 @@ addon.defaults = {
 		},
 		status = {
 			size = 7,
-			color = false,
+			color = {1, 1, 1, 1},
+			colorType = 'default',
 			format = 'shorten',
 			afkFormat = '|TInterface\\FriendsFrame\\StatusIcon-Away:0|t%d:%02d', -- vertical ellipsis: ⋮
 
@@ -142,8 +140,8 @@ addon.defaults = {
 
 			center = {
 				size = 10,
-				posX = false,
-				posY = false,
+				posX = 0,
+				posY = 0,
 				-- alpha = 1,
 				-- borderColor = false,
 			},
