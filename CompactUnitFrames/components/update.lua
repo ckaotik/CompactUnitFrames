@@ -64,7 +64,7 @@ function addon.UpdateName(frame)
 
 	-- FIXME: use GetTextWidth() instead of fixed length
 	local unitName, server = UnitFullName(frame.unit)
-	local nameLength = addon.db.profile.name.size
+	local nameLength = addon.db.profile.name.length
 	if addon.db.profile.name.format == 'shorten' then
 		unitName = addon:ShortenString(unitName, nameLength or 10)
 	elseif addon.db.profile.name.format == 'cut' then

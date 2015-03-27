@@ -90,7 +90,7 @@ addon.defaults = {
 			},
 		},
 		name = {
-			size = 10,
+			length = 10,
 			color = {1, 1, 1, 1},
 			colorType = 'class', -- [TODO] what about pets?
 			format = 'cut',
