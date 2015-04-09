@@ -63,6 +63,7 @@ local function OpenConfiguration(self, args)
 		show = 'values',
 		roles = 'multiselect',
 		types = 'multiselect',
+		length = 'unsigned',
 	}
 	types.bgtexture = types.texture
 	types.bgcolorType = types.colorType
