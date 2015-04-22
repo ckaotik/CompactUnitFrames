@@ -62,15 +62,7 @@ end
 function addon.UpdateName(frame)
 	if not frame or type(frame) ~= "table" then return end
 
-	-- FIXME: use GetTextWidth() instead of fixed length
 	local unitName, server = UnitFullName(frame.unit)
-	local nameLength = addon.db.profile.name.length
-	if addon.db.profile.name.format == 'shorten' then
-		unitName = addon:ShortenString(unitName, nameLength or 10)
-	elseif addon.db.profile.name.format == 'cut' then
-		unitName = addon.utf8sub(unitName, 1, nameLength or 10)
-	end
-
 	if server and server ~= '' and server ~= addon.playerRealm then
 		if addon.db.profile.name.serverFormat == 'full' then
 			unitName = unitName .. "-" .. server
@@ -81,6 +73,17 @@ function addon.UpdateName(frame)
 		end
 	end
 	frame.name:SetText(unitName)
+
+	if frame.name:IsTruncated() then
+		-- FIXME: use GetTextWidth() instead
+		local nameLength = addon.db.profile.name.length
+		if addon.db.profile.name.format == 'shorten' then
+			unitName = addon:ShortenString(unitName, nameLength or 10)
+		elseif addon.db.profile.name.format == 'cut' then
+			unitName = addon.utf8sub(unitName, 1, nameLength or 10)
+		end
+		frame.name:SetText(unitName)
+	end
 
 	local r, g, b = addon:GetColorSetting(addon.db.profile.name, 'color', frame.unit)
 	frame.name:SetVertexColor(r or 1, g or 1, b or 1, 1)
