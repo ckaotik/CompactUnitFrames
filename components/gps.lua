@@ -64,6 +64,12 @@ local function GetDistance(unit1, unit2)
 
 	local x1, y1 = GetPlayerMapPosition(unit1)
 	local x2, y2 = GetPlayerMapPosition(unit2)
+	if not x2 then
+		-- Patch 7.1 removed this API in instances.
+		-- TODO: Create a workaround using WorldMap?
+		return nil
+	end
+
 	if (x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0) then return nil end
 	local dx, dy = x2 - x1, y2 - y1
 
