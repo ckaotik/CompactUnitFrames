@@ -107,6 +107,9 @@ function addon.UpdateStatusText(frame, arg1)
 	elseif afkTimes[frame] then
 		afkTimes[frame]  = nil
 		afkTimers[frame] = addon:CancelTimer(afkTimers[frame])
+		-- Restore non-afk text. This will again trigger UpdateStatusText().
+		CompactUnitFrame_UpdateStatusText(frame)
+		return
 	end
 
 	local setting = frame.optionTable.healthText

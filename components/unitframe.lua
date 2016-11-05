@@ -139,9 +139,14 @@ function addon.SetupCompactUnitFrame(frame, style, isFirstSetup)
 	if isFirstSetup and style == 'normal' and addon.db.profile.unitframe.enableAFKTimers then
 		local afkEvent = (frame.unit and UnitIsUnit(frame.unit, 'player')) and 'PLAYER_FLAGS_CHANGED' or 'UNIT_FLAGS'
 		frame:RegisterEvent(afkEvent)
-		frame:HookScript('OnEvent', function(self, event)
+		frame:HookScript('OnEvent', function(self, event, ...)
 			-- update status text for afk timer
-			if event == afkEvent then addon.UpdateStatusText(frame) end
+			if event == afkEvent then
+				local unit = ...
+				if self.displayedUnit == unit or self.unit == unit then
+					addon.UpdateStatusText(self)
+				end
+			end
 		end)
 	end
 
