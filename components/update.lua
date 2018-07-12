@@ -5,7 +5,7 @@ local addonName, addon, _ = ...
 -- GLOBALS: hooksecurefunc, pairs, type, floor, ipairs, math
 
 function addon.UpdateHealthColor(frame)
-	if not frame or type(frame) ~= "table" then return end
+	if not frame or type(frame) ~= "table" or frame.healthBar:IsForbidden() then return end
 	if addon.db.profile.indicators.showDispellHealth and (frame.hasDispelMagic or frame.hasDispelCurse or frame.hasDispelDisease or frame.hasDispelPoison) then
 		return
 	end
@@ -47,7 +47,9 @@ function addon.UpdatePowerColor(frame)
 		-- apply powerSize as-is
 	end
 	-- local padding = addon.db.profile.unitframe.innerPadding
-	frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
+	if not frame.healthBar:IsForbidden() then
+		frame.healthBar:SetPoint('BOTTOMRIGHT', -1, 1 + powerSize) -- 1px padding to frame edge
+	end
 
 	local r, g, b = addon:GetColorSetting(addon.db.profile.power, 'color', frame.unit)
 	if frame.powerBar and r and (not unit or UnitIsConnected(unit)) then
@@ -60,7 +62,7 @@ function addon.UpdatePowerColor(frame)
 end
 
 function addon.UpdateName(frame)
-	if not frame or type(frame) ~= "table" then return end
+	if not frame or type(frame) ~= "table" or frame.name:IsForbidden() then return end
 
 	local unitName, server = UnitFullName(frame.unit)
 	if server and server ~= '' and server ~= addon.playerRealm then
