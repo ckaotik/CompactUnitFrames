@@ -2,7 +2,7 @@ local addonName, addon, _ = ...
 local plugin = {}
 addon.GPS = plugin
 
--- GLOBALS: CreateFrame, UnitIsPlayer, UnitExists, UnitInRange, UnitIsConnected, UnitIsUnit, UnitInParty, UnitInRaid, GetPlayerMapPosition, GetPlayerFacing, GetMouseFocus
+-- GLOBALS: CreateFrame, UnitIsPlayer, UnitExists, UnitInRange, UnitIsConnected, UnitIsUnit, UnitInParty, UnitInRaid, GetPlayerFacing, GetMouseFocus, C_Map
 local tinsert, tremove = table.insert, table.remove
 
 -- thanks, Torhal! http://www.wowinterface.com/forums/showpost.php?p=166983&postcount=14
@@ -62,8 +62,8 @@ local function GetDistance(unit1, unit2)
 		return nil
 	end
 
-	local x1, y1 = GetPlayerMapPosition(unit1)
-	local x2, y2 = GetPlayerMapPosition(unit2)
+	local x1, y1 = C_Map.GetPlayerMapPosition(unit1)
+	local x2, y2 = C_Map.GetPlayerMapPosition(unit2)
 	if not x2 then
 		-- Patch 7.1 removed this API in instances.
 		-- TODO: Create a workaround using WorldMap?

@@ -2,8 +2,8 @@
 ## Author: ckaotik
 ## OptionalDeps: AceGUI-3.0-SharedMediaWidgets
 
-## Version: 1.0
-## Interface: 70000
+## Version: 8.0v1
+## Interface: 80000
 ## Notes: Customized Blizzard's compact unit frame styles
 ## Notes-deDE: Anpassungen für Blizzards kompakte Unit-Frames
 
