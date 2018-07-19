@@ -4,15 +4,15 @@ local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 local function GetConfigurationVariables()
 	local powerTypes = {
 		[-1] = _G.UNKNOWN,
-		[SPELL_POWER_MANA] = _G.MANA,
-		[SPELL_POWER_RAGE] = _G.RAGE,
-		[SPELL_POWER_FOCUS] = _G.FOCUS,
-		[SPELL_POWER_ENERGY] = _G.ENERGY,
-		[SPELL_POWER_RUNES] = _G.RUNES,
-		[SPELL_POWER_RUNIC_POWER] = _G.RUNIC_POWER,
-		[SPELL_POWER_SOUL_SHARDS] = _G.SOUL_SHARDS,
-		[SPELL_POWER_HOLY_POWER] = _G.HOLY_POWER,
-		[SPELL_POWER_MAELSTROM] = _G.MAELSTROM,
+		[Enum.PowerType.Mana] = _G.MANA,
+		[Enum.PowerType.Rage] = _G.RAGE,
+		[Enum.PowerType.Focus] = _G.FOCUS,
+		[Enum.PowerType.Energy] = _G.ENERGY,
+		[Enum.PowerType.Runes] = _G.RUNES,
+		[Enum.PowerType.RunicPower] = _G.RUNIC_POWER,
+		[Enum.PowerType.SoulShards] = _G.SOUL_SHARDS,
+		[Enum.PowerType.HolyPower] = _G.HOLY_POWER,
+		[Enum.PowerType.Maelstrom] = _G.MAELSTROM,
 	}
 	local function GetTypeLabel(key, value)
 		local color = _G.HIGHLIGHT_FONT_COLOR -- addon.db.profile.power.colors[key]
